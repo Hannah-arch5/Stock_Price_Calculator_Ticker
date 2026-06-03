@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock Price Calculator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="drag-bar"></div>
+    <div class="app-container">
+        <header class="app-header">
+            <div class="header-left">
+                <h1>Stock Price Calculator</h1>
+                <p>Calculate price movements</p>
+            </div>
+            <div class="header-right">
+                <div class="currency-selector">
+                    <input type="radio" id="currency-cny" name="currency" value="CNY" checked>
+                    <label for="currency-cny" class="currency-btn">CNY (¥)</label>
+                    
+                    <input type="radio" id="currency-usd" name="currency" value="USD">
+                    <label for="currency-usd" class="currency-btn">USD ($)</label>
+                </div>
+            </div>
+        </header>
+
+        <main class="grid-layout">
+            <!-- Mode 1: Calculate Target Price -->
+            <section class="card target-price-card">
+                <div class="card-header">
+                    <h2>Target Price Calculator</h2>
+                    <button class="clear-btn" id="clear-target-btn">Clear</button>
+                </div>
+                
+                <div class="input-group">
+                    <label for="stock-symbol-1">Stock Symbol (Optional)</label>
+                    <input type="text" id="stock-symbol-1" placeholder="e.g. AAPL">
+                </div>
+
+                <div class="input-group">
+                    <label for="base-price">Base Price</label>
+                    <div class="input-wrapper">
+                        <span class="currency-symbol">¥</span>
+                        <input type="number" id="base-price" placeholder="e.g. 150.00" step="0.01">
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>Movement Direction</label>
+                    <div class="toggle-group">
+                        <input type="radio" id="move-up" name="movement" value="up" checked>
+                        <label for="move-up" class="toggle-btn up">Up Rise</label>
+                        
+                        <input type="radio" id="move-down" name="movement" value="down">
+                        <label for="move-down" class="toggle-btn down">Down Fall</label>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label for="percentage-change">Percentage Change (%)</label>
+                    <div class="input-wrapper">
+                        <span class="percent-symbol">%</span>
+                        <input type="number" id="percentage-change" placeholder="e.g. 5" step="0.01">
+                    </div>
+                </div>
+
+                <div class="result-area">
+                    <p class="result-label">Calculated Target Price</p>
+                    <p class="result-value" id="target-result"><span class="currency-symbol">¥</span>0.00</p>
+                    <p class="result-movement" style="visibility: hidden;">-</p>
+                    <button class="save-btn" id="save-target-btn">Save to History</button>
+                </div>
+            </section>
+
+            <!-- Mode 2: Calculate Percentage -->
+            <section class="card percentage-card">
+                <div class="card-header">
+                    <h2>Percentage Change Calculator</h2>
+                    <button class="clear-btn" id="clear-percentage-btn">Clear</button>
+                </div>
+                
+                <div class="input-group">
+                    <label for="stock-symbol-2">Stock Symbol (Optional)</label>
+                    <input type="text" id="stock-symbol-2" placeholder="e.g. TSLA">
+                </div>
+
+                <div class="input-group">
+                    <label for="initial-price">Initial Price (Base)</label>
+                    <div class="input-wrapper">
+                        <span class="currency-symbol">¥</span>
+                        <input type="number" id="initial-price" placeholder="e.g. 100.00" step="0.01">
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label for="final-price">Final Price (Target)</label>
+                    <div class="input-wrapper">
+                        <span class="currency-symbol">¥</span>
+                        <input type="number" id="final-price" placeholder="e.g. 120.00" step="0.01">
+                    </div>
+                </div>
+
+                <!-- Invisible spacer to match the height of 'Movement Direction' on the left -->
+                <div class="input-group" style="visibility: hidden;">
+                    <label>Spacer</label>
+                    <div class="toggle-group">
+                        <div class="toggle-btn">Spacer</div>
+                    </div>
+                </div>
+
+                <div class="result-area">
+                    <p class="result-label">Calculated Percentage Change</p>
+                    <p class="result-value" id="percentage-result">0.00%</p>
+                    <p class="result-movement" id="percentage-movement-type">-</p>
+                    <button class="save-btn" id="save-percentage-btn">Save to History</button>
+                </div>
+            </section>
+        </main>
+
+        <section class="history-section">
+            <div class="history-header">
+                <h2>Calculation History</h2>
+            </div>
+            <div class="history-list" id="history-list">
+                <!-- History items will be inserted here -->
+            </div>
+        </section>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

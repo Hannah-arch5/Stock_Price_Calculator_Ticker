@@ -1,0 +1,421 @@
+:root {
+    --bg-light: #f4f4f5;
+    --card-bg: #ffffff;
+    --border-color: #e4e4e7;
+    --text-main: #18181b;
+    --text-muted: #71717a;
+    --primary: #2563eb;
+    --up-color: #059669;
+    --up-bg: #d1fae5;
+    --down-color: #dc2626;
+    --down-bg: #fee2e2;
+    --input-bg: #fafafa;
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background-color: var(--bg-light);
+    color: var(--text-main);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    padding: 0.75rem; /* Scaled down */
+    font-size: 13px; /* Scaled down base font size */
+    -webkit-app-region: drag; /* Make empty space draggable */
+}
+
+/* Dedicated Drag Bar */
+.drag-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 40px; /* Increased height for better dragging at the very top */
+    -webkit-app-region: drag;
+    z-index: 1000;
+}
+
+/* App Container */
+.app-container {
+    width: 100%;
+    max-width: 800px;
+    display: flex;
+    flex-direction: column;
+    margin-top: 25px; /* Increased space for Mac traffic lights */
+    -webkit-app-region: no-drag;
+}
+
+/* Header */
+.app-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem; /* Scaled down */
+    position: relative;
+    z-index: 1001;
+    -webkit-app-region: drag; /* Make header text area draggable */
+}
+
+.header-left h1 {
+    font-size: 1.15rem; /* Scaled down */
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: 0.15rem;
+}
+
+.header-left p {
+    color: var(--text-muted);
+    font-size: 0.8rem;
+}
+
+/* Currency Selector */
+.currency-selector {
+    display: flex;
+    background: var(--input-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 0.15rem;
+    -webkit-app-region: no-drag; /* Buttons must be clickable */
+}
+
+.currency-selector input[type="radio"] {
+    display: none;
+}
+
+.currency-btn {
+    padding: 0.35rem 0.75rem; /* Scaled down */
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.currency-selector input[type="radio"]:checked + .currency-btn {
+    background: #ffffff;
+    color: var(--text-main);
+    box-shadow: var(--shadow-sm);
+}
+
+/* Grid Layout */
+.grid-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem; /* Scaled down */
+    align-items: stretch;
+}
+
+/* Cards */
+.card {
+    background: var(--card-bg);
+    border-radius: 12px; /* Scaled down */
+    padding: 1rem; /* Scaled down */
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    flex-direction: column;
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem; /* Scaled down */
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 0.5rem;
+    gap: 0.5rem;
+}
+
+.card h2 {
+    font-size: 0.8rem; /* Scaled down further to avoid overlap */
+    font-weight: 600;
+    color: var(--text-main);
+    line-height: 1.2;
+}
+
+.clear-btn {
+    background: transparent;
+    border: none;
+    font-size: 0.75rem; /* Scaled down */
+    color: var(--text-muted);
+    cursor: pointer;
+    font-weight: 500;
+    transition: color 0.2s;
+    flex-shrink: 0; /* Prevent squishing */
+}
+
+.clear-btn:hover {
+    color: var(--down-color);
+}
+
+/* Inputs */
+.input-group {
+    margin-bottom: 0.65rem; /* Scaled down */
+}
+
+.input-group label {
+    display: block;
+    margin-bottom: 0.25rem;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+.input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.currency-symbol, .percent-symbol {
+    position: absolute;
+    left: 0.5rem; /* Scaled down */
+    color: var(--text-muted);
+    font-weight: 500;
+    font-size: 0.8rem;
+    pointer-events: none;
+}
+
+.percent-symbol {
+    left: auto;
+    right: 0.5rem;
+}
+
+input[type="number"], input[type="text"] {
+    width: 100%;
+    padding: 0.4rem 0.5rem; /* Scaled down */
+    background: var(--input-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    color: var(--text-main);
+    font-size: 0.85rem; /* Scaled down */
+    font-family: inherit;
+    outline: none;
+    transition: all 0.2s ease;
+}
+
+input[type="number"] {
+    padding-left: 1.5rem; /* Scaled down */
+}
+
+#percentage-change {
+    padding-right: 1.5rem;
+    padding-left: 0.5rem;
+}
+
+input[type="number"]:focus, input[type="text"]:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+    background: #ffffff;
+}
+
+/* Toggles */
+.toggle-group {
+    display: flex;
+    gap: 0.35rem; /* Scaled down */
+}
+
+.toggle-group input[type="radio"] {
+    display: none;
+}
+
+.toggle-btn {
+    flex: 1;
+    text-align: center;
+    padding: 0.4rem; /* Scaled down */
+    border-radius: 6px;
+    background: var(--input-bg);
+    border: 1px solid var(--border-color);
+    cursor: pointer;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    transition: all 0.2s ease;
+}
+
+#move-up:checked + .toggle-btn {
+    background: var(--up-bg);
+    border-color: var(--up-color);
+    color: var(--up-color);
+}
+
+#move-down:checked + .toggle-btn {
+    background: var(--down-bg);
+    border-color: var(--down-color);
+    color: var(--down-color);
+}
+
+/* Results Area */
+.result-area {
+    margin-top: auto; /* Push to bottom */
+    padding: 0.75rem; /* Scaled down */
+    background: var(--input-bg);
+    border-radius: 8px;
+    text-align: center;
+    border: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+/* Ensure both labels have the exact same height even if one wraps */
+.result-label {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-bottom: 0.25rem;
+    min-height: 2.2em; /* 2 lines worth of height */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1.1;
+}
+
+.result-value {
+    font-size: 1.5rem; /* Scaled down */
+    font-weight: 700;
+    color: var(--text-main);
+    word-break: break-all;
+}
+
+.result-value .currency-symbol {
+    position: static;
+    font-size: 1rem;
+    margin-right: 2px;
+    color: inherit;
+}
+
+/* Ensure movement text takes up exactly one line of space */
+.result-movement {
+    margin-top: 0.15rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    min-height: 1.2em;
+}
+
+.text-up { color: var(--up-color) !important; }
+.text-down { color: var(--down-color) !important; }
+
+/* Save Button */
+.save-btn {
+    margin-top: 0.25rem;
+    padding: 0.4rem 0.75rem; /* Scaled down */
+    background: #ffffff;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-main);
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: var(--shadow-sm);
+    width: 100%;
+}
+
+.save-btn:hover {
+    background: #f4f4f5;
+}
+
+/* History Section */
+.history-section {
+    margin-top: 0.75rem; /* Scaled down */
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 1rem;
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-sm);
+    flex: 1; /* Allow it to stretch */
+    display: flex;
+    flex-direction: column;
+}
+
+.history-header h2 {
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: var(--text-main);
+}
+
+.history-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.history-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.6rem;
+    background: var(--input-bg);
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+}
+
+.history-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+}
+
+.history-title {
+    font-weight: 600;
+    font-size: 0.8rem;
+    color: var(--text-main);
+}
+
+.stock-link {
+    color: var(--primary);
+    text-decoration: none;
+    font-weight: 700;
+}
+
+.stock-link:hover {
+    text-decoration: underline;
+}
+
+.history-details {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+.history-result {
+    font-size: 0.9rem;
+    font-weight: 700;
+}
+
+.delete-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 0.35rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.delete-btn:hover {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+.empty-history {
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    padding: 1rem 0;
+}
