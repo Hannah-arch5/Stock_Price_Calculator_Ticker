@@ -1,6 +1,12 @@
 // Global state
 let currentCurrency = '¥';
 let historyRecords = JSON.parse(localStorage.getItem('calcHistory')) || [];
+let historyVersion = localStorage.getItem('calcHistoryVersion');
+
+if (!historyVersion) {
+    historyRecords.reverse();
+    localStorage.setItem('calcHistoryVersion', '2');
+}
 
 // DOM Elements
 const historyListEl = document.getElementById('history-list');
@@ -10,6 +16,7 @@ const currencySymbols = document.querySelectorAll('.currency-symbol');
 // Persistence Logic
 function saveState() {
     localStorage.setItem('calcHistory', JSON.stringify(historyRecords));
+    localStorage.setItem('calcHistoryVersion', '2');
     localStorage.setItem('calcInputs', JSON.stringify({
         currency: currentCurrency,
         stock1: stockSymbol1Input.value,
@@ -220,12 +227,11 @@ function renderHistory() {
 
     historyListEl.innerHTML = '';
     
-    // Render in reverse chronological order (newest first)
-    [...historyRecords].reverse().forEach((record, index) => {
-        const trueIndex = historyRecords.length - 1 - index;
-        
+    historyRecords.forEach((record, index) => {
         const item = document.createElement('div');
         item.className = 'history-item';
+        item.draggable = true;
+        item.dataset.index = index;
         
         let stockHtml = record.symbol 
             ? `<a href="https://www.tradingview.com/chart/?symbol=${encodeURIComponent(record.symbol)}" class="stock-link" target="_blank">${record.symbol}</a> - ` 
@@ -245,7 +251,7 @@ function renderHistory() {
             <div class="history-result ${resultClass}">
                 ${record.result}
             </div>
-            <button class="delete-btn" title="Delete" onclick="deleteHistory(${trueIndex})">
+            <button class="delete-btn" title="Delete" onclick="deleteHistory(${index})">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M3 6h18"></path>
                     <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
@@ -254,8 +260,64 @@ function renderHistory() {
             </button>
         `;
         
+        item.addEventListener('dragstart', (e) => {
+            item.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+        });
+
+        item.addEventListener('dragend', () => {
+            item.classList.remove('dragging');
+            updateArrayFromDOM();
+            saveState();
+            renderHistory();
+        });
+
+        item.addEventListener('click', (e) => {
+            if (e.target.closest('.delete-btn') || e.target.closest('.stock-link')) {
+                return;
+            }
+            populateForm(record);
+        });
+        
         historyListEl.appendChild(item);
     });
+}
+
+historyListEl.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    const draggingItem = historyListEl.querySelector('.dragging');
+    if (!draggingItem) return;
+    
+    const afterElement = getDragAfterElement(historyListEl, e.clientY);
+    if (afterElement == null) {
+        historyListEl.appendChild(draggingItem);
+    } else {
+        historyListEl.insertBefore(draggingItem, afterElement);
+    }
+});
+
+function getDragAfterElement(container, y) {
+    const draggableElements = [...container.querySelectorAll('.history-item:not(.dragging)')];
+
+    return draggableElements.reduce((closest, child) => {
+        const box = child.getBoundingClientRect();
+        const offset = y - box.top - box.height / 2;
+        if (offset < 0 && offset > closest.offset) {
+            return { offset: offset, element: child };
+        } else {
+            return closest;
+        }
+    }, { offset: Number.NEGATIVE_INFINITY }).element;
+}
+
+function updateArrayFromDOM() {
+    const items = [...historyListEl.querySelectorAll('.history-item')];
+    const newHistory = [];
+    items.forEach(item => {
+        const originalIndex = parseInt(item.dataset.index, 10);
+        newHistory.push(historyRecords[originalIndex]);
+    });
+    historyRecords = newHistory;
 }
 
 window.deleteHistory = function(index) {
@@ -269,12 +331,13 @@ saveTargetBtn.addEventListener('click', () => {
     const perc = parseFloat(percentageChangeInput.value);
     if (isNaN(base) || isNaN(perc)) return;
 
-    historyRecords.push({
+    historyRecords.unshift({
         type: 'Target Price',
         symbol: stockSymbol1Input.value.trim().toUpperCase(),
         details: `Base: ${currentCurrency}${base} | ${currentTargetIsUp ? 'Up' : 'Down'} ${perc}%`,
         result: `${currentCurrency}${formatCurrency(currentTargetPrice)}`,
-        isUp: currentTargetIsUp
+        isUp: currentTargetIsUp,
+        inputs: { base, perc, isUp: currentTargetIsUp }
     });
     saveState();
     renderHistory();
@@ -285,16 +348,49 @@ savePercentageBtn.addEventListener('click', () => {
     const final = parseFloat(finalPriceInput.value);
     if (isNaN(initial) || isNaN(final) || initial === 0) return;
 
-    historyRecords.push({
+    historyRecords.unshift({
         type: 'Percentage Change',
         symbol: stockSymbol2Input.value.trim().toUpperCase(),
         details: `Base: ${currentCurrency}${initial} | Target: ${currentCurrency}${final}`,
         result: `${Math.abs(currentPercentage).toFixed(2)}%`,
-        isUp: currentPercentage > 0
+        isUp: currentPercentage > 0,
+        inputs: { initial, final }
     });
     saveState();
     renderHistory();
 });
+
+function populateForm(record) {
+    if (record.type === 'Target Price') {
+        stockSymbol1Input.value = record.symbol || '';
+        if (record.inputs) {
+            basePriceInput.value = record.inputs.base;
+            percentageChangeInput.value = record.inputs.perc;
+            document.getElementById(record.inputs.isUp ? 'move-up' : 'move-down').checked = true;
+        } else {
+            const baseMatch = record.details.match(/Base:\s*.\s*([\d.]+)/);
+            const percMatch = record.details.match(/(Up|Down)\s+([\d.]+)%/);
+            if (baseMatch) basePriceInput.value = baseMatch[1];
+            if (percMatch) {
+                document.getElementById(percMatch[1] === 'Up' ? 'move-up' : 'move-down').checked = true;
+                percentageChangeInput.value = percMatch[2];
+            }
+        }
+        handleInput();
+    } else if (record.type === 'Percentage Change') {
+        stockSymbol2Input.value = record.symbol || '';
+        if (record.inputs) {
+            initialPriceInput.value = record.inputs.initial;
+            finalPriceInput.value = record.inputs.final;
+        } else {
+            const initialMatch = record.details.match(/Base:\s*.\s*([\d.]+)/);
+            const finalMatch = record.details.match(/Target:\s*.\s*([\d.]+)/);
+            if (initialMatch) initialPriceInput.value = initialMatch[1];
+            if (finalMatch) finalPriceInput.value = finalMatch[1];
+        }
+        handleInput();
+    }
+}
 
 // Initial Setup
 loadState();

@@ -361,12 +361,29 @@ input[type="number"]:focus, input[type="text"]:focus {
     background: var(--input-bg);
     border-radius: 6px;
     border: 1px solid var(--border-color);
+    cursor: default;
+    transition: box-shadow 0.2s, background 0.2s, transform 0.2s;
+}
+
+.history-item:hover {
+    background: #ffffff;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.history-item.dragging {
+    opacity: 0.5;
+    background: #ffffff;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    border-color: var(--primary);
+    transform: scale(1.02);
 }
 
 .history-info {
     display: flex;
     flex-direction: column;
     gap: 0.15rem;
+    flex: 1;
+    min-width: 0;
 }
 
 .history-title {
@@ -393,6 +410,9 @@ input[type="number"]:focus, input[type="text"]:focus {
 .history-result {
     font-size: 0.9rem;
     font-weight: 700;
+    text-align: right;
+    min-width: 80px;
+    margin-right: 0.75rem;
 }
 
 .delete-btn {
