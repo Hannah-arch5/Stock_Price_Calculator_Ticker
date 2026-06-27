@@ -19,25 +19,27 @@
     padding: 0;
 }
 
+html, body {
+    height: 100vh;
+    overflow: hidden;
+}
+
 body {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     background-color: var(--bg-light);
     color: var(--text-main);
-    min-height: 100vh;
     display: flex;
-    justify-content: center;
-    padding: 0.75rem; /* Scaled down */
+    flex-direction: column;
+    align-items: center;
+    padding: 0;
     font-size: 13px; /* Scaled down base font size */
     -webkit-app-region: drag; /* Make empty space draggable */
 }
 
 /* Dedicated Drag Bar */
 .drag-bar {
-    position: fixed;
-    top: 0;
-    left: 0;
     width: 100%;
-    height: 30px;
+    flex: 0 0 35px; /* Increased to ensure enough space for Mac traffic lights */
     -webkit-app-region: drag;
     z-index: 1000;
 }
@@ -46,9 +48,11 @@ body {
 .app-container {
     width: 100%;
     max-width: 800px;
+    flex: 1;
+    overflow-y: auto;
     display: flex;
     flex-direction: column;
-    margin-top: 25px; /* Increased space for Mac traffic lights */
+    padding: 0 0.75rem 0.75rem 0.75rem;
     -webkit-app-region: no-drag;
 }
 
