@@ -106,9 +106,50 @@ const percentageChangeInput = document.getElementById('percentage-change');
 const targetResultEl = document.getElementById('target-result');
 const saveTargetBtn = document.getElementById('save-target-btn');
 const clearTargetBtn = document.getElementById('clear-target-btn');
+const reuseTargetBtn = document.getElementById('reuse-target-btn');
+const reuseBaseBtn = document.getElementById('reuse-base-btn');
 
+// Target Price State
 let currentTargetPrice = 0;
 let currentTargetIsUp = true;
+
+// Event Listeners for Target Price Calculator
+reuseBaseBtn.addEventListener('click', () => {
+    const currentBase = parseFloat(basePriceInput.value);
+    const percentage = parseFloat(percentageChangeInput.value);
+    
+    if (!isNaN(currentBase) && currentBase > 0) {
+        if (!isNaN(percentage)) {
+            // Determine movement direction
+            let isUp = true;
+            for (const radio of movementRadios) {
+                if (radio.checked && radio.value === 'down') {
+                    isUp = false;
+                    break;
+                }
+            }
+
+            let newBase = currentBase;
+            if (isUp) {
+                newBase = currentBase / (1 + percentage / 100);
+            } else {
+                if (percentage !== 100) {
+                    newBase = currentBase / (1 - percentage / 100);
+                }
+            }
+            basePriceInput.value = formatCurrency(newBase);
+        }
+        // If percentage is NaN or 100% down, we just do handleInput
+        handleInput();
+    }
+});
+
+reuseTargetBtn.addEventListener('click', () => {
+    if (currentTargetPrice > 0) {
+        basePriceInput.value = formatCurrency(currentTargetPrice);
+        handleInput();
+    }
+});
 
 function calculateTargetPrice() {
     const basePrice = parseFloat(basePriceInput.value);
@@ -151,8 +192,42 @@ const percentageResultEl = document.getElementById('percentage-result');
 const percentageMovementTypeEl = document.getElementById('percentage-movement-type');
 const savePercentageBtn = document.getElementById('save-percentage-btn');
 const clearPercentageBtn = document.getElementById('clear-percentage-btn');
+const reuseInitialBtn = document.getElementById('reuse-initial-btn');
+const reuseFinalBtn = document.getElementById('reuse-final-btn');
 
 let currentPercentage = 0;
+
+// Event Listeners for Percentage Change Calculator
+reuseInitialBtn.addEventListener('click', () => {
+    const initialVal = parseFloat(initialPriceInput.value);
+    const finalVal = parseFloat(finalPriceInput.value);
+    if (!isNaN(initialVal) && initialVal > 0 && !isNaN(finalVal)) {
+        const pctDecimal = (finalVal - initialVal) / initialVal;
+        if (pctDecimal === -1) return; // prevent division by zero
+        
+        const newFinal = initialVal;
+        const newInitial = newFinal / (1 + pctDecimal);
+        
+        initialPriceInput.value = formatCurrency(newInitial);
+        finalPriceInput.value = formatCurrency(newFinal);
+        handleInput();
+    }
+});
+
+reuseFinalBtn.addEventListener('click', () => {
+    const initialVal = parseFloat(initialPriceInput.value);
+    const finalVal = parseFloat(finalPriceInput.value);
+    if (!isNaN(initialVal) && initialVal > 0 && !isNaN(finalVal) && finalVal > 0) {
+        const pctDecimal = (finalVal - initialVal) / initialVal;
+        
+        const newInitial = finalVal;
+        const newFinal = newInitial * (1 + pctDecimal);
+        
+        initialPriceInput.value = formatCurrency(newInitial);
+        finalPriceInput.value = formatCurrency(newFinal);
+        handleInput();
+    }
+});
 
 function calculatePercentage() {
     const initialPrice = parseFloat(initialPriceInput.value);
@@ -209,6 +284,13 @@ clearTargetBtn.addEventListener('click', () => {
     percentageChangeInput.value = '';
     document.getElementById('move-up').checked = true;
     handleInput();
+});
+
+reuseTargetBtn.addEventListener('click', () => {
+    if (currentTargetPrice > 0) {
+        basePriceInput.value = formatCurrency(currentTargetPrice);
+        handleInput();
+    }
 });
 
 clearPercentageBtn.addEventListener('click', () => {
@@ -396,3 +478,10 @@ function populateForm(record) {
 loadState();
 updateCurrency();
 renderHistory();
+
+// Auto-select text in input fields on focus
+document.querySelectorAll('input[type="number"], input[type="text"]').forEach(input => {
+    input.addEventListener('focus', function() {
+        this.select();
+    });
+});

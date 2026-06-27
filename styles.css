@@ -271,8 +271,6 @@ input[type="number"]:focus, input[type="text"]:focus {
 .result-label {
     font-size: 0.75rem;
     color: var(--text-muted);
-    margin-bottom: 0.25rem;
-    min-height: 2.2em; /* 2 lines worth of height */
     display: flex;
     align-items: center;
     justify-content: center;
@@ -304,6 +302,35 @@ input[type="number"]:focus, input[type="text"]:focus {
 
 .text-up { color: var(--up-color) !important; }
 .text-down { color: var(--down-color) !important; }
+
+.result-label-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    width: 100%;
+    margin-bottom: 0.25rem;
+    min-height: 2.2em; /* 2 lines worth of height */
+}
+
+.icon-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 0.2rem;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    flex-shrink: 0;
+}
+
+.icon-btn:hover {
+    background: var(--border-color);
+    color: var(--text-main);
+}
 
 /* Save Button */
 .save-btn {
