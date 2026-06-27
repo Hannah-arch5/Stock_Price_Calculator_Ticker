@@ -194,10 +194,22 @@ const savePercentageBtn = document.getElementById('save-percentage-btn');
 const clearPercentageBtn = document.getElementById('clear-percentage-btn');
 const reuseInitialBtn = document.getElementById('reuse-initial-btn');
 const reuseFinalBtn = document.getElementById('reuse-final-btn');
+const reuseCalcPercBtn = document.getElementById('reuse-calc-perc-btn');
 
 let currentPercentage = 0;
 
 // Event Listeners for Percentage Change Calculator
+reuseCalcPercBtn.addEventListener('click', () => {
+    if (!isNaN(currentPercentage)) {
+        percentageChangeInput.value = Math.abs(currentPercentage).toFixed(2);
+        if (currentPercentage >= 0) {
+            document.getElementById('move-up').checked = true;
+        } else {
+            document.getElementById('move-down').checked = true;
+        }
+        handleInput();
+    }
+});
 reuseInitialBtn.addEventListener('click', () => {
     const initialVal = parseFloat(initialPriceInput.value);
     const finalVal = parseFloat(finalPriceInput.value);
