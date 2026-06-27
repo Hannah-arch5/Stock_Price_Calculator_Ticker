@@ -359,9 +359,28 @@ function renderHistory() {
         
         const headerEl = document.createElement('div');
         headerEl.className = 'group-header';
-        headerEl.innerHTML = group.symbol !== 'Uncategorized' 
+        
+        const titleEl = document.createElement('div');
+        titleEl.innerHTML = group.symbol !== 'Uncategorized' 
             ? `<a href="https://www.tradingview.com/chart/?symbol=${encodeURIComponent(group.symbol)}" class="stock-link" target="_blank">${group.symbol}</a>`
             : group.symbol;
+            
+        const deleteGroupBtn = document.createElement('button');
+        deleteGroupBtn.className = 'delete-btn';
+        deleteGroupBtn.title = 'Delete Group';
+        deleteGroupBtn.innerHTML = `
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 6h18"></path>
+                <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+                <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+            </svg>
+        `;
+        deleteGroupBtn.onclick = () => {
+            deleteHistoryGroup(groupIndex);
+        };
+        
+        headerEl.appendChild(titleEl);
+        headerEl.appendChild(deleteGroupBtn);
             
         const listEl = document.createElement('div');
         listEl.className = 'group-list';
@@ -507,6 +526,21 @@ window.deleteHistory = function(groupIndex, itemIndex) {
     saveState();
     renderHistory();
 };
+
+window.deleteHistoryGroup = function(groupIndex) {
+    historyRecords.splice(groupIndex, 1);
+    saveState();
+    renderHistory();
+};
+
+const clearAllHistoryBtn = document.getElementById('clear-all-history-btn');
+if (clearAllHistoryBtn) {
+    clearAllHistoryBtn.addEventListener('click', () => {
+        historyRecords = [];
+        saveState();
+        renderHistory();
+    });
+}
 
 function addRecordToHistory(record) {
     const sym = record.symbol || 'Uncategorized';

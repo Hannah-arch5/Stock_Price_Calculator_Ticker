@@ -365,11 +365,18 @@ input[type="number"]:focus, input[type="text"]:focus {
     flex-direction: column;
 }
 
+.history-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
 .history-header h2 {
     font-size: 0.9rem;
     font-weight: 600;
-    margin-bottom: 0.5rem;
     color: var(--text-main);
+    margin: 0;
 }
 
 .history-list {
@@ -397,6 +404,9 @@ input[type="number"]:focus, input[type="text"]:focus {
     color: var(--text-main);
     border-bottom: 1px solid var(--border-color);
     cursor: default;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
 .history-group.dragging-group {
