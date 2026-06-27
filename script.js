@@ -8,6 +8,21 @@ if (!historyVersion) {
     localStorage.setItem('calcHistoryVersion', '2');
 }
 
+// Migrate flat array to grouped array
+if (historyRecords.length > 0 && !historyRecords[0].records) {
+    const grouped = {};
+    historyRecords.forEach(record => {
+        const sym = record.symbol || 'Uncategorized';
+        if (!grouped[sym]) grouped[sym] = [];
+        grouped[sym].push(record);
+    });
+    historyRecords = Object.keys(grouped).map(sym => ({
+        symbol: sym,
+        records: grouped[sym]
+    }));
+    localStorage.setItem('calcHistory', JSON.stringify(historyRecords));
+}
+
 // DOM Elements
 const historyListEl = document.getElementById('history-list');
 const currencyRadios = document.getElementsByName('currency');
@@ -321,74 +336,106 @@ function renderHistory() {
 
     historyListEl.innerHTML = '';
     
-    historyRecords.forEach((record, index) => {
-        const item = document.createElement('div');
-        item.className = 'history-item';
-        item.draggable = true;
-        item.dataset.index = index;
+    historyRecords.forEach((group, groupIndex) => {
+        const groupEl = document.createElement('div');
+        groupEl.className = 'history-group';
+        groupEl.dataset.symbol = group.symbol;
+        groupEl.draggable = true;
         
-        let stockHtml = record.symbol 
-            ? `<a href="https://www.tradingview.com/chart/?symbol=${encodeURIComponent(record.symbol)}" class="stock-link" target="_blank">${record.symbol}</a> - ` 
-            : '';
-            
-        let resultClass = record.isUp ? 'text-up' : 'text-down';
-
-        item.innerHTML = `
-            <div class="history-info">
-                <div class="history-title">
-                    ${stockHtml} ${record.type}
-                </div>
-                <div class="history-details">
-                    ${record.details}
-                </div>
-            </div>
-            <div class="history-result ${resultClass}">
-                ${record.result}
-            </div>
-            <button class="delete-btn" title="Delete" onclick="deleteHistory(${index})">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M3 6h18"></path>
-                    <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
-                    <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
-                </svg>
-            </button>
-        `;
-        
-        item.addEventListener('dragstart', (e) => {
-            item.classList.add('dragging');
+        groupEl.addEventListener('dragstart', (e) => {
+            // Only trigger if we are dragging the group itself, not a child item
+            if (e.target !== groupEl) return;
+            groupEl.classList.add('dragging-group');
             e.dataTransfer.effectAllowed = 'move';
         });
 
-        item.addEventListener('dragend', () => {
-            item.classList.remove('dragging');
+        groupEl.addEventListener('dragend', (e) => {
+            if (e.target !== groupEl) return;
+            groupEl.classList.remove('dragging-group');
             updateArrayFromDOM();
             saveState();
             renderHistory();
         });
+        
+        const headerEl = document.createElement('div');
+        headerEl.className = 'group-header';
+        headerEl.innerHTML = group.symbol !== 'Uncategorized' 
+            ? `<a href="https://www.tradingview.com/chart/?symbol=${encodeURIComponent(group.symbol)}" class="stock-link" target="_blank">${group.symbol}</a>`
+            : group.symbol;
+            
+        const listEl = document.createElement('div');
+        listEl.className = 'group-list';
+        
+        group.records.forEach((record, itemIndex) => {
+            const item = document.createElement('div');
+            item.className = 'history-item';
+            item.draggable = true;
+            item.dataset.groupIndex = groupIndex;
+            item.dataset.itemIndex = itemIndex;
+            
+            let resultClass = record.isUp ? 'text-up' : 'text-down';
 
-        item.addEventListener('click', (e) => {
-            if (e.target.closest('.delete-btn') || e.target.closest('.stock-link')) {
-                return;
-            }
-            populateForm(record);
+            item.innerHTML = `
+                <div class="history-info">
+                    <div class="history-title">${record.type}</div>
+                    <div class="history-details">${record.details}</div>
+                </div>
+                <div class="history-result ${resultClass}">
+                    ${record.result}
+                </div>
+                <button class="delete-btn" title="Delete" onclick="deleteHistory(${groupIndex}, ${itemIndex})">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 6h18"></path>
+                        <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+                        <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+                    </svg>
+                </button>
+            `;
+            
+            item.addEventListener('dragstart', (e) => {
+                item.classList.add('dragging');
+                e.dataTransfer.effectAllowed = 'move';
+            });
+
+            item.addEventListener('dragend', () => {
+                item.classList.remove('dragging');
+                updateArrayFromDOM();
+                saveState();
+                renderHistory();
+            });
+
+            item.addEventListener('click', (e) => {
+                if (e.target.closest('.delete-btn')) {
+                    return;
+                }
+                populateForm(record);
+            });
+            
+            listEl.appendChild(item);
         });
         
-        historyListEl.appendChild(item);
+        // Setup dragover on the listEl
+        listEl.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            const draggingItem = document.querySelector('.dragging');
+            if (!draggingItem) return;
+            
+            // Only allow dragging within the same group
+            if (draggingItem.closest('.group-list') !== listEl) return;
+            
+            const afterElement = getDragAfterElement(listEl, e.clientY);
+            if (afterElement == null) {
+                listEl.appendChild(draggingItem);
+            } else {
+                listEl.insertBefore(draggingItem, afterElement);
+            }
+        });
+        
+        groupEl.appendChild(headerEl);
+        groupEl.appendChild(listEl);
+        historyListEl.appendChild(groupEl);
     });
 }
-
-historyListEl.addEventListener('dragover', (e) => {
-    e.preventDefault();
-    const draggingItem = historyListEl.querySelector('.dragging');
-    if (!draggingItem) return;
-    
-    const afterElement = getDragAfterElement(historyListEl, e.clientY);
-    if (afterElement == null) {
-        historyListEl.appendChild(draggingItem);
-    } else {
-        historyListEl.insertBefore(draggingItem, afterElement);
-    }
-});
 
 function getDragAfterElement(container, y) {
     const draggableElements = [...container.querySelectorAll('.history-item:not(.dragging)')];
@@ -404,28 +451,84 @@ function getDragAfterElement(container, y) {
     }, { offset: Number.NEGATIVE_INFINITY }).element;
 }
 
+historyListEl.addEventListener('dragover', (e) => {
+    const draggingGroup = document.querySelector('.dragging-group');
+    if (!draggingGroup) return;
+    
+    e.preventDefault();
+    const afterElement = getDragAfterGroup(historyListEl, e.clientY);
+    if (afterElement == null) {
+        historyListEl.appendChild(draggingGroup);
+    } else {
+        historyListEl.insertBefore(draggingGroup, afterElement);
+    }
+});
+
+function getDragAfterGroup(container, y) {
+    const draggableElements = [...container.querySelectorAll('.history-group:not(.dragging-group)')];
+
+    return draggableElements.reduce((closest, child) => {
+        const box = child.getBoundingClientRect();
+        const offset = y - box.top - box.height / 2;
+        if (offset < 0 && offset > closest.offset) {
+            return { offset: offset, element: child };
+        } else {
+            return closest;
+        }
+    }, { offset: Number.NEGATIVE_INFINITY }).element;
+}
+
+
 function updateArrayFromDOM() {
-    const items = [...historyListEl.querySelectorAll('.history-item')];
+    const groups = [...historyListEl.querySelectorAll('.history-group')];
     const newHistory = [];
-    items.forEach(item => {
-        const originalIndex = parseInt(item.dataset.index, 10);
-        newHistory.push(historyRecords[originalIndex]);
+    
+    groups.forEach(groupEl => {
+        const symbol = groupEl.dataset.symbol;
+        const items = [...groupEl.querySelectorAll('.history-item')];
+        const records = items.map(item => {
+            const originalGroupIndex = parseInt(item.dataset.groupIndex, 10);
+            const originalItemIndex = parseInt(item.dataset.itemIndex, 10);
+            return historyRecords[originalGroupIndex].records[originalItemIndex];
+        });
+        if (records.length > 0) {
+            newHistory.push({ symbol, records });
+        }
     });
+    
     historyRecords = newHistory;
 }
 
-window.deleteHistory = function(index) {
-    historyRecords.splice(index, 1);
+window.deleteHistory = function(groupIndex, itemIndex) {
+    historyRecords[groupIndex].records.splice(itemIndex, 1);
+    if (historyRecords[groupIndex].records.length === 0) {
+        historyRecords.splice(groupIndex, 1);
+    }
     saveState();
     renderHistory();
 };
+
+function addRecordToHistory(record) {
+    const sym = record.symbol || 'Uncategorized';
+    let group = historyRecords.find(g => g.symbol === sym);
+    if (!group) {
+        historyRecords.unshift({ symbol: sym, records: [record] });
+    } else {
+        group.records.unshift(record);
+        // Move the updated group to the top
+        historyRecords = historyRecords.filter(g => g !== group);
+        historyRecords.unshift(group);
+    }
+    saveState();
+    renderHistory();
+}
 
 saveTargetBtn.addEventListener('click', () => {
     const base = parseFloat(basePriceInput.value);
     const perc = parseFloat(percentageChangeInput.value);
     if (isNaN(base) || isNaN(perc)) return;
 
-    historyRecords.unshift({
+    addRecordToHistory({
         type: 'Target Price',
         symbol: stockSymbol1Input.value.trim().toUpperCase(),
         details: `Base: ${currentCurrency}${base} | ${currentTargetIsUp ? 'Up' : 'Down'} ${perc}%`,
@@ -433,8 +536,6 @@ saveTargetBtn.addEventListener('click', () => {
         isUp: currentTargetIsUp,
         inputs: { base, perc, isUp: currentTargetIsUp }
     });
-    saveState();
-    renderHistory();
 });
 
 savePercentageBtn.addEventListener('click', () => {
@@ -442,7 +543,7 @@ savePercentageBtn.addEventListener('click', () => {
     const final = parseFloat(finalPriceInput.value);
     if (isNaN(initial) || isNaN(final) || initial === 0) return;
 
-    historyRecords.unshift({
+    addRecordToHistory({
         type: 'Percentage Change',
         symbol: stockSymbol2Input.value.trim().toUpperCase(),
         details: `Base: ${currentCurrency}${initial} | Target: ${currentCurrency}${final}`,
@@ -450,8 +551,6 @@ savePercentageBtn.addEventListener('click', () => {
         isUp: currentPercentage > 0,
         inputs: { initial, final }
     });
-    saveState();
-    renderHistory();
 });
 
 function populateForm(record) {

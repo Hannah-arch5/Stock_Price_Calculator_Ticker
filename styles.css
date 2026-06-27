@@ -380,21 +380,54 @@ input[type="number"]:focus, input[type="text"]:focus {
     flex: 1;
 }
 
+.history-group {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    margin-bottom: 0.75rem;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+}
+
+.group-header {
+    background: var(--bg-light);
+    padding: 0.5rem 0.75rem;
+    font-weight: 700;
+    font-size: 0.85rem;
+    color: var(--text-main);
+    border-bottom: 1px solid var(--border-color);
+    cursor: grab;
+}
+
+.history-group.dragging-group {
+    opacity: 0.5;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    border-color: var(--primary);
+    transform: scale(1.02);
+}
+
+.group-list {
+    display: flex;
+    flex-direction: column;
+}
+
 .history-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0.6rem;
-    background: var(--input-bg);
-    border-radius: 6px;
-    border: 1px solid var(--border-color);
+    padding: 0.6rem 0.75rem;
+    background: var(--card-bg);
+    border-bottom: 1px solid var(--border-color);
     cursor: default;
-    transition: box-shadow 0.2s, background 0.2s, transform 0.2s;
+    transition: background 0.2s, transform 0.2s;
+}
+
+.history-item:last-child {
+    border-bottom: none;
 }
 
 .history-item:hover {
-    background: #ffffff;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    background: var(--input-bg);
 }
 
 .history-item.dragging {
