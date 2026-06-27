@@ -154,6 +154,7 @@ body {
     font-weight: 500;
     transition: color 0.2s;
     flex-shrink: 0; /* Prevent squishing */
+    margin-right: 0.5rem; /* Align with history group icons */
 }
 
 .clear-btn:hover {
@@ -387,7 +388,6 @@ input[type="number"]:focus, input[type="text"]:focus {
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
-    overflow-y: auto;
     flex: 1;
 }
 
