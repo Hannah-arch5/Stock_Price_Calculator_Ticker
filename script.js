@@ -313,12 +313,6 @@ clearTargetBtn.addEventListener('click', () => {
     handleInput();
 });
 
-reuseTargetBtn.addEventListener('click', () => {
-    if (currentTargetPrice > 0) {
-        basePriceInput.value = formatCurrency(currentTargetPrice);
-        handleInput();
-    }
-});
 
 clearPercentageBtn.addEventListener('click', () => {
     stockSymbol2Input.value = '';
