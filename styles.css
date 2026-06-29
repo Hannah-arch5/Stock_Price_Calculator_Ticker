@@ -74,6 +74,7 @@ body {
   flex-direction: column;
   text-align: right;
   margin-bottom: 0.5rem;
+  -webkit-app-region: no-drag;
 }
 
 /* Split View */
