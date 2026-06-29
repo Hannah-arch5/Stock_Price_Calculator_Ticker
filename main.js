@@ -1,10 +1,21 @@
 const { app, BrowserWindow, shell } = require('electron');
 const path = require('path');
+const fs = require('fs');
 
 function createWindow() {
+    const stateFile = path.join(app.getPath('userData'), 'window-state.json');
+    let state = { width: 500, height: 1200 }; // Fallback defaults
+    try {
+        if (fs.existsSync(stateFile)) {
+            state = JSON.parse(fs.readFileSync(stateFile, 'utf8'));
+        }
+    } catch(e) {}
+
     const mainWindow = new BrowserWindow({
-        width: 490,
-        height: 1000,
+        width: state.width,
+        height: state.height,
+        x: state.x,
+        y: state.y,
         resizable: true,
         titleBarStyle: 'hiddenInset',
         alwaysOnTop: true,
@@ -16,10 +27,19 @@ function createWindow() {
     });
 
     mainWindow.loadFile('index.html');
-    mainWindow.setSize(490, 1000);
-    mainWindow.center();
+    
+    // Save state on resize and move
+    const saveState = () => {
+        try {
+            const bounds = mainWindow.getBounds();
+            fs.writeFileSync(stateFile, JSON.stringify(bounds));
+        } catch(e) {}
+    };
 
-    // Open DevTools for debugging (optional) them in the default browser
+    mainWindow.on('resize', saveState);
+    mainWindow.on('move', saveState);
+
+    // Open external links in default browser
     mainWindow.webContents.setWindowOpenHandler(({ url }) => {
         if (url.startsWith('http')) {
             shell.openExternal(url);
