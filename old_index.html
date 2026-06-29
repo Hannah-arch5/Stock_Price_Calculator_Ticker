@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock Price Calculator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="drag-bar"></div>
+    <div class="app-container">
+        <header class="app-header">
+            <div class="header-left">
+                <h1>Stock Price Calculator</h1>
+                <p>Calculate price movements</p>
+            </div>
+            <div class="header-right">
+                <div class="currency-selector">
+                    <input type="radio" id="currency-cny" name="currency" value="CNY" checked>
+                    <label for="currency-cny" class="currency-btn">CNY (¥)</label>
+                    
+                    <input type="radio" id="currency-usd" name="currency" value="USD">
+                    <label for="currency-usd" class="currency-btn">USD ($)</label>
+                </div>
+            </div>
+        </header>
+
+        <main class="grid-layout">
+            <!-- Mode 1: Calculate Target Price -->
+            <section class="card target-price-card">
+                <div class="card-header">
+                    <h2>Target Price Calculator</h2>
+                    <button class="clear-btn" id="clear-target-btn" type="button">Clear</button>
+                </div>
+                
+                <div class="input-group">
+                    <label for="stock-symbol-1">Stock Symbol (Optional)</label>
+                    <input type="text" id="stock-symbol-1" placeholder="e.g. AAPL">
+                </div>
+
+                <div class="input-group">
+                    <div class="result-label-row" style="justify-content: flex-start; margin-bottom: 0.25rem; min-height: auto;">
+                        <label for="base-price" style="margin-bottom: 0;">Base Price</label>
+                        <button class="icon-btn" id="reuse-base-btn" title="Copy to Target Price" type="button">
+                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 2v6h-6"></path>
+                                <path d="M3 12a9 9 0 0 1 15-6.7L21 8"></path>
+                                <path d="M3 22v-6h6"></path>
+                                <path d="M21 12a9 9 0 0 1-15 6.7L3 16"></path>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="input-wrapper">
+                        <span class="currency-symbol">¥</span>
+                        <input type="number" id="base-price" placeholder="e.g. 150.00" step="0.01">
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>Movement Direction</label>
+                    <div class="toggle-group">
+                        <input type="radio" id="move-up" name="movement" value="up" checked>
+                        <label for="move-up" class="toggle-btn up">Up Rise</label>
+                        
+                        <input type="radio" id="move-down" name="movement" value="down">
+                        <label for="move-down" class="toggle-btn down">Down Fall</label>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label for="percentage-change">Percentage Change (%)</label>
+                    <div class="input-wrapper">
+                        <span class="percent-symbol">%</span>
+                        <input type="number" id="percentage-change" placeholder="e.g. 5" step="1">
+                    </div>
+                </div>
+
+                <div class="result-area">
+                    <div class="result-label-row">
+                        <p class="result-label">Calculated Target Price</p>
+                        <button class="icon-btn" id="reuse-target-btn" title="Replace Base Price" type="button">
+                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 2v6h-6"></path>
+                                <path d="M3 12a9 9 0 0 1 15-6.7L21 8"></path>
+                                <path d="M3 22v-6h6"></path>
+                                <path d="M21 12a9 9 0 0 1-15 6.7L3 16"></path>
+                            </svg>
+                        </button>
+                    </div>
+                    <p class="result-value" id="target-result"><span class="currency-symbol">¥</span>0.00</p>
+                    <p class="result-movement" style="visibility: hidden;">-</p>
+                    <button class="save-btn" id="save-target-btn" type="button">Save to History</button>
+                </div>
+            </section>
+
+            <!-- Mode 2: Calculate Percentage -->
+            <section class="card percentage-card">
+                <div class="card-header">
+                    <h2>Percentage Change Calculator</h2>
+                    <button class="clear-btn" id="clear-percentage-btn" type="button">Clear</button>
+                </div>
+                
+                <div class="input-group">
+                    <label for="stock-symbol-2">Stock Symbol (Optional)</label>
+                    <input type="text" id="stock-symbol-2" placeholder="e.g. TSLA">
+                </div>
+
+                <div class="input-group">
+                    <div class="result-label-row" style="justify-content: flex-start; margin-bottom: 0.25rem; min-height: auto;">
+                        <label for="initial-price" style="margin-bottom: 0;">Initial Price (Base)</label>
+                        <button class="icon-btn" id="reuse-initial-btn" title="Copy to Final Price" type="button">
+                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 2v6h-6"></path>
+                                <path d="M3 12a9 9 0 0 1 15-6.7L21 8"></path>
+                                <path d="M3 22v-6h6"></path>
+                                <path d="M21 12a9 9 0 0 1-15 6.7L3 16"></path>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="input-wrapper">
+                        <span class="currency-symbol">¥</span>
+                        <input type="number" id="initial-price" placeholder="e.g. 100.00" step="0.01">
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <div class="result-label-row" style="justify-content: flex-start; margin-bottom: 0.25rem; min-height: auto;">
+                        <label for="final-price" style="margin-bottom: 0;">Final Price (Target)</label>
+                        <button class="icon-btn" id="reuse-final-btn" title="Copy to Initial Price" type="button">
+                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 2v6h-6"></path>
+                                <path d="M3 12a9 9 0 0 1 15-6.7L21 8"></path>
+                                <path d="M3 22v-6h6"></path>
+                                <path d="M21 12a9 9 0 0 1-15 6.7L3 16"></path>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="input-wrapper">
+                        <span class="currency-symbol">¥</span>
+                        <input type="number" id="final-price" placeholder="e.g. 120.00" step="0.01">
+                    </div>
+                </div>
+
+                <!-- Invisible spacer to match the height of 'Movement Direction' on the left -->
+                <div class="input-group" style="visibility: hidden;">
+                    <label>Spacer</label>
+                    <div class="toggle-group">
+                        <div class="toggle-btn">Spacer</div>
+                    </div>
+                </div>
+
+                <div class="result-area">
+                    <div class="result-label-row">
+                        <p class="result-label">Calculated Percentage Change</p>
+                        <button class="icon-btn" id="reuse-calc-perc-btn" title="Copy to Target Calculator" type="button">
+                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 2v6h-6"></path>
+                                <path d="M3 12a9 9 0 0 1 15-6.7L21 8"></path>
+                                <path d="M3 22v-6h6"></path>
+                                <path d="M21 12a9 9 0 0 1-15 6.7L3 16"></path>
+                            </svg>
+                        </button>
+                    </div>
+                    <p class="result-value" id="percentage-result">0.00%</p>
+                    <p class="result-movement" id="percentage-movement-type">-</p>
+                    <button class="save-btn" id="save-percentage-btn" type="button">Save to History</button>
+                </div>
+            </section>
+        </main>
+
+        <section class="history-section">
+            <div class="history-header">
+                <h2>Calculation History</h2>
+                <button class="clear-btn" id="clear-all-history-btn" type="button">Clear</button>
+            </div>
+            <div class="history-list" id="history-list">
+                <!-- History items will be inserted here -->
+            </div>
+        </section>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

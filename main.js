@@ -3,12 +3,12 @@ const path = require('path');
 
 function createWindow() {
     const mainWindow = new BrowserWindow({
-        width: 520,
-        height: 750,
+        width: 600,
+        height: 950,
         resizable: true,
         titleBarStyle: 'hiddenInset',
         alwaysOnTop: true,
-        backgroundColor: '#fafafa',
+        backgroundColor: '#030303',
         webPreferences: {
             nodeIntegration: false,
             contextIsolation: true
@@ -16,7 +16,7 @@ function createWindow() {
     });
 
     mainWindow.loadFile('index.html');
-    mainWindow.setSize(520, 750);
+    mainWindow.setSize(600, 950);
     mainWindow.center();
 
     // Open DevTools for debugging (optional) them in the default browser

@@ -80,18 +80,27 @@ function updateCurrency() {
 
     currentCurrency = selected === 'CNY' ? '¥' : '$';
     
+    // Switch colors based on currency:
+    // CNY: Up = Red (#dc2626), Down = Green (#059669)
+    // USD: Up = Green (#059669), Down = Red (#dc2626)
     if (currentCurrency === '¥') {
-        document.documentElement.style.setProperty('--up-color', '#ff453a');
-        document.documentElement.style.setProperty('--down-color', '#32d74b');
+        document.documentElement.style.setProperty('--up-color', '#dc2626');
+        document.documentElement.style.setProperty('--up-bg', '#fee2e2');
+        document.documentElement.style.setProperty('--down-color', '#059669');
+        document.documentElement.style.setProperty('--down-bg', '#d1fae5');
     } else {
-        document.documentElement.style.setProperty('--up-color', '#32d74b');
-        document.documentElement.style.setProperty('--down-color', '#ff453a');
+        document.documentElement.style.setProperty('--up-color', '#059669');
+        document.documentElement.style.setProperty('--up-bg', '#d1fae5');
+        document.documentElement.style.setProperty('--down-color', '#dc2626');
+        document.documentElement.style.setProperty('--down-bg', '#fee2e2');
     }
 
+    // Update all static labels
     currencySymbols.forEach(symbol => {
         symbol.textContent = currentCurrency;
     });
 
+    // Recalculate to update formatted strings in results
     calculateTargetPrice();
     calculatePercentage();
     saveState();
@@ -99,11 +108,10 @@ function updateCurrency() {
 
 currencyRadios.forEach(radio => radio.addEventListener('change', updateCurrency));
 
+// Helper: format currency
 function formatCurrency(value) {
     return value.toFixed(4).replace(/\.?0+$/, ''); 
 }
-
-// Removed tab switching logic as requested
 
 // Mode 1: Target Price Logic
 const stockSymbol1Input = document.getElementById('stock-symbol-1');
@@ -116,12 +124,18 @@ const clearTargetBtn = document.getElementById('clear-target-btn');
 const reuseTargetBtn = document.getElementById('reuse-target-btn');
 const reuseBaseBtn = document.getElementById('reuse-base-btn');
 
+// Target Price State
+let currentTargetPrice = 0;
+let currentTargetIsUp = true;
+
+// Event Listeners for Target Price Calculator
 reuseBaseBtn.addEventListener('click', () => {
     const currentBase = parseFloat(basePriceInput.value);
     const percentage = parseFloat(percentageChangeInput.value);
     
     if (!isNaN(currentBase) && currentBase > 0) {
         if (!isNaN(percentage)) {
+            // Determine movement direction
             let isUp = true;
             for (const radio of movementRadios) {
                 if (radio.checked && radio.value === 'down') {
@@ -140,6 +154,7 @@ reuseBaseBtn.addEventListener('click', () => {
             }
             basePriceInput.value = formatCurrency(newBase);
         }
+        // If percentage is NaN or 100% down, we just do handleInput
         handleInput();
     }
 });
@@ -150,9 +165,6 @@ reuseTargetBtn.addEventListener('click', () => {
         handleInput();
     }
 });
-
-let currentTargetPrice = 0;
-let currentTargetIsUp = true;
 
 function calculateTargetPrice() {
     const basePrice = parseFloat(basePriceInput.value);
@@ -170,7 +182,7 @@ function calculateTargetPrice() {
 
     if (isNaN(basePrice) || isNaN(percentage)) {
         targetResultEl.innerHTML = `<span class="currency-symbol">${currentCurrency}</span>0.00`;
-        targetResultEl.className = 'result-value mono';
+        targetResultEl.className = 'result-value';
         currentTargetPrice = 0;
         return;
     }
@@ -181,9 +193,9 @@ function calculateTargetPrice() {
     targetResultEl.innerHTML = `<span class="currency-symbol">${currentCurrency}</span>${formatCurrency(currentTargetPrice)}`;
     
     if (isUp) {
-        targetResultEl.className = 'result-value mono text-up';
+        targetResultEl.className = 'result-value text-up';
     } else {
-        targetResultEl.className = 'result-value mono text-down';
+        targetResultEl.className = 'result-value text-down';
     }
 }
 
@@ -199,6 +211,9 @@ const reuseInitialBtn = document.getElementById('reuse-initial-btn');
 const reuseFinalBtn = document.getElementById('reuse-final-btn');
 const reuseCalcPercBtn = document.getElementById('reuse-calc-perc-btn');
 
+let currentPercentage = 0;
+
+// Event Listeners for Percentage Change Calculator
 reuseCalcPercBtn.addEventListener('click', () => {
     if (!isNaN(currentPercentage)) {
         percentageChangeInput.value = Math.abs(currentPercentage).toFixed(2);
@@ -210,13 +225,12 @@ reuseCalcPercBtn.addEventListener('click', () => {
         handleInput();
     }
 });
-
 reuseInitialBtn.addEventListener('click', () => {
     const initialVal = parseFloat(initialPriceInput.value);
     const finalVal = parseFloat(finalPriceInput.value);
     if (!isNaN(initialVal) && initialVal > 0 && !isNaN(finalVal)) {
         const pctDecimal = (finalVal - initialVal) / initialVal;
-        if (pctDecimal === -1) return;
+        if (pctDecimal === -1) return; // prevent division by zero
         
         const newFinal = initialVal;
         const newInitial = newFinal / (1 + pctDecimal);
@@ -242,17 +256,15 @@ reuseFinalBtn.addEventListener('click', () => {
     }
 });
 
-let currentPercentage = 0;
-
 function calculatePercentage() {
     const initialPrice = parseFloat(initialPriceInput.value);
     const finalPrice = parseFloat(finalPriceInput.value);
 
     if (isNaN(initialPrice) || isNaN(finalPrice) || initialPrice === 0) {
         percentageResultEl.textContent = '0.00%';
-        percentageResultEl.className = 'result-value mono';
+        percentageResultEl.className = 'result-value';
         percentageMovementTypeEl.textContent = '-';
-        percentageMovementTypeEl.className = 'result-movement mono';
+        percentageMovementTypeEl.className = 'result-movement';
         currentPercentage = 0;
         return;
     }
@@ -264,21 +276,21 @@ function calculatePercentage() {
     percentageResultEl.textContent = formattedPercentage;
 
     if (currentPercentage > 0) {
-        percentageResultEl.className = 'result-value mono text-up';
+        percentageResultEl.className = 'result-value text-up';
         percentageMovementTypeEl.textContent = 'Up Rise';
-        percentageMovementTypeEl.className = 'result-movement mono text-up';
+        percentageMovementTypeEl.className = 'result-movement text-up';
     } else if (currentPercentage < 0) {
-        percentageResultEl.className = 'result-value mono text-down';
+        percentageResultEl.className = 'result-value text-down';
         percentageMovementTypeEl.textContent = 'Down Fall';
-        percentageMovementTypeEl.className = 'result-movement mono text-down';
+        percentageMovementTypeEl.className = 'result-movement text-down';
     } else {
-        percentageResultEl.className = 'result-value mono';
+        percentageResultEl.className = 'result-value';
         percentageMovementTypeEl.textContent = 'No Change';
-        percentageMovementTypeEl.className = 'result-movement mono';
+        percentageMovementTypeEl.className = 'result-movement';
     }
 }
 
-// Input Listeners
+// Input Listeners (Trigger calculation & save state)
 function handleInput() {
     calculateTargetPrice();
     calculatePercentage();
@@ -301,6 +313,7 @@ clearTargetBtn.addEventListener('click', () => {
     handleInput();
 });
 
+
 clearPercentageBtn.addEventListener('click', () => {
     stockSymbol2Input.value = '';
     initialPriceInput.value = '';
@@ -311,7 +324,7 @@ clearPercentageBtn.addEventListener('click', () => {
 // History Logic
 function renderHistory() {
     if (historyRecords.length === 0) {
-        historyListEl.innerHTML = '<p class="empty-history">No history yet.</p>';
+        historyListEl.innerHTML = '<p class="empty-history">No history yet. Save a calculation to see it here.</p>';
         return;
     }
 
@@ -324,6 +337,7 @@ function renderHistory() {
         groupEl.draggable = true;
         
         groupEl.addEventListener('dragstart', (e) => {
+            // Only trigger if we are dragging the group itself, not a child item
             if (e.target !== groupEl) return;
             groupEl.classList.add('dragging-group');
             e.dataTransfer.effectAllowed = 'move';
@@ -349,12 +363,14 @@ function renderHistory() {
         deleteGroupBtn.className = 'delete-btn';
         deleteGroupBtn.title = 'Delete Group';
         deleteGroupBtn.innerHTML = `
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <line x1="18" y1="6" x2="6" y2="18"></line>
                 <line x1="6" y1="6" x2="18" y2="18"></line>
             </svg>
         `;
-        deleteGroupBtn.onclick = () => { deleteHistoryGroup(groupIndex); };
+        deleteGroupBtn.onclick = () => {
+            deleteHistoryGroup(groupIndex);
+        };
         
         headerEl.appendChild(titleEl);
         headerEl.appendChild(deleteGroupBtn);
@@ -364,35 +380,28 @@ function renderHistory() {
         
         group.records.forEach((record, itemIndex) => {
             const item = document.createElement('div');
-            item.className = 'list-row history-item';
+            item.className = 'history-item';
             item.draggable = true;
             item.dataset.groupIndex = groupIndex;
             item.dataset.itemIndex = itemIndex;
             
             let resultClass = record.isUp ? 'text-up' : 'text-down';
 
-            let formattedDetails = record.details;
-            if (formattedDetails.includes(' | ')) {
-                const parts = formattedDetails.split(' | ');
-                formattedDetails = `<span>${parts[0]}</span><span>${parts[1]}</span>`;
-            }
-
             item.innerHTML = `
-                <div class="col-details">
-                    <span class="type">${record.type}</span>
-                    <span class="info">${formattedDetails}</span>
+                <div class="history-info">
+                    <div class="history-title">${record.type}</div>
+                    <div class="history-details">${record.details}</div>
                 </div>
-                <div class="col-result mono ${resultClass}">
+                <div class="history-result ${resultClass}">
                     ${record.result}
                 </div>
-                <div class="row-delete">
-                    <button class="delete-btn" title="Delete" onclick="deleteHistory(${groupIndex}, ${itemIndex})">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
-                            <line x1="18" y1="6" x2="6" y2="18"></line>
-                            <line x1="6" y1="6" x2="18" y2="18"></line>
-                        </svg>
-                    </button>
-                </div>
+                <button class="delete-btn" title="Delete" onclick="deleteHistory(${groupIndex}, ${itemIndex})">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 6h18"></path>
+                        <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+                        <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+                    </svg>
+                </button>
             `;
             
             item.addEventListener('dragstart', (e) => {
@@ -408,17 +417,23 @@ function renderHistory() {
             });
 
             item.addEventListener('click', (e) => {
-                if (e.target.closest('.delete-btn')) return;
+                if (e.target.closest('.delete-btn')) {
+                    return;
+                }
                 populateForm(record);
             });
             
             listEl.appendChild(item);
         });
         
+        // Setup dragover on the listEl
         listEl.addEventListener('dragover', (e) => {
             e.preventDefault();
             const draggingItem = document.querySelector('.dragging');
-            if (!draggingItem || draggingItem.closest('.group-list') !== listEl) return;
+            if (!draggingItem) return;
+            
+            // Only allow dragging within the same group
+            if (draggingItem.closest('.group-list') !== listEl) return;
             
             const afterElement = getDragAfterElement(listEl, e.clientY);
             if (afterElement == null) {
@@ -436,6 +451,7 @@ function renderHistory() {
 
 function getDragAfterElement(container, y) {
     const draggableElements = [...container.querySelectorAll('.history-item:not(.dragging)')];
+
     return draggableElements.reduce((closest, child) => {
         const box = child.getBoundingClientRect();
         const offset = y - box.top - box.height / 2;
@@ -462,6 +478,7 @@ historyListEl.addEventListener('dragover', (e) => {
 
 function getDragAfterGroup(container, y) {
     const draggableElements = [...container.querySelectorAll('.history-group:not(.dragging-group)')];
+
     return draggableElements.reduce((closest, child) => {
         const box = child.getBoundingClientRect();
         const offset = y - box.top - box.height / 2;
@@ -472,6 +489,7 @@ function getDragAfterGroup(container, y) {
         }
     }, { offset: Number.NEGATIVE_INFINITY }).element;
 }
+
 
 function updateArrayFromDOM() {
     const groups = [...historyListEl.querySelectorAll('.history-group')];
@@ -524,6 +542,7 @@ function addRecordToHistory(record) {
         historyRecords.unshift({ symbol: sym, records: [record] });
     } else {
         group.records.unshift(record);
+        // Move the updated group to the top
         historyRecords = historyRecords.filter(g => g !== group);
         historyRecords.unshift(group);
     }
@@ -537,9 +556,9 @@ saveTargetBtn.addEventListener('click', () => {
     if (isNaN(base) || isNaN(perc)) return;
 
     addRecordToHistory({
-        type: 'Target Projection',
+        type: 'Target Price',
         symbol: stockSymbol1Input.value.trim().toUpperCase(),
-        details: `<span>Base: ${currentCurrency}${base}</span><span>${currentTargetIsUp ? 'Up' : 'Down'} ${perc}%</span>`,
+        details: `Base: ${currentCurrency}${base} | ${currentTargetIsUp ? 'Up' : 'Down'} ${perc}%`,
         result: `${currentCurrency}${formatCurrency(currentTargetPrice)}`,
         isUp: currentTargetIsUp,
         inputs: { base, perc, isUp: currentTargetIsUp }
@@ -552,9 +571,9 @@ savePercentageBtn.addEventListener('click', () => {
     if (isNaN(initial) || isNaN(final) || initial === 0) return;
 
     addRecordToHistory({
-        type: 'Percentage Delta',
+        type: 'Percentage Change',
         symbol: stockSymbol2Input.value.trim().toUpperCase(),
-        details: `<span>Base: ${currentCurrency}${initial}</span><span>Target: ${currentCurrency}${final}</span>`,
+        details: `Base: ${currentCurrency}${initial} | Target: ${currentCurrency}${final}`,
         result: `${Math.abs(currentPercentage).toFixed(2)}%`,
         isUp: currentPercentage > 0,
         inputs: { initial, final }
@@ -562,7 +581,7 @@ savePercentageBtn.addEventListener('click', () => {
 });
 
 function populateForm(record) {
-    if (record.type === 'Target Projection' || record.type === 'Target Price') {
+    if (record.type === 'Target Price') {
         stockSymbol1Input.value = record.symbol || '';
         if (record.inputs) {
             basePriceInput.value = record.inputs.base;
@@ -578,7 +597,7 @@ function populateForm(record) {
             }
         }
         handleInput();
-    } else if (record.type === 'Percentage Delta' || record.type === 'Percentage Change') {
+    } else if (record.type === 'Percentage Change') {
         stockSymbol2Input.value = record.symbol || '';
         if (record.inputs) {
             initialPriceInput.value = record.inputs.initial;
