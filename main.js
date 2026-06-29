@@ -3,8 +3,8 @@ const path = require('path');
 
 function createWindow() {
     const mainWindow = new BrowserWindow({
-        width: 420,
-        height: 950,
+        width: 490,
+        height: 1000,
         resizable: true,
         titleBarStyle: 'hiddenInset',
         alwaysOnTop: true,
@@ -16,7 +16,7 @@ function createWindow() {
     });
 
     mainWindow.loadFile('index.html');
-    mainWindow.setSize(420, 950);
+    mainWindow.setSize(490, 1000);
     mainWindow.center();
 
     // Open DevTools for debugging (optional) them in the default browser
