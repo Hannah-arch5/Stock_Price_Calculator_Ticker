@@ -3,8 +3,8 @@ const path = require('path');
 const fs = require('fs');
 
 function createWindow() {
-    const stateFile = path.join(app.getPath('userData'), 'window-state.json');
-    let state = { width: 500, height: 1200 }; // Fallback defaults
+    const stateFile = path.join(app.getPath('userData'), 'window-state-v2.json');
+    let state = { width: 490, height: 1350 }; // Fallback defaults
     try {
         if (fs.existsSync(stateFile)) {
             state = JSON.parse(fs.readFileSync(stateFile, 'utf8'));
