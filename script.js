@@ -358,6 +358,56 @@ function renderHistory() {
         
         headerEl.appendChild(titleEl);
         headerEl.appendChild(deleteGroupBtn);
+        
+        headerEl.addEventListener('dblclick', (e) => {
+            if (e.target.closest('.delete-btn')) return;
+            if (headerEl.querySelector('.edit-symbol-input')) return;
+            
+            const originalHTML = titleEl.innerHTML;
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.className = 'edit-symbol-input mono';
+            input.value = group.symbol !== 'Uncategorized' ? group.symbol : '';
+            input.style.fontSize = 'inherit';
+            input.style.fontWeight = 'inherit';
+            input.style.color = 'inherit';
+            input.style.background = 'transparent';
+            input.style.border = 'none';
+            input.style.borderBottom = '1px dashed var(--fg)';
+            input.style.outline = 'none';
+            input.style.width = '120px';
+            input.style.padding = '0';
+            input.style.margin = '0';
+            
+            titleEl.innerHTML = '';
+            titleEl.appendChild(input);
+            input.focus();
+            input.select();
+            
+            const saveNewSymbol = () => {
+                const newSymbol = input.value.trim().toUpperCase();
+                if (newSymbol && newSymbol !== group.symbol && newSymbol !== 'UNCATEGORIZED') {
+                    group.symbol = newSymbol;
+                    group.records.forEach(r => r.symbol = newSymbol);
+                    
+                    const existingGroupIndex = historyRecords.findIndex(g => g !== group && g.symbol === newSymbol);
+                    if (existingGroupIndex !== -1) {
+                        historyRecords[existingGroupIndex].records.unshift(...group.records);
+                        historyRecords = historyRecords.filter(g => g !== group);
+                    }
+                    saveState();
+                    renderHistory();
+                } else {
+                    titleEl.innerHTML = originalHTML;
+                }
+            };
+            
+            input.addEventListener('blur', saveNewSymbol);
+            input.addEventListener('keydown', (ev) => {
+                if (ev.key === 'Enter') input.blur();
+                else if (ev.key === 'Escape') titleEl.innerHTML = originalHTML;
+            });
+        });
             
         const listEl = document.createElement('div');
         listEl.className = 'group-list';
