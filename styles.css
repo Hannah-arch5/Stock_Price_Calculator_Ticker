@@ -201,6 +201,29 @@ body {
   flex-direction: column;
 }
 
+.inline-toggle-row {
+  display: flex;
+  align-items: flex-end;
+  width: 100%;
+  border-bottom: 1px solid var(--border);
+  transition: border-color var(--transition-fast);
+}
+.inline-toggle-row:focus-within {
+  border-color: var(--fg);
+}
+.inline-toggle-row .inline-toggle {
+  margin-bottom: 0;
+  border-bottom: none;
+  margin-right: 1rem;
+}
+.inline-toggle-row .input-container {
+  position: relative;
+  flex: 1;
+}
+.inline-toggle-row .input-container .input-minimal {
+  border-bottom: none;
+}
+
 .input-label {
   position: absolute;
   top: -1.25rem;

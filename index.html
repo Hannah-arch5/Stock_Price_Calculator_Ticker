@@ -35,12 +35,7 @@
 
                 <div class="calc-section" id="target-mode">
                     <h3 class="section-title">Target Projection</h3>
-                    <div class="toggle-group direction-toggle">
-                        <input type="radio" id="move-up" name="movement" value="up" checked>
-                        <label for="move-up" class="toggle-btn up-btn">Up</label>
-                        <input type="radio" id="move-down" name="movement" value="down">
-                        <label for="move-down" class="toggle-btn down-btn">Down</label>
-                    </div>
+
 
                     <div class="inputs-stack">
                         <div class="input-minimal-wrapper">
@@ -56,9 +51,19 @@
                         </span>
                         </div>
                         <div class="input-minimal-wrapper percent-wrapper">
-                            <input type="number" id="percentage-change" class="input-minimal mono" placeholder="0.00" step="any">
-                            <span class="percent-symbol">%</span>
                             <span class="input-label">Movement Target</span>
+                            <div class="inline-toggle-row">
+                                <div class="toggle-group direction-toggle inline-toggle">
+                                    <input type="radio" id="move-up" name="movement" value="up" checked>
+                                    <label for="move-up" class="toggle-btn up-btn">Up</label>
+                                    <input type="radio" id="move-down" name="movement" value="down">
+                                    <label for="move-down" class="toggle-btn down-btn">Down</label>
+                                </div>
+                                <div class="input-container">
+                                    <input type="number" id="percentage-change" class="input-minimal mono" placeholder="0.00" step="any">
+                                    <span class="percent-symbol">%</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
