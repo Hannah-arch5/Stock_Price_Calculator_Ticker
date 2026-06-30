@@ -369,7 +369,10 @@ function renderHistory() {
             item.dataset.groupIndex = groupIndex;
             item.dataset.itemIndex = itemIndex;
             
-            let resultClass = record.isUp ? 'text-up' : 'text-down';
+            const recCurrency = record.currency || (record.result && record.result.includes('$') ? '$' : '¥');
+            const upColor = recCurrency === '¥' ? '#ff453a' : '#32d74b';
+            const downColor = recCurrency === '¥' ? '#32d74b' : '#ff453a';
+            const resultColor = record.isUp ? upColor : downColor;
 
             let formattedDetails = record.details;
             if (formattedDetails.includes(' | ')) {
@@ -382,11 +385,11 @@ function renderHistory() {
                     <span class="type">${record.type}</span>
                     <span class="info">${formattedDetails}</span>
                 </div>
-                <div class="col-result mono ${resultClass}">
+                <div class="col-result mono" style="color: ${resultColor};">
                     ${record.result}
                 </div>
                 <div class="row-delete">
-                    <button class="delete-btn" title="Delete" onclick="deleteHistory(${groupIndex}, ${itemIndex})">
+                    <button class="delete-btn item-delete-btn" title="Delete">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
                             <line x1="18" y1="6" x2="6" y2="18"></line>
                             <line x1="6" y1="6" x2="18" y2="18"></line>
@@ -405,6 +408,11 @@ function renderHistory() {
                 updateArrayFromDOM();
                 saveState();
                 renderHistory();
+            });
+
+            item.querySelector('.item-delete-btn').addEventListener('click', (e) => {
+                e.stopPropagation();
+                deleteHistory(groupIndex, itemIndex);
             });
 
             item.addEventListener('click', (e) => {
@@ -542,7 +550,8 @@ saveTargetBtn.addEventListener('click', () => {
         details: `<span>Base: ${currentCurrency}${base}</span><span>${currentTargetIsUp ? 'Up' : 'Down'} ${perc}%</span>`,
         result: `${currentCurrency}${formatCurrency(currentTargetPrice)}`,
         isUp: currentTargetIsUp,
-        inputs: { base, perc, isUp: currentTargetIsUp }
+        inputs: { base, perc, isUp: currentTargetIsUp },
+        currency: currentCurrency
     });
 });
 
@@ -557,7 +566,8 @@ savePercentageBtn.addEventListener('click', () => {
         details: `<span>Base: ${currentCurrency}${initial}</span><span>Target: ${currentCurrency}${final}</span>`,
         result: `${Math.abs(currentPercentage).toFixed(2)}%`,
         isUp: currentPercentage > 0,
-        inputs: { initial, final }
+        inputs: { initial, final },
+        currency: currentCurrency
     });
 });
 
