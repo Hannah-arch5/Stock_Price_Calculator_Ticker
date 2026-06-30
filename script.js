@@ -373,7 +373,6 @@ function renderHistory() {
             input.style.color = 'inherit';
             input.style.background = 'transparent';
             input.style.border = 'none';
-            input.style.borderBottom = '1px dashed var(--fg)';
             input.style.outline = 'none';
             input.style.width = '120px';
             input.style.padding = '0';
