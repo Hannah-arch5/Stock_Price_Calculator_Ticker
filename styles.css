@@ -79,8 +79,8 @@ body {
 /* Split View */
 .split-view {
   display: grid;
-  grid-template-columns: 1fr 1.2fr;
-  gap: 8vw;
+  grid-template-columns: 1fr 1.3fr;
+  gap: 5vw;
   flex: 1;
   overflow: hidden;
   -webkit-app-region: no-drag;
@@ -456,11 +456,12 @@ body {
   gap: 0.5rem;
 }
 .col-details .type { 
+  font-size: 0.7rem;
   font-weight: 700; 
   color: var(--fg); 
   text-transform: uppercase; 
-  letter-spacing: 0.1em; 
-  white-space: normal;
+  letter-spacing: 0.05em; 
+  white-space: nowrap;
 }
 .col-details .info { 
   font-family: 'JetBrains Mono', monospace; 
