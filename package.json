@@ -1,14 +1,14 @@
 {
-  "name": "calculator",
+  "name": "ticker",
   "version": "2.0.0",
-  "description": "Stock Price Calculator",
+  "description": "Stock Price Calculator Ticker",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
     "build": "electron-builder --mac"
   },
   "build": {
-    "appId": "com.antigravity.calculator",
+    "appId": "com.antigravity.ticker",
     "mac": {
       "target": "dir",
       "icon": "build/icon.png"
