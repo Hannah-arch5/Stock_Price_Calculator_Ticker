@@ -214,7 +214,11 @@ body {
 .inline-toggle-row .inline-toggle {
   margin-bottom: 0;
   border-bottom: none;
-  margin-right: 1rem;
+  margin-left: 1rem;
+  margin-right: 0;
+}
+.inline-toggle-row .inline-toggle .toggle-btn:last-of-type {
+  margin-right: 0;
 }
 .inline-toggle-row .input-container {
   position: relative;
