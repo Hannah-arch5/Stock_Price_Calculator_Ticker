@@ -79,8 +79,8 @@ body {
 /* Split View */
 .split-view {
   display: grid;
-  grid-template-columns: 1fr 1.3fr;
-  gap: 5vw;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 6vw;
   flex: 1;
   overflow: hidden;
   -webkit-app-region: no-drag;
@@ -283,7 +283,8 @@ body {
   font-weight: 700;
   color: var(--fg-dim);
   text-transform: uppercase;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
 }
 
 .result-value {
