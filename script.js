@@ -462,7 +462,18 @@ function renderHistory() {
                 renderHistory();
             });
 
+            item.addEventListener('click', (e) => {
+                if (e.target.closest('.delete-btn') || e.target.closest('.row-delete')) return;
+                
+                if (e.detail === 1) {
+                    item.clickTimer = setTimeout(() => {
+                        populateForm(record);
+                    }, 200);
+                }
+            });
+
             item.addEventListener('dblclick', (e) => {
+                clearTimeout(item.clickTimer);
                 if (e.target.closest('.row-delete')) return;
                 record.highlighted = !record.highlighted;
                 saveState();
@@ -472,11 +483,6 @@ function renderHistory() {
             item.querySelector('.item-delete-btn').addEventListener('click', (e) => {
                 e.stopPropagation();
                 deleteHistory(groupIndex, itemIndex);
-            });
-
-            item.addEventListener('click', (e) => {
-                if (e.target.closest('.delete-btn')) return;
-                populateForm(record);
             });
             
             listEl.appendChild(item);
