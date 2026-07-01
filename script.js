@@ -307,20 +307,25 @@ clearPercentageBtn.addEventListener('click', () => {
     finalPriceInput.value = '';
     handleInput();
 });
+let isRenderingHistory = false;
 
 // History Logic
 function renderHistory() {
-    const tagsEl = document.getElementById('quick-tags');
-    if (tagsEl) tagsEl.innerHTML = '';
+    if (isRenderingHistory) return;
+    isRenderingHistory = true;
 
-    if (historyRecords.length === 0) {
-        historyListEl.innerHTML = '<p class="empty-history">No history yet.</p>';
-        return;
-    }
+    try {
+        const tagsEl = document.getElementById('quick-tags');
+        if (tagsEl) tagsEl.innerHTML = '';
 
-    historyListEl.innerHTML = '';
-    
-    historyRecords.forEach((group, groupIndex) => {
+        if (historyRecords.length === 0) {
+            historyListEl.innerHTML = '<p class="empty-history">No history yet.</p>';
+            return;
+        }
+
+        historyListEl.innerHTML = '';
+        
+        historyRecords.forEach((group, groupIndex) => {
         if (tagsEl) {
             const tag = document.createElement('button');
             tag.className = 'quick-tag mono';
@@ -627,6 +632,9 @@ function renderHistory() {
         groupEl.appendChild(listEl);
         historyListEl.appendChild(groupEl);
     });
+    } finally {
+        isRenderingHistory = false;
+    }
 }
 
 function getDragAfterElement(container, y) {
