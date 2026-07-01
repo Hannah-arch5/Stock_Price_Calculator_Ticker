@@ -14,6 +14,14 @@
     <div class="drag-bar"></div>
     
     <div class="editorial-container">
+        <!-- Global Export Button -->
+        <button id="export-history-btn" class="global-export-btn" title="Export History to Word">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="7 10 12 15 17 10"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+        </button>
         <!-- Huge header -->
         <header class="masthead">
             <h1>Ticker</h1>
@@ -132,10 +140,7 @@
             <section class="ledger-panel">
                 <div class="ledger-header">
                     <h2>History Ledger</h2>
-                    <div class="header-actions-right" style="display: flex; gap: 0.75rem;">
-                        <button class="clear-btn" id="export-history-btn">Export</button>
-                        <button class="clear-btn" id="clear-all-history-btn">Clear All</button>
-                    </div>
+                    <button class="clear-btn" id="clear-all-history-btn">Clear All</button>
                 </div>
                 
                 <div class="quick-tags" id="quick-tags"></div>

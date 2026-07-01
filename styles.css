@@ -612,3 +612,25 @@ body {
   text-transform: uppercase;
   letter-spacing: 0.1em;
 }
+
+.global-export-btn {
+  position: absolute;
+  top: 2rem;
+  right: 2rem;
+  background: transparent;
+  border: none;
+  color: var(--fg-muted);
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 4px;
+  transition: color 0.2s, background 0.2s;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  -webkit-app-region: no-drag;
+}
+.global-export-btn:hover {
+  color: var(--fg);
+  background: rgba(255, 255, 255, 0.05);
+}
