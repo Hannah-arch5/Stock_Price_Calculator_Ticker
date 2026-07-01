@@ -1,10 +1,10 @@
 :root {
-  --bg: #ffffff;
-  --fg: #000000;
-  --fg-dim: #888888;
-  --border: #e0e0e0;
-  --up-color: #ff3b30;
-  --down-color: #28cd41;
+  --bg: #030303;
+  --fg: #ffffff;
+  --fg-dim: #777777;
+  --border: #222222;
+  --up-color: #ff453a;
+  --down-color: #32d74b;
   --transition-slow: 0.8s cubic-bezier(0.16, 1, 0.3, 1);
   --transition-fast: 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -265,7 +265,7 @@ body {
   outline: none;
   border-color: var(--fg);
 }
-.input-minimal::placeholder { color: #ddd; }
+.input-minimal::placeholder { color: #222; }
 
 #base-price, #initial-price, #final-price { padding-left: 1.5rem; }
 #percentage-change { padding-right: 1.5rem; }
@@ -478,11 +478,11 @@ body {
   border-bottom: 1px solid var(--border);
 }
 .group-note::placeholder {
-  color: #ccc;
+  color: #333;
   transition: color 0.2s;
 }
 .group-note:hover::placeholder, .group-note:focus::placeholder {
-  color: #aaa;
+  color: #555;
 }
 
 .header-actions {
@@ -503,7 +503,7 @@ body {
   border-radius: 50% !important;
   border: none;
   cursor: pointer;
-  background-color: #e0e0e0;
+  background-color: #333333;
   transition: transform var(--transition-fast), background-color var(--transition-fast);
 }
 
@@ -549,11 +549,11 @@ body {
 }
 
 .list-row:hover::before {
-  background-color: #f5f5f5;
+  background-color: #0a0a0a;
 }
 
 .list-row.highlighted::before {
-  background-color: #ebebeb;
+  background-color: #2a2a2a;
 }
 
 .list-row.highlighted::after {
@@ -636,7 +636,7 @@ body {
   right: 20px;
   background: transparent;
   border: none;
-  color: #cccccc; /* Very dim color, matching the minimalist theme */
+  color: #333333; /* Very dim color, matching the dark minimalist theme */
   cursor: pointer;
   padding: 0.5rem;
   border-radius: 4px;
@@ -649,5 +649,5 @@ body {
 }
 .global-export-btn:hover {
   color: var(--fg-dim);
-  background: rgba(0, 0, 0, 0.05);
+  background: rgba(255, 255, 255, 0.05);
 }
