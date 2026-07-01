@@ -514,8 +514,11 @@ function renderHistory() {
                     <span class="type">${record.type}</span>
                     <span class="info">${formattedDetails}</span>
                 </div>
-                <div class="col-result mono" style="color: ${resultColor};">
-                    ${record.result}
+                <div class="col-result-group">
+                    <div class="col-result mono" style="color: ${resultColor};">
+                        ${record.result}
+                    </div>
+                    <input type="number" class="shares-inline-input mono" placeholder="Shares" value="${record.shares || ''}">
                 </div>
                 <div class="row-delete">
                     <button class="delete-btn item-delete-btn" title="Delete">
@@ -598,6 +601,17 @@ function renderHistory() {
                 }
             });
 
+            // Prevent drag from input
+            const sharesInput = item.querySelector('.shares-inline-input');
+            sharesInput.addEventListener('mousedown', e => e.stopPropagation());
+            sharesInput.addEventListener('click', e => e.stopPropagation());
+            
+            // Save shares value on change/blur
+            sharesInput.addEventListener('change', () => {
+                record.shares = sharesInput.value;
+                saveState();
+            });
+
             item.addEventListener('dblclick', (e) => {
                 clearTimeout(item.clickTimer);
                 if (e.target.closest('.row-delete')) return;
@@ -628,10 +642,31 @@ function renderHistory() {
             }
         });
         
-        const noteEl = document.createElement('textarea');
-        noteEl.className = 'group-note mono';
-        noteEl.placeholder = 'Add notes...';
-        noteEl.value = group.note || '';
+        const memoArea = document.createElement('div');
+        memoArea.className = 'group-memo-area';
+        
+        memoArea.innerHTML = `
+            <div class="memo-timeframes">
+                <label>W: <input type="text" class="tf-input mono" data-tf="tf_w" value="${group.tf_w || ''}"></label>
+                <label>D: <input type="text" class="tf-input mono" data-tf="tf_d" value="${group.tf_d || ''}"></label>
+                <label>30: <input type="text" class="tf-input mono" data-tf="tf_30" value="${group.tf_30 || ''}"></label>
+            </div>
+            <textarea class="group-note mono" placeholder="Add notes...">${group.note || ''}</textarea>
+        `;
+        
+        const tfInputs = memoArea.querySelectorAll('.tf-input');
+        tfInputs.forEach(input => {
+            input.addEventListener('blur', () => {
+                const tfKey = input.getAttribute('data-tf');
+                const newVal = input.value.trim();
+                if (newVal !== (group[tfKey] || '')) {
+                    group[tfKey] = newVal;
+                    saveState();
+                }
+            });
+        });
+        
+        const noteEl = memoArea.querySelector('textarea');
         noteEl.spellcheck = false;
         
         noteEl.addEventListener('blur', () => {
@@ -655,7 +690,7 @@ function renderHistory() {
         }, 0);
 
         groupEl.appendChild(headerEl);
-        groupEl.appendChild(noteEl);
+        groupEl.appendChild(memoArea);
         groupEl.appendChild(listEl);
         historyListEl.appendChild(groupEl);
     });
@@ -763,15 +798,28 @@ function updateArrayFromDOM() {
     groups.forEach(groupEl => {
         const symbol = groupEl.dataset.symbol;
         const originalGroup = historyRecords.find(g => g.symbol === symbol);
-        const note = originalGroup ? originalGroup.note : '';
+        
+        const memoArea = groupEl.querySelector('.group-memo-area');
+        const note = memoArea ? memoArea.querySelector('textarea').value : (originalGroup ? originalGroup.note : '');
+        const tf_w = memoArea ? memoArea.querySelector('[data-tf="tf_w"]').value : (originalGroup ? originalGroup.tf_w : '');
+        const tf_d = memoArea ? memoArea.querySelector('[data-tf="tf_d"]').value : (originalGroup ? originalGroup.tf_d : '');
+        const tf_30 = memoArea ? memoArea.querySelector('[data-tf="tf_30"]').value : (originalGroup ? originalGroup.tf_30 : '');
+
         const items = [...groupEl.querySelectorAll('.history-item')];
         const records = items.map(item => {
             const originalGroupIndex = parseInt(item.dataset.groupIndex, 10);
             const originalItemIndex = parseInt(item.dataset.itemIndex, 10);
-            return historyRecords[originalGroupIndex].records[originalItemIndex];
+            const record = historyRecords[originalGroupIndex].records[originalItemIndex];
+            
+            const sharesInput = item.querySelector('.shares-inline-input');
+            if (sharesInput) {
+                record.shares = sharesInput.value;
+            }
+            
+            return record;
         });
         if (records.length > 0) {
-            newHistory.push({ symbol, records, note });
+            newHistory.push({ symbol, records, note, tf_w, tf_d, tf_30 });
         }
     });
     
@@ -831,6 +879,13 @@ if (exportHistoryBtn) {
         historyRecords.forEach(group => {
             htmlContent += `<div class="group">`;
             htmlContent += `<div class="group-title">${group.symbol}</div>`;
+            if (group.tf_w || group.tf_d || group.tf_30) {
+                htmlContent += `<div class="group-note" style="margin-bottom: 5px; font-weight: bold;">`;
+                if (group.tf_w) htmlContent += `W: ${group.tf_w} &nbsp;&nbsp;`;
+                if (group.tf_d) htmlContent += `D: ${group.tf_d} &nbsp;&nbsp;`;
+                if (group.tf_30) htmlContent += `30: ${group.tf_30}`;
+                htmlContent += `</div>`;
+            }
             if (group.note) {
                 htmlContent += `<div class="group-note">${group.note.replace(/\n/g, '<br>')}</div>`;
             }
