@@ -762,6 +762,8 @@ function updateArrayFromDOM() {
     
     groups.forEach(groupEl => {
         const symbol = groupEl.dataset.symbol;
+        const originalGroup = historyRecords.find(g => g.symbol === symbol);
+        const note = originalGroup ? originalGroup.note : '';
         const items = [...groupEl.querySelectorAll('.history-item')];
         const records = items.map(item => {
             const originalGroupIndex = parseInt(item.dataset.groupIndex, 10);
@@ -769,7 +771,7 @@ function updateArrayFromDOM() {
             return historyRecords[originalGroupIndex].records[originalItemIndex];
         });
         if (records.length > 0) {
-            newHistory.push({ symbol, records });
+            newHistory.push({ symbol, records, note });
         }
     });
     
