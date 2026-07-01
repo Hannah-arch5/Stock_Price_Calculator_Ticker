@@ -838,7 +838,17 @@ if (exportHistoryBtn) {
             group.records.forEach(record => {
                 let detailsText = record.details.replace(/<\/span><span>/g, ' | ').replace(/<[^>]+>/g, '');
                 let typeText = record.type;
-                htmlContent += `<li class="record-item"><span class="record-type">[${typeText}]</span> ${detailsText}</li>`;
+                
+                const recCurrency = record.currency || (record.result && record.result.includes('$') ? '$' : '¥');
+                const upColor = recCurrency === '¥' ? '#ff453a' : '#32d74b';
+                const downColor = recCurrency === '¥' ? '#32d74b' : '#ff453a';
+                const resultColor = record.isUp ? upColor : downColor;
+                
+                htmlContent += `<li class="record-item">
+                    <span class="record-type">[${typeText}]</span> 
+                    <span>${detailsText}</span> 
+                    <strong>&rarr; <span style="color: ${resultColor};">${record.result}</span></strong>
+                </li>`;
             });
             htmlContent += `</ul></div>`;
         });
