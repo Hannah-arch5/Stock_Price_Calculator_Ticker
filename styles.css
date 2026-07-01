@@ -449,12 +449,40 @@ body {
   font-size: 1.2rem;
   font-weight: 300;
   color: var(--fg);
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.25rem;
   border-bottom: 1px solid var(--border);
   padding-bottom: 0.5rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+
+.group-note {
+  width: 100%;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid transparent;
+  color: var(--fg-muted);
+  font-family: inherit;
+  font-size: 0.85rem;
+  padding: 0.25rem 0 0.5rem 0;
+  margin-bottom: 0.75rem;
+  outline: none;
+  resize: none;
+  overflow: hidden;
+  transition: color 0.2s, border-color 0.2s;
+  box-sizing: border-box;
+}
+.group-note:hover, .group-note:focus {
+  color: var(--fg);
+  border-bottom: 1px solid var(--border);
+}
+.group-note::placeholder {
+  color: #333;
+  transition: color 0.2s;
+}
+.group-note:hover::placeholder, .group-note:focus::placeholder {
+  color: #555;
 }
 
 .header-actions {

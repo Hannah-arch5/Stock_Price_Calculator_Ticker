@@ -628,7 +628,34 @@ function renderHistory() {
             }
         });
         
+        const noteEl = document.createElement('textarea');
+        noteEl.className = 'group-note mono';
+        noteEl.placeholder = 'Add notes...';
+        noteEl.value = group.note || '';
+        noteEl.spellcheck = false;
+        
+        noteEl.addEventListener('blur', () => {
+            const newNote = noteEl.value.trim();
+            if (newNote !== (group.note || '')) {
+                group.note = newNote;
+                saveState();
+            }
+        });
+        
+        noteEl.addEventListener('input', () => {
+            noteEl.style.height = 'auto';
+            noteEl.style.height = (noteEl.scrollHeight) + 'px';
+        });
+        
+        setTimeout(() => {
+            if (noteEl.scrollHeight > 0) {
+                noteEl.style.height = 'auto';
+                noteEl.style.height = (noteEl.scrollHeight) + 'px';
+            }
+        }, 0);
+
         groupEl.appendChild(headerEl);
+        groupEl.appendChild(noteEl);
         groupEl.appendChild(listEl);
         historyListEl.appendChild(groupEl);
     });
