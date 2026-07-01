@@ -337,6 +337,23 @@ function renderHistory() {
                 tag.style.borderColor = colors[group.records[0].urgency];
             }
             
+            tag.draggable = true;
+            tag.dataset.symbol = group.symbol;
+            
+            tag.addEventListener('dragstart', (e) => {
+                if (e.target !== tag) return;
+                tag.classList.add('dragging-tag');
+                e.dataTransfer.effectAllowed = 'move';
+            });
+
+            tag.addEventListener('dragend', (e) => {
+                if (e.target !== tag) return;
+                tag.classList.remove('dragging-tag');
+                updateArrayFromDOMTags();
+                saveState();
+                renderHistory();
+            });
+
             tag.onclick = () => {
                 const targetGroup = historyListEl.querySelector(`[data-symbol="${group.symbol}"]`);
                 if (targetGroup) {
@@ -599,6 +616,59 @@ function getDragAfterGroup(container, y) {
             return closest;
         }
     }, { offset: Number.NEGATIVE_INFINITY }).element;
+}
+
+const quickTagsContainer = document.getElementById('quick-tags');
+if (quickTagsContainer) {
+    quickTagsContainer.addEventListener('dragover', (e) => {
+        const draggingTag = document.querySelector('.dragging-tag');
+        if (!draggingTag) return;
+        
+        e.preventDefault();
+        const afterElement = getDragAfterTag(quickTagsContainer, e.clientX, e.clientY);
+        if (afterElement == null) {
+            quickTagsContainer.appendChild(draggingTag);
+        } else {
+            quickTagsContainer.insertBefore(draggingTag, afterElement);
+        }
+    });
+}
+
+function getDragAfterTag(container, x, y) {
+    const draggableElements = [...container.querySelectorAll('.quick-tag:not(.dragging-tag)')];
+    
+    for (const child of draggableElements) {
+        const box = child.getBoundingClientRect();
+        if (y >= box.top && y <= box.bottom) {
+            if (x < box.left + box.width / 2) {
+                return child;
+            }
+        } else if (y < box.top) {
+            return child;
+        }
+    }
+    return null;
+}
+
+function updateArrayFromDOMTags() {
+    const tags = [...document.querySelectorAll('.quick-tag')];
+    const newHistory = [];
+    
+    tags.forEach(tagEl => {
+        const symbol = tagEl.dataset.symbol;
+        const group = historyRecords.find(g => g.symbol === symbol);
+        if (group) {
+            newHistory.push(group);
+        }
+    });
+    
+    historyRecords.forEach(group => {
+        if (!newHistory.find(g => g.symbol === group.symbol)) {
+            newHistory.push(group);
+        }
+    });
+    
+    historyRecords = newHistory;
 }
 
 function updateArrayFromDOM() {

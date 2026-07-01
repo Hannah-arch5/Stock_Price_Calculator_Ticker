@@ -390,10 +390,14 @@ body {
 }
 
 .quick-tags {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
   gap: 0.5rem;
   margin-bottom: 1.5rem;
+}
+
+.dragging-tag {
+  opacity: 0.5;
 }
 
 .quick-tag {
