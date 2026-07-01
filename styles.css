@@ -529,15 +529,12 @@ body {
   cursor: pointer;
   position: relative;
   z-index: 1;
-  transition: opacity var(--transition-fast) cubic-bezier(0.2, 0.8, 0.2, 1);
+  transition: opacity var(--transition-fast) cubic-bezier(0.2, 0.8, 0.2, 1), padding var(--transition-fast);
 }
 
-.list-row > * {
-  transition: transform var(--transition-fast) cubic-bezier(0.2, 0.8, 0.2, 1);
-}
-
-.list-row:hover > * {
-  transform: translateX(8px);
+.list-row:hover {
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
 }
 
 .list-row::before {
