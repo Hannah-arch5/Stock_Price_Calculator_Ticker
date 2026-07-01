@@ -615,8 +615,9 @@ body {
 
 .global-export-btn {
   position: absolute;
-  top: 2rem;
-  right: 2rem;
+  top: 15px; /* Vertically centered with macOS window controls */
+  transform: translateY(-50%);
+  right: 20px;
   background: transparent;
   border: none;
   color: var(--fg-muted);
