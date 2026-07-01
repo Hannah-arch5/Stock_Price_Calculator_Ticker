@@ -589,10 +589,11 @@ input[type=number] {
 }
 
 .list-row {
+  --row-pad: 0px;
   display: flex;
   align-items: center;
   gap: 1rem;
-  padding: 1rem 0;
+  padding: 2.25rem var(--row-pad) 1rem var(--row-pad);
   border-bottom: 1px solid var(--border);
   cursor: pointer;
   position: relative;
@@ -601,8 +602,7 @@ input[type=number] {
 }
 
 .list-row:hover {
-  padding-left: 0.5rem;
-  padding-right: 0.5rem;
+  --row-pad: 0.5rem;
 }
 
 .list-row::before {
@@ -643,17 +643,19 @@ input[type=number] {
   color: var(--fg-dim);
   display: flex;
   flex-direction: column;
-  align-self: flex-start;
   gap: 0.5rem;
 }
 .col-details .type { 
+  position: absolute;
+  top: 1rem;
+  left: var(--row-pad);
   font-size: 0.7rem;
   font-weight: 700; 
   color: var(--fg); 
   text-transform: uppercase; 
   letter-spacing: 0.05em; 
-  white-space: normal;
-  word-break: break-word;
+  white-space: nowrap;
+  transition: left var(--transition-fast);
 }
 .col-details .info { 
   font-family: 'JetBrains Mono', monospace; 
@@ -670,9 +672,8 @@ input[type=number] {
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
+  justify-content: center;
   align-items: flex-end;
-  align-self: flex-end;
   gap: 0.4rem;
 }
 
