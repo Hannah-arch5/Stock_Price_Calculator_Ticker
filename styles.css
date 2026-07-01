@@ -520,7 +520,18 @@ body {
 }
 
 .list-row.highlighted::before {
-  background-color: #1c1c1c;
+  background-color: #2a2a2a;
+}
+
+.list-row.highlighted::after {
+  content: '';
+  position: absolute;
+  top: 10%;
+  bottom: 10%;
+  left: -0.75rem;
+  width: 2px;
+  background-color: var(--fg);
+  border-radius: 2px;
 }
 
 .col-details {
