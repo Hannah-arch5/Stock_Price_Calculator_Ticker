@@ -310,6 +310,9 @@ clearPercentageBtn.addEventListener('click', () => {
 
 // History Logic
 function renderHistory() {
+    const tagsEl = document.getElementById('quick-tags');
+    if (tagsEl) tagsEl.innerHTML = '';
+
     if (historyRecords.length === 0) {
         historyListEl.innerHTML = '<p class="empty-history">No history yet.</p>';
         return;
@@ -318,6 +321,31 @@ function renderHistory() {
     historyListEl.innerHTML = '';
     
     historyRecords.forEach((group, groupIndex) => {
+        if (tagsEl) {
+            const tag = document.createElement('button');
+            tag.className = 'quick-tag mono';
+            tag.textContent = group.symbol;
+            
+            // Re-apply the priority dot color to the tag border/text if we want, or just leave it gray
+            if (group.records[0] && group.records[0].urgency) {
+                const colors = {
+                    'green': '#32d74b',
+                    'orange': '#ff9f0a',
+                    'red': '#ff453a'
+                };
+                tag.style.color = colors[group.records[0].urgency];
+                tag.style.borderColor = colors[group.records[0].urgency];
+            }
+            
+            tag.onclick = () => {
+                const targetGroup = historyListEl.querySelector(`[data-symbol="${group.symbol}"]`);
+                if (targetGroup) {
+                    targetGroup.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            };
+            tagsEl.appendChild(tag);
+        }
+
         const groupEl = document.createElement('div');
         groupEl.className = 'history-group';
         groupEl.dataset.symbol = group.symbol;

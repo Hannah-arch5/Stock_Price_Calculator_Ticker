@@ -389,6 +389,30 @@ body {
   color: var(--fg-dim);
 }
 
+.quick-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+}
+
+.quick-tag {
+  background-color: transparent;
+  color: var(--fg-dim);
+  border: 1px solid var(--border);
+  padding: 0.25rem 0.6rem;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  border-radius: 12px !important;
+}
+
+.quick-tag:hover {
+  background-color: var(--fg);
+  color: var(--bg);
+  border-color: var(--fg);
+}
+
 .clear-btn {
   background: transparent;
   border: none;
