@@ -802,6 +802,7 @@ saveTargetBtn.addEventListener('click', () => {
 
     addRecordToHistory({
         type: 'Target Projection',
+        mode: 'target',
         symbol: stockSymbol1Input.value.trim().toUpperCase(),
         details: `<span>Base: ${currentCurrency}${base}</span><span>${currentTargetIsUp ? 'Up' : 'Down'} ${perc}%</span>`,
         result: `${currentCurrency}${formatCurrency(currentTargetPrice)}`,
@@ -818,6 +819,7 @@ savePercentageBtn.addEventListener('click', () => {
 
     addRecordToHistory({
         type: 'Percentage Delta',
+        mode: 'percentage',
         symbol: stockSymbol2Input.value.trim().toUpperCase(),
         details: `<span>Base: ${currentCurrency}${initial}</span><span>Target: ${currentCurrency}${final}</span>`,
         result: `${Math.abs(currentPercentage).toFixed(2)}%`,
@@ -828,7 +830,18 @@ savePercentageBtn.addEventListener('click', () => {
 });
 
 function populateForm(record) {
-    if (record.type === 'Target Projection' || record.type === 'Target Price') {
+    let isPercentage = false;
+    if (record.mode === 'percentage') {
+        isPercentage = true;
+    } else if (record.inputs && record.inputs.initial !== undefined) {
+        isPercentage = true;
+    } else if (record.result && record.result.includes('%')) {
+        isPercentage = true;
+    } else if (record.type === 'Percentage Delta' || record.type === 'Percentage Change') {
+        isPercentage = true;
+    }
+
+    if (!isPercentage) {
         stockSymbol1Input.value = record.symbol || '';
         if (record.inputs) {
             basePriceInput.value = record.inputs.base;
@@ -844,7 +857,7 @@ function populateForm(record) {
             }
         }
         handleInput();
-    } else if (record.type === 'Percentage Delta' || record.type === 'Percentage Change') {
+    } else {
         stockSymbol2Input.value = record.symbol || '';
         if (record.inputs) {
             initialPriceInput.value = record.inputs.initial;
