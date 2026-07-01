@@ -802,6 +802,62 @@ if (clearAllHistoryBtn) {
     });
 }
 
+const exportHistoryBtn = document.getElementById('export-history-btn');
+if (exportHistoryBtn) {
+    exportHistoryBtn.addEventListener('click', () => {
+        if (historyRecords.length === 0) return;
+        
+        let htmlContent = `
+        <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+        <head>
+            <meta charset="utf-8">
+            <title>Ticker History Export</title>
+            <style>
+                body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #333; line-height: 1.6; }
+                h1 { border-bottom: 2px solid #333; padding-bottom: 5px; }
+                .group { margin-bottom: 30px; }
+                .group-title { font-size: 20px; font-weight: bold; margin-bottom: 5px; color: #000; }
+                .group-note { font-style: italic; color: #666; margin-bottom: 10px; white-space: pre-wrap; }
+                .record-item { margin-bottom: 5px; }
+                .record-type { font-weight: bold; margin-right: 10px; }
+            </style>
+        </head>
+        <body>
+            <h1>Ticker History Export</h1>
+            <p>Generated on: ${new Date().toLocaleString()}</p>
+            <hr>
+        `;
+        
+        historyRecords.forEach(group => {
+            htmlContent += `<div class="group">`;
+            htmlContent += `<div class="group-title">${group.symbol}</div>`;
+            if (group.note) {
+                htmlContent += `<div class="group-note">${group.note.replace(/\n/g, '<br>')}</div>`;
+            }
+            htmlContent += `<ul>`;
+            group.records.forEach(record => {
+                let detailsText = record.details.replace(/<\/span><span>/g, ' | ').replace(/<[^>]+>/g, '');
+                let typeText = record.type;
+                htmlContent += `<li class="record-item"><span class="record-type">[${typeText}]</span> ${detailsText}</li>`;
+            });
+            htmlContent += `</ul></div>`;
+        });
+        
+        htmlContent += `</body></html>`;
+        
+        const blob = new Blob(['\ufeff', htmlContent], {
+            type: 'application/msword'
+        });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = \`Ticker_Export_${new Date().toISOString().slice(0,10)}.doc\`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    });
+}
+
 function addRecordToHistory(record) {
     const sym = record.symbol || 'Uncategorized';
     let group = historyRecords.find(g => g.symbol === sym);
