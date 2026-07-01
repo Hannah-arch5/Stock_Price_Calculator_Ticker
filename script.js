@@ -561,7 +561,10 @@ function renderHistory() {
                     input.focus();
                     input.select();
                     
+                    let saved = false;
                     const saveNewType = () => {
+                        if (saved) return;
+                        saved = true;
                         const newType = input.value.trim();
                         if (newType && newType !== record.type) {
                             record.type = newType;
@@ -572,10 +575,12 @@ function renderHistory() {
                     
                     input.addEventListener('blur', saveNewType);
                     input.addEventListener('keydown', (ke) => {
-                        if (ke.key === 'Enter') saveNewType();
+                        if (ke.key === 'Enter') {
+                            input.blur(); // will trigger saveNewType via blur
+                        }
                         if (ke.key === 'Escape') {
                             input.value = originalText;
-                            saveNewType();
+                            input.blur(); // will restore original via blur
                         }
                     });
                     return;
