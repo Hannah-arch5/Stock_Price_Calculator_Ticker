@@ -637,12 +637,16 @@ input[type=number] {
   text-transform: uppercase; 
   letter-spacing: 0.05em; 
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .col-details .info { 
   font-family: 'JetBrains Mono', monospace; 
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
+  min-width: 0;
+  overflow: hidden;
 }
 .col-details .info span {
   white-space: nowrap;
