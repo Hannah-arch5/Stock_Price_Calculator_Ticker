@@ -654,8 +654,9 @@ input[type=number] {
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
+  justify-content: center;
   align-items: flex-end;
-  gap: 0.25rem;
+  gap: 0.4rem;
 }
 
 .shares-inline-input {
@@ -667,6 +668,7 @@ input[type=number] {
   font-weight: 500;
   padding: 2px 0;
   width: 60px;
+  line-height: 1;
   text-align: right;
   outline: none;
   opacity: 0.8;
@@ -687,6 +689,7 @@ input[type=number] {
   font-size: 1.2rem;
   font-weight: 300;
   text-align: right;
+  line-height: 1;
   color: var(--fg);
 }
 
