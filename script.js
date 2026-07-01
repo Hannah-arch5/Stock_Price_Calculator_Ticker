@@ -509,8 +509,11 @@ function renderHistory() {
                     <span class="type">${record.type}</span>
                     <span class="info">${formattedDetails}</span>
                 </div>
-                <div class="col-result mono" style="color: ${resultColor};">
-                    ${record.result}
+                <div class="col-result-group">
+                    <div class="col-result mono" style="color: ${resultColor};">
+                        ${record.result}
+                    </div>
+                    <input type="number" class="shares-inline-input mono" placeholder="Shares" value="${record.shares || ''}">
                 </div>
                 <div class="row-delete">
                     <button class="delete-btn item-delete-btn" title="Delete">
@@ -542,6 +545,17 @@ function renderHistory() {
                         populateForm(record);
                     }, 200);
                 }
+            });
+
+            // Prevent drag from input
+            const sharesInput = item.querySelector('.shares-inline-input');
+            sharesInput.addEventListener('mousedown', e => e.stopPropagation());
+            sharesInput.addEventListener('click', e => e.stopPropagation());
+            
+            // Save shares value on change/blur
+            sharesInput.addEventListener('change', () => {
+                record.shares = sharesInput.value;
+                saveState();
             });
 
             item.addEventListener('dblclick', (e) => {
@@ -674,17 +688,25 @@ function updateArrayFromDOMTags() {
 function updateArrayFromDOM() {
     const groups = [...historyListEl.querySelectorAll('.history-group')];
     const newHistory = [];
-    
     groups.forEach(groupEl => {
         const symbol = groupEl.dataset.symbol;
+        const originalGroup = historyRecords.find(g => g.symbol === symbol);
+        const note = originalGroup ? originalGroup.note : '';
         const items = [...groupEl.querySelectorAll('.history-item')];
         const records = items.map(item => {
             const originalGroupIndex = parseInt(item.dataset.groupIndex, 10);
             const originalItemIndex = parseInt(item.dataset.itemIndex, 10);
-            return historyRecords[originalGroupIndex].records[originalItemIndex];
+            const record = historyRecords[originalGroupIndex].records[originalItemIndex];
+            
+            const sharesInput = item.querySelector('.shares-inline-input');
+            if (sharesInput) {
+                record.shares = sharesInput.value;
+            }
+            
+            return record;
         });
         if (records.length > 0) {
-            newHistory.push({ symbol, records });
+            newHistory.push({ symbol, records, note });
         }
     });
     

@@ -195,6 +195,16 @@ body {
   margin-top: 1.5rem;
 }
 
+/* Remove number input spinners globally */
+input[type=number]::-webkit-inner-spin-button, 
+input[type=number]::-webkit-outer-spin-button { 
+  -webkit-appearance: none; 
+  margin: 0; 
+}
+input[type=number] {
+  -moz-appearance: textfield;
+}
+
 .input-minimal-wrapper {
   position: relative;
   display: flex;
@@ -561,6 +571,38 @@ body {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.col-result-group {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.25rem;
+}
+
+.shares-inline-input {
+  background: transparent;
+  border: none;
+  color: var(--fg);
+  font-family: inherit;
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 2px 0;
+  width: 60px;
+  text-align: right;
+  outline: none;
+  opacity: 0.8;
+  transition: opacity var(--transition-fast);
+}
+
+.shares-inline-input:hover,
+.shares-inline-input:focus {
+  opacity: 1;
+}
+
+.shares-inline-input::placeholder {
+  color: var(--border);
 }
 
 .col-result {
