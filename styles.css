@@ -551,17 +551,6 @@ body {
   background-color: #2a2a2a;
 }
 
-.list-row.highlighted::after {
-  content: '';
-  position: absolute;
-  top: 10%;
-  bottom: 10%;
-  left: -0.75rem;
-  width: 2px;
-  background-color: var(--fg);
-  border-radius: 2px;
-}
-
 .col-details {
   flex: 1;
   min-width: 0;
