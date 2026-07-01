@@ -615,7 +615,7 @@ body {
 
 .global-export-btn {
   position: absolute;
-  top: 20px; /* Aligned with standard hiddenInset Mac window controls */
+  top: 28px; /* Aligned with standard hiddenInset Mac window controls center */
   transform: translateY(-50%);
   right: 20px;
   background: transparent;
