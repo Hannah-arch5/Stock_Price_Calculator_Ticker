@@ -537,6 +537,50 @@ function renderHistory() {
             item.addEventListener('click', (e) => {
                 if (e.target.closest('.delete-btn') || e.target.closest('.row-delete')) return;
                 
+                const typeSpan = e.target.closest('.type');
+                if (typeSpan) {
+                    if (typeSpan.querySelector('.edit-type-input')) return;
+                    
+                    const originalText = record.type;
+                    const input = document.createElement('input');
+                    input.type = 'text';
+                    input.className = 'edit-type-input mono';
+                    input.value = originalText;
+                    input.style.fontSize = 'inherit';
+                    input.style.fontWeight = 'inherit';
+                    input.style.color = 'inherit';
+                    input.style.background = 'transparent';
+                    input.style.border = 'none';
+                    input.style.outline = 'none';
+                    input.style.width = '120px';
+                    input.style.padding = '0';
+                    input.style.margin = '0';
+                    
+                    typeSpan.innerHTML = '';
+                    typeSpan.appendChild(input);
+                    input.focus();
+                    input.select();
+                    
+                    const saveNewType = () => {
+                        const newType = input.value.trim();
+                        if (newType && newType !== record.type) {
+                            record.type = newType;
+                            saveState();
+                        }
+                        renderHistory();
+                    };
+                    
+                    input.addEventListener('blur', saveNewType);
+                    input.addEventListener('keydown', (ke) => {
+                        if (ke.key === 'Enter') saveNewType();
+                        if (ke.key === 'Escape') {
+                            input.value = originalText;
+                            saveNewType();
+                        }
+                    });
+                    return;
+                }
+                
                 if (e.detail === 1) {
                     item.clickTimer = setTimeout(() => {
                         populateForm(record);
@@ -547,6 +591,7 @@ function renderHistory() {
             item.addEventListener('dblclick', (e) => {
                 clearTimeout(item.clickTimer);
                 if (e.target.closest('.row-delete')) return;
+                if (e.target.closest('.edit-type-input')) return;
                 record.highlighted = !record.highlighted;
                 saveState();
                 renderHistory();
