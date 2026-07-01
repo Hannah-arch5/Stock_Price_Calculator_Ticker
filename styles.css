@@ -533,7 +533,7 @@ body {
 }
 
 .list-row:hover {
-  padding-left: 0.5rem;
+  padding-left: 1rem;
 }
 
 .list-row::before {
