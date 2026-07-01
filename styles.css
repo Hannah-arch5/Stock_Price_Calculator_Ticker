@@ -615,12 +615,12 @@ body {
 
 .global-export-btn {
   position: absolute;
-  top: 15px; /* Vertically centered with macOS window controls */
+  top: 20px; /* Aligned with standard hiddenInset Mac window controls */
   transform: translateY(-50%);
   right: 20px;
   background: transparent;
   border: none;
-  color: var(--fg-muted);
+  color: #333333; /* Very dim color, matching the dark minimalist theme */
   cursor: pointer;
   padding: 0.5rem;
   border-radius: 4px;
@@ -632,6 +632,6 @@ body {
   -webkit-app-region: no-drag;
 }
 .global-export-btn:hover {
-  color: var(--fg);
+  color: var(--fg-dim);
   background: rgba(255, 255, 255, 0.05);
 }
