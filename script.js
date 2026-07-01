@@ -851,7 +851,7 @@ if (exportHistoryBtn) {
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
-        link.download = \`Ticker_Export_${new Date().toISOString().slice(0,10)}.doc\`;
+        link.download = `Ticker_Export_${new Date().toISOString().slice(0,10)}.doc`;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
