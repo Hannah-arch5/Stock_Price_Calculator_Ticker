@@ -448,6 +448,12 @@ body {
   padding-right: 0.5rem;
 }
 
+.list-row.highlighted {
+  background-color: #1c1c1c;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+}
+
 .col-details {
   flex: 1;
   min-width: 0;

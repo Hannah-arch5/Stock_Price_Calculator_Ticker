@@ -414,6 +414,9 @@ function renderHistory() {
         group.records.forEach((record, itemIndex) => {
             const item = document.createElement('div');
             item.className = 'list-row history-item';
+            if (record.highlighted) {
+                item.classList.add('highlighted');
+            }
             item.draggable = true;
             item.dataset.groupIndex = groupIndex;
             item.dataset.itemIndex = itemIndex;
@@ -455,6 +458,13 @@ function renderHistory() {
             item.addEventListener('dragend', () => {
                 item.classList.remove('dragging');
                 updateArrayFromDOM();
+                saveState();
+                renderHistory();
+            });
+
+            item.addEventListener('dblclick', (e) => {
+                if (e.target.closest('.row-delete')) return;
+                record.highlighted = !record.highlighted;
                 saveState();
                 renderHistory();
             });
