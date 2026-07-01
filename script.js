@@ -647,9 +647,9 @@ function renderHistory() {
         
         memoArea.innerHTML = `
             <div class="memo-timeframes">
-                <label>W: <input type="text" class="tf-input mono" data-tf="tf_w" value="${group.tf_w || ''}"></label>
-                <label>D: <input type="text" class="tf-input mono" data-tf="tf_d" value="${group.tf_d || ''}"></label>
-                <label>30: <input type="text" class="tf-input mono" data-tf="tf_30" value="${group.tf_30 || ''}"></label>
+                <label><span class="tf-label">W:</span> <input type="text" class="tf-input mono" data-tf="tf_w" value="${group.tf_w || ''}"></label>
+                <label><span class="tf-label">D:</span> <input type="text" class="tf-input mono" data-tf="tf_d" value="${group.tf_d || ''}"></label>
+                <label><span class="tf-label">30:</span> <input type="text" class="tf-input mono" data-tf="tf_30" value="${group.tf_30 || ''}"></label>
             </div>
             <textarea class="group-note mono" placeholder="Add notes...">${group.note || ''}</textarea>
         `;
