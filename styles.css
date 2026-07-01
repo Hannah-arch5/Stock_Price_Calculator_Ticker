@@ -529,6 +529,12 @@ body {
   cursor: pointer;
   position: relative;
   z-index: 1;
+  transition: opacity var(--transition-fast) cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* Lights out effect */
+#history-list:has(.list-row.highlighted) .list-row:not(.highlighted) {
+  opacity: 0.2;
 }
 
 .list-row::before {
