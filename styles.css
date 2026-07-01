@@ -628,6 +628,7 @@ input[type=number] {
   color: var(--fg-dim);
   display: flex;
   flex-direction: column;
+  align-self: flex-start;
   gap: 0.5rem;
 }
 .col-details .type { 
@@ -636,30 +637,27 @@ input[type=number] {
   color: var(--fg); 
   text-transform: uppercase; 
   letter-spacing: 0.05em; 
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  white-space: normal;
+  word-break: break-word;
 }
 .col-details .info { 
   font-family: 'JetBrains Mono', monospace; 
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
-  min-width: 0;
-  overflow: hidden;
 }
 .col-details .info span {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  white-space: normal;
+  word-break: break-word;
 }
 
 .col-result-group {
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-end;
   align-items: flex-end;
+  align-self: flex-end;
   gap: 0.4rem;
 }
 
