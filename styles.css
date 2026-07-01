@@ -532,11 +532,6 @@ body {
   transition: opacity var(--transition-fast) cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
-/* Lights out effect */
-#history-list:has(.list-row.highlighted) .list-row:not(.highlighted) {
-  opacity: 0.2;
-}
-
 .list-row::before {
   content: '';
   position: absolute;
@@ -555,6 +550,17 @@ body {
 
 .list-row.highlighted::before {
   background-color: #2a2a2a;
+}
+
+.list-row.highlighted::after {
+  content: '';
+  position: absolute;
+  top: 10%;
+  bottom: 10%;
+  left: -0.75rem;
+  width: 2px;
+  background-color: var(--fg);
+  border-radius: 2px;
 }
 
 .col-details {
