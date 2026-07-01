@@ -1,10 +1,10 @@
 :root {
-  --bg: #030303;
-  --fg: #ffffff;
-  --fg-dim: #777777;
-  --border: #222222;
-  --up-color: #ff453a;
-  --down-color: #32d74b;
+  --bg: #ffffff;
+  --fg: #000000;
+  --fg-dim: #888888;
+  --border: #e0e0e0;
+  --up-color: #ff3b30;
+  --down-color: #28cd41;
   --transition-slow: 0.8s cubic-bezier(0.16, 1, 0.3, 1);
   --transition-fast: 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -265,7 +265,7 @@ body {
   outline: none;
   border-color: var(--fg);
 }
-.input-minimal::placeholder { color: #222; }
+.input-minimal::placeholder { color: #ddd; }
 
 #base-price, #initial-price, #final-price { padding-left: 1.5rem; }
 #percentage-change { padding-right: 1.5rem; }
@@ -478,11 +478,11 @@ body {
   border-bottom: 1px solid var(--border);
 }
 .group-note::placeholder {
-  color: #333;
+  color: #ccc;
   transition: color 0.2s;
 }
 .group-note:hover::placeholder, .group-note:focus::placeholder {
-  color: #555;
+  color: #aaa;
 }
 
 .header-actions {
@@ -503,7 +503,7 @@ body {
   border-radius: 50% !important;
   border: none;
   cursor: pointer;
-  background-color: #333333;
+  background-color: #e0e0e0;
   transition: transform var(--transition-fast), background-color var(--transition-fast);
 }
 
@@ -529,7 +529,11 @@ body {
   cursor: pointer;
   position: relative;
   z-index: 1;
-  transition: opacity var(--transition-fast) cubic-bezier(0.2, 0.8, 0.2, 1);
+  transition: opacity var(--transition-fast) cubic-bezier(0.2, 0.8, 0.2, 1), padding-left var(--transition-slow);
+}
+
+.list-row:hover {
+  padding-left: 0.5rem;
 }
 
 .list-row::before {
@@ -545,11 +549,11 @@ body {
 }
 
 .list-row:hover::before {
-  background-color: #0a0a0a;
+  background-color: #f5f5f5;
 }
 
 .list-row.highlighted::before {
-  background-color: #2a2a2a;
+  background-color: #ebebeb;
 }
 
 .list-row.highlighted::after {
@@ -632,7 +636,7 @@ body {
   right: 20px;
   background: transparent;
   border: none;
-  color: #333333; /* Very dim color, matching the dark minimalist theme */
+  color: #cccccc; /* Very dim color, matching the minimalist theme */
   cursor: pointer;
   padding: 0.5rem;
   border-radius: 4px;
@@ -645,5 +649,5 @@ body {
 }
 .global-export-btn:hover {
   color: var(--fg-dim);
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(0, 0, 0, 0.05);
 }
