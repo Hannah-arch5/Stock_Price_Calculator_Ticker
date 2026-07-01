@@ -524,21 +524,20 @@ body {
   display: flex;
   align-items: center;
   gap: 1rem;
-  padding: 1rem 0.75rem;
-  margin: 0 -0.75rem;
+  padding: 1rem 0;
   border-bottom: 1px solid var(--border);
   cursor: pointer;
   position: relative;
   z-index: 1;
-  border-radius: 8px;
-  transition: all var(--transition-fast) cubic-bezier(0.2, 0.8, 0.2, 1);
+  transition: opacity var(--transition-fast) cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
-.list-row:hover {
-  background-color: #1a1a1a;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5);
-  border-bottom-color: transparent;
+.list-row > * {
+  transition: transform var(--transition-fast) cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.list-row:hover > * {
+  transform: translateX(8px);
 }
 
 .list-row::before {
