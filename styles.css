@@ -436,6 +436,8 @@ body {
   -ms-overflow-style: none;
   scrollbar-width: none;
   padding-right: 1vw;
+  padding-left: 1.25rem;
+  margin-left: -1.25rem;
 }
 .editorial-list::-webkit-scrollbar { display: none; }
 
