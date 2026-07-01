@@ -363,6 +363,41 @@ function renderHistory() {
             tagsEl.appendChild(tag);
         }
 
+        const memoArea = document.createElement('div');
+        memoArea.className = 'group-memo-area';
+        
+        memoArea.innerHTML = `
+            <div class="memo-timeframes">
+                <label>W: <input type="text" class="tf-input mono" data-tf="tf_w" value="${group.tf_w || ''}"></label>
+                <label>D: <input type="text" class="tf-input mono" data-tf="tf_d" value="${group.tf_d || ''}"></label>
+                <label>30: <input type="text" class="tf-input mono" data-tf="tf_30" value="${group.tf_30 || ''}"></label>
+            </div>
+            <textarea class="group-note mono" placeholder="Add notes...">${group.note || ''}</textarea>
+        `;
+        
+        const tfInputs = memoArea.querySelectorAll('.tf-input');
+        tfInputs.forEach(input => {
+            input.addEventListener('blur', () => {
+                const tfKey = input.getAttribute('data-tf');
+                const newVal = input.value.trim();
+                if (newVal !== (group[tfKey] || '')) {
+                    group[tfKey] = newVal;
+                    saveState();
+                }
+            });
+        });
+        
+        const noteEl = memoArea.querySelector('textarea');
+        noteEl.spellcheck = false;
+        
+        noteEl.addEventListener('blur', () => {
+            const newNote = noteEl.value.trim();
+            if (newNote !== (group.note || '')) {
+                group.note = newNote;
+                saveState();
+            }
+        });
+
         const groupEl = document.createElement('div');
         groupEl.className = 'history-group';
         groupEl.dataset.symbol = group.symbol;
@@ -588,6 +623,7 @@ function renderHistory() {
         });
         
         groupEl.appendChild(headerEl);
+        groupEl.appendChild(memoArea);
         groupEl.appendChild(listEl);
         historyListEl.appendChild(groupEl);
     });
@@ -691,7 +727,12 @@ function updateArrayFromDOM() {
     groups.forEach(groupEl => {
         const symbol = groupEl.dataset.symbol;
         const originalGroup = historyRecords.find(g => g.symbol === symbol);
-        const note = originalGroup ? originalGroup.note : '';
+        const memoArea = groupEl.querySelector('.group-memo-area');
+        const note = memoArea ? memoArea.querySelector('textarea').value : (originalGroup ? originalGroup.note : '');
+        const tf_w = memoArea ? memoArea.querySelector('[data-tf="tf_w"]').value : (originalGroup ? originalGroup.tf_w : '');
+        const tf_d = memoArea ? memoArea.querySelector('[data-tf="tf_d"]').value : (originalGroup ? originalGroup.tf_d : '');
+        const tf_30 = memoArea ? memoArea.querySelector('[data-tf="tf_30"]').value : (originalGroup ? originalGroup.tf_30 : '');
+
         const items = [...groupEl.querySelectorAll('.history-item')];
         const records = items.map(item => {
             const originalGroupIndex = parseInt(item.dataset.groupIndex, 10);
@@ -706,7 +747,7 @@ function updateArrayFromDOM() {
             return record;
         });
         if (records.length > 0) {
-            newHistory.push({ symbol, records, note });
+            newHistory.push({ symbol, records, note, tf_w, tf_d, tf_30 });
         }
     });
     

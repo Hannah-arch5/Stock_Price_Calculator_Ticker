@@ -455,6 +455,75 @@ input[type=number] {
   margin-bottom: 4rem;
 }
 
+.group-note {
+  width: 100%;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid transparent;
+  color: var(--fg-muted);
+  font-family: inherit;
+  font-size: 0.85rem;
+  padding: 0.25rem 0 0.5rem 0;
+  margin-bottom: 0;
+  outline: none;
+  resize: none;
+  overflow: hidden;
+  transition: color 0.2s, border-color 0.2s;
+  box-sizing: border-box;
+}
+.group-note:hover, .group-note:focus {
+  color: var(--fg);
+  border-bottom: 1px solid var(--border);
+}
+.group-note::placeholder {
+  color: #333;
+  transition: color 0.2s;
+}
+.group-note:hover::placeholder, .group-note:focus::placeholder {
+  color: #555;
+}
+
+.group-memo-area {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-bottom: 0.75rem;
+}
+
+.memo-timeframes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  align-items: center;
+  font-size: 0.75rem;
+  color: var(--fg-dim);
+}
+
+.memo-timeframes label {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  flex: 1 1 120px;
+}
+
+.tf-input {
+  background: transparent;
+  border: none;
+  border-bottom: 1px dashed var(--border);
+  color: var(--fg);
+  font-family: inherit;
+  font-size: 0.75rem;
+  width: 100%;
+  min-width: 0;
+  outline: none;
+  padding: 0 0 2px 0;
+  transition: border-color var(--transition-fast);
+}
+
+.tf-input:focus, .tf-input:hover {
+  border-bottom-color: var(--fg-dim);
+}
+
 .group-header {
   font-size: 1.2rem;
   font-weight: 300;
