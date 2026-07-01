@@ -589,11 +589,10 @@ input[type=number] {
 }
 
 .list-row {
-  --row-pad: 0px;
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   gap: 1rem;
-  padding: 2.25rem var(--row-pad) 1rem var(--row-pad);
+  padding: 1.25rem 0 1rem 0;
   border-bottom: 1px solid var(--border);
   cursor: pointer;
   position: relative;
@@ -602,7 +601,8 @@ input[type=number] {
 }
 
 .list-row:hover {
-  --row-pad: 0.5rem;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
 }
 
 .list-row::before {
@@ -646,16 +646,12 @@ input[type=number] {
   gap: 0.5rem;
 }
 .col-details .type { 
-  position: absolute;
-  top: 1rem;
-  left: var(--row-pad);
   font-size: 0.7rem;
   font-weight: 700; 
   color: var(--fg); 
   text-transform: uppercase; 
   letter-spacing: 0.05em; 
   white-space: nowrap;
-  transition: left var(--transition-fast);
 }
 .col-details .info { 
   font-family: 'JetBrains Mono', monospace; 
@@ -714,6 +710,7 @@ input[type=number] {
   width: 24px;
   display: flex;
   justify-content: flex-end;
+  align-self: center;
   opacity: 0;
   transition: opacity var(--transition-slow);
 }
