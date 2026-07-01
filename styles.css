@@ -530,8 +530,8 @@ input[type=number] {
 
 .tf-label {
   display: inline-block;
-  width: 20px;
-  text-align: right;
+  width: 22px;
+  text-align: left;
   flex-shrink: 0;
 }
 
