@@ -960,3 +960,21 @@ document.querySelectorAll('input[type="number"], input[type="text"]').forEach(in
         this.select();
     });
 });
+
+// Theme Toggle Logic
+const themeToggleBtn = document.getElementById('theme-toggle-btn');
+if (themeToggleBtn) {
+    const savedTheme = localStorage.getItem('ticker-theme');
+    if (savedTheme === 'light') {
+        document.body.classList.add('light-theme');
+    }
+    
+    themeToggleBtn.addEventListener('click', () => {
+        document.body.classList.toggle('light-theme');
+        if (document.body.classList.contains('light-theme')) {
+            localStorage.setItem('ticker-theme', 'light');
+        } else {
+            localStorage.setItem('ticker-theme', 'dark');
+        }
+    });
+}
