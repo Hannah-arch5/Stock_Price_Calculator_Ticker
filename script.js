@@ -874,6 +874,9 @@ function addRecordToHistory(record) {
     if (!group) {
         historyRecords.unshift({ symbol: sym, records: [record] });
     } else {
+        if (group.records.length > 0 && group.records[0].urgency) {
+            record.urgency = group.records[0].urgency;
+        }
         group.records.unshift(record);
         historyRecords = historyRecords.filter(g => g !== group);
         historyRecords.unshift(group);
