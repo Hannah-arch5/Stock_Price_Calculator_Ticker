@@ -671,7 +671,7 @@ input[type=number] {
   justify-content: center;
   align-items: flex-end;
   gap: 0.4rem;
-  margin-top: 1.8rem;
+  margin-top: 1.4rem;
 }
 
 .shares-inline-input {
@@ -711,7 +711,7 @@ input[type=number] {
   width: 24px;
   display: flex;
   justify-content: flex-end;
-  margin-top: 1.8rem;
+  margin-top: 1.4rem;
   opacity: 0;
   transition: opacity var(--transition-slow);
 }
