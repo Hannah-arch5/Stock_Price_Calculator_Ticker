@@ -496,24 +496,29 @@ body {
   gap: 1rem;
   padding: 1rem 0;
   border-bottom: 1px solid var(--border);
-  transition: background-color var(--transition-fast), padding var(--transition-fast), margin var(--transition-fast);
   cursor: pointer;
+  position: relative;
+  z-index: 1;
 }
 
-.list-row:hover {
+.list-row::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -1.25rem;
+  right: -1.25rem;
+  background-color: transparent;
+  z-index: -1;
+  transition: background-color var(--transition-fast);
+}
+
+.list-row:hover::before {
   background-color: #0a0a0a;
-  padding-left: 1.25rem;
-  padding-right: 1.25rem;
-  margin-left: -1.25rem;
-  margin-right: -1.25rem;
 }
 
-.list-row.highlighted {
+.list-row.highlighted::before {
   background-color: #1c1c1c;
-  padding-left: 1.25rem;
-  padding-right: 1.25rem;
-  margin-left: -1.25rem;
-  margin-right: -1.25rem;
 }
 
 .col-details {
