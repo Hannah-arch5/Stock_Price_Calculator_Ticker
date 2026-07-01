@@ -427,6 +427,36 @@ body {
   align-items: center;
 }
 
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.urgency-dots {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.urgency-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50% !important;
+  border: none;
+  cursor: pointer;
+  background-color: #333333;
+  transition: transform var(--transition-fast), background-color var(--transition-fast);
+}
+
+.urgency-dot:hover {
+  transform: scale(1.2);
+}
+
+.urgency-dot.green.selected { background-color: #32d74b; }
+.urgency-dot.orange.selected { background-color: #ff9f0a; }
+.urgency-dot.red.selected { background-color: #ff453a; }
+
 .stock-link {
   color: var(--fg);
   text-decoration: none;

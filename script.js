@@ -356,11 +356,38 @@ function renderHistory() {
         `;
         deleteGroupBtn.onclick = () => { deleteHistoryGroup(groupIndex); };
         
+        const urgencyContainer = document.createElement('div');
+        urgencyContainer.className = 'urgency-dots';
+        
+        const colors = ['green', 'orange', 'red'];
+        colors.forEach((color) => {
+            const dot = document.createElement('button');
+            dot.className = `urgency-dot ${color}`;
+            // If the first record has urgency, they all do, or group.records[0].urgency
+            if (group.records[0].urgency === color) {
+                dot.classList.add('selected');
+            }
+            dot.onclick = (e) => {
+                e.stopPropagation();
+                const isSelected = dot.classList.contains('selected');
+                group.records.forEach(r => r.urgency = isSelected ? null : color);
+                saveState();
+                renderHistory();
+            };
+            urgencyContainer.appendChild(dot);
+        });
+
+        const headerActions = document.createElement('div');
+        headerActions.className = 'header-actions';
+        headerActions.appendChild(urgencyContainer);
+        headerActions.appendChild(deleteGroupBtn);
+        
         headerEl.appendChild(titleEl);
-        headerEl.appendChild(deleteGroupBtn);
+        headerEl.appendChild(headerActions);
         
         headerEl.addEventListener('dblclick', (e) => {
             if (e.target.closest('.delete-btn')) return;
+            if (e.target.closest('.urgency-dot')) return;
             if (headerEl.querySelector('.edit-symbol-input')) return;
             
             const originalHTML = titleEl.innerHTML;
