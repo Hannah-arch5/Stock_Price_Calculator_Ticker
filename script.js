@@ -530,9 +530,9 @@ function renderHistory() {
 
             if (record.inputs && record.inputs.base !== undefined) {
                 const upDownText = record.inputs.isUp ? 'Up' : 'Down';
-                formattedDetails = `<span>Base: ${recCurrency}<span class="editable-val" data-field="base">${record.inputs.base}</span></span><span><span class="editable-toggle" data-field="isUp">${upDownText}</span> <span class="editable-val" data-field="perc">${record.inputs.perc}</span>%</span>`;
+                formattedDetails = `<span class="edit-trigger-val" data-field="base">Base: ${recCurrency}<span class="edit-container-val">${record.inputs.base}</span></span><span><span class="editable-toggle" data-field="isUp">${upDownText}</span> <span class="edit-trigger-val" data-field="perc"><span class="edit-container-val">${record.inputs.perc}</span>%</span></span>`;
             } else if (record.inputs && record.inputs.initial !== undefined) {
-                formattedDetails = `<span>Base: ${recCurrency}<span class="editable-val" data-field="initial">${record.inputs.initial}</span></span><span>Target: ${recCurrency}<span class="editable-val" data-field="final">${record.inputs.final}</span></span>`;
+                formattedDetails = `<span class="edit-trigger-val" data-field="initial">Base: ${recCurrency}<span class="edit-container-val">${record.inputs.initial}</span></span><span class="edit-trigger-val" data-field="final">Target: ${recCurrency}<span class="edit-container-val">${record.inputs.final}</span></span>`;
             } else {
                 if (formattedDetails.includes(' | ')) {
                     const parts = formattedDetails.split(' | ');
@@ -635,11 +635,12 @@ function renderHistory() {
                     return;
                 }
 
-                const editableVal = e.target.closest('.editable-val');
-                if (editableVal && record.inputs) {
-                    if (editableVal.querySelector('.edit-val-input')) return;
+                const editTrigger = e.target.closest('.edit-trigger-val');
+                if (editTrigger && record.inputs) {
+                    const editContainer = editTrigger.querySelector('.edit-container-val');
+                    if (!editContainer || editContainer.querySelector('.edit-val-input')) return;
                     
-                    const field = editableVal.dataset.field;
+                    const field = editTrigger.dataset.field;
                     const originalVal = record.inputs[field];
                     const input = document.createElement('input');
                     input.type = 'number';
@@ -656,8 +657,8 @@ function renderHistory() {
                     input.style.padding = '0';
                     input.style.margin = '0';
                     
-                    editableVal.innerHTML = '';
-                    editableVal.appendChild(input);
+                    editContainer.innerHTML = '';
+                    editContainer.appendChild(input);
                     input.focus();
                     input.select();
                     
