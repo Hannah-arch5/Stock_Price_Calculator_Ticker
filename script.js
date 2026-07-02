@@ -504,9 +504,18 @@ function renderHistory() {
             const resultColor = record.isUp ? upColor : downColor;
 
             let formattedDetails = record.details;
-            if (formattedDetails.includes(' | ')) {
-                const parts = formattedDetails.split(' | ');
-                formattedDetails = `<span>${parts[0]}</span><span>${parts[1]}</span>`;
+            if (record.inputs) {
+                if (record.mode === 'target' || (!record.mode && record.type === 'Target Projection')) {
+                    const upDownText = record.inputs.isUp ? 'Up' : 'Down';
+                    formattedDetails = `<span>Base: ${recCurrency}<span class="editable-val" data-field="base">${record.inputs.base}</span></span><span><span class="editable-toggle" data-field="isUp">${upDownText}</span> <span class="editable-val" data-field="perc">${record.inputs.perc}</span>%</span>`;
+                } else if (record.mode === 'percentage' || (!record.mode && record.type === 'Percentage Delta')) {
+                    formattedDetails = `<span>Base: ${recCurrency}<span class="editable-val" data-field="initial">${record.inputs.initial}</span></span><span>Target: ${recCurrency}<span class="editable-val" data-field="final">${record.inputs.final}</span></span>`;
+                }
+            } else {
+                if (formattedDetails.includes(' | ')) {
+                    const parts = formattedDetails.split(' | ');
+                    formattedDetails = `<span>${parts[0]}</span><span>${parts[1]}</span>`;
+                }
             }
 
             item.innerHTML = `
@@ -589,6 +598,68 @@ function renderHistory() {
                         if (ke.key === 'Escape') {
                             input.value = originalText;
                             input.blur(); // will restore original via blur
+                        }
+                    });
+                    return;
+                }
+                
+                const editableToggle = e.target.closest('.editable-toggle');
+                if (editableToggle && record.inputs) {
+                    record.inputs.isUp = !record.inputs.isUp;
+                    record.isUp = record.inputs.isUp;
+                    recalculateRecord(record);
+                    saveState();
+                    renderHistory();
+                    return;
+                }
+
+                const editableVal = e.target.closest('.editable-val');
+                if (editableVal && record.inputs) {
+                    if (editableVal.querySelector('.edit-val-input')) return;
+                    
+                    const field = editableVal.dataset.field;
+                    const originalVal = record.inputs[field];
+                    const input = document.createElement('input');
+                    input.type = 'number';
+                    input.step = 'any';
+                    input.className = 'edit-val-input mono';
+                    input.value = originalVal;
+                    input.style.fontSize = 'inherit';
+                    input.style.fontWeight = 'inherit';
+                    input.style.color = 'inherit';
+                    input.style.background = 'transparent';
+                    input.style.border = 'none';
+                    input.style.outline = 'none';
+                    input.style.width = Math.max(30, originalVal.toString().length * 8 + 10) + 'px';
+                    input.style.padding = '0';
+                    input.style.margin = '0';
+                    
+                    editableVal.innerHTML = '';
+                    editableVal.appendChild(input);
+                    input.focus();
+                    input.select();
+                    
+                    let saved = false;
+                    const saveNewVal = () => {
+                        if (saved) return;
+                        saved = true;
+                        const newVal = parseFloat(input.value);
+                        if (!isNaN(newVal) && newVal !== originalVal) {
+                            record.inputs[field] = newVal;
+                            recalculateRecord(record);
+                            saveState();
+                        }
+                        renderHistory();
+                    };
+                    
+                    input.addEventListener('blur', saveNewVal);
+                    input.addEventListener('keydown', (ke) => {
+                        if (ke.key === 'Enter') {
+                            input.blur();
+                        }
+                        if (ke.key === 'Escape') {
+                            input.value = originalVal;
+                            input.blur();
                         }
                     });
                     return;
@@ -696,6 +767,27 @@ function renderHistory() {
     });
     } finally {
         isRenderingHistory = false;
+    }
+}
+
+function recalculateRecord(record) {
+    if (record.mode === 'target' || (!record.mode && record.type === 'Target Projection')) {
+        const base = record.inputs.base;
+        const perc = record.inputs.perc;
+        const multiplier = record.inputs.isUp ? (1 + perc / 100) : (1 - perc / 100);
+        const result = base * multiplier;
+        record.result = `${record.currency || ''}${formatCurrency(result)}`;
+        const recCurrency = record.currency || (record.result && record.result.includes('$') ? '$' : '¥');
+        const upDownText = record.inputs.isUp ? 'Up' : 'Down';
+        record.details = `<span>Base: ${recCurrency}${base}</span><span>${upDownText} ${perc}%</span>`;
+    } else if (record.mode === 'percentage' || (!record.mode && record.type === 'Percentage Delta')) {
+        const initial = record.inputs.initial;
+        const final = record.inputs.final;
+        const pctDecimal = (final - initial) / initial;
+        record.result = `${Math.abs(pctDecimal * 100).toFixed(2)}%`;
+        record.isUp = pctDecimal > 0;
+        const recCurrency = record.currency || (record.result && record.result.includes('$') ? '$' : '¥');
+        record.details = `<span>Base: ${recCurrency}${initial}</span><span>Target: ${recCurrency}${final}</span>`;
     }
 }
 
