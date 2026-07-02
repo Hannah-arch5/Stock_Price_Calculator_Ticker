@@ -504,13 +504,35 @@ function renderHistory() {
             const resultColor = record.isUp ? upColor : downColor;
 
             let formattedDetails = record.details;
-            if (record.inputs) {
-                if (record.mode === 'target' || (!record.mode && record.type === 'Target Projection')) {
-                    const upDownText = record.inputs.isUp ? 'Up' : 'Down';
-                    formattedDetails = `<span>Base: ${recCurrency}<span class="editable-val" data-field="base">${record.inputs.base}</span></span><span><span class="editable-toggle" data-field="isUp">${upDownText}</span> <span class="editable-val" data-field="perc">${record.inputs.perc}</span>%</span>`;
-                } else if (record.mode === 'percentage' || (!record.mode && record.type === 'Percentage Delta')) {
-                    formattedDetails = `<span>Base: ${recCurrency}<span class="editable-val" data-field="initial">${record.inputs.initial}</span></span><span>Target: ${recCurrency}<span class="editable-val" data-field="final">${record.inputs.final}</span></span>`;
+            
+            if (!record.inputs) {
+                if (record.type === 'Target Price' || record.type === 'Target Projection' || record.details.includes('Up ') || record.details.includes('Down ')) {
+                    const baseMatch = record.details.match(/Base:\s*.\s*([\d.]+)/);
+                    const percMatch = record.details.match(/(Up|Down)\s+([\d.]+)%/);
+                    if (baseMatch && percMatch) {
+                        record.inputs = {
+                            base: parseFloat(baseMatch[1]),
+                            perc: parseFloat(percMatch[2]),
+                            isUp: percMatch[1] === 'Up'
+                        };
+                    }
+                } else {
+                    const initialMatch = record.details.match(/Base:\s*.\s*([\d.]+)/);
+                    const finalMatch = record.details.match(/Target:\s*.\s*([\d.]+)/);
+                    if (initialMatch && finalMatch) {
+                        record.inputs = {
+                            initial: parseFloat(initialMatch[1]),
+                            final: parseFloat(finalMatch[2])
+                        };
+                    }
                 }
+            }
+
+            if (record.inputs && record.inputs.base !== undefined) {
+                const upDownText = record.inputs.isUp ? 'Up' : 'Down';
+                formattedDetails = `<span>Base: ${recCurrency}<span class="editable-val" data-field="base">${record.inputs.base}</span></span><span><span class="editable-toggle" data-field="isUp">${upDownText}</span> <span class="editable-val" data-field="perc">${record.inputs.perc}</span>%</span>`;
+            } else if (record.inputs && record.inputs.initial !== undefined) {
+                formattedDetails = `<span>Base: ${recCurrency}<span class="editable-val" data-field="initial">${record.inputs.initial}</span></span><span>Target: ${recCurrency}<span class="editable-val" data-field="final">${record.inputs.final}</span></span>`;
             } else {
                 if (formattedDetails.includes(' | ')) {
                     const parts = formattedDetails.split(' | ');
@@ -771,7 +793,7 @@ function renderHistory() {
 }
 
 function recalculateRecord(record) {
-    if (record.mode === 'target' || (!record.mode && record.type === 'Target Projection')) {
+    if (record.inputs && record.inputs.base !== undefined) {
         const base = record.inputs.base;
         const perc = record.inputs.perc;
         const multiplier = record.inputs.isUp ? (1 + perc / 100) : (1 - perc / 100);
@@ -780,7 +802,7 @@ function recalculateRecord(record) {
         const recCurrency = record.currency || (record.result && record.result.includes('$') ? '$' : '¥');
         const upDownText = record.inputs.isUp ? 'Up' : 'Down';
         record.details = `<span>Base: ${recCurrency}${base}</span><span>${upDownText} ${perc}%</span>`;
-    } else if (record.mode === 'percentage' || (!record.mode && record.type === 'Percentage Delta')) {
+    } else if (record.inputs && record.inputs.initial !== undefined) {
         const initial = record.inputs.initial;
         const final = record.inputs.final;
         const pctDecimal = (final - initial) / initial;
