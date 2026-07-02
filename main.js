@@ -65,11 +65,6 @@ function createWindow() {
             mainWindow.setBounds({ width: 600, height: 1180 });
         }
     });
-            // Optionally center the window or leave it where it is
-            // mainWindow.center();
-            isDefaultSize = true;
-        }
-    });
 }
 
 app.whenReady().then(() => {
