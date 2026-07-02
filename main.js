@@ -1,4 +1,4 @@
-const { app, BrowserWindow, shell } = require('electron');
+const { app, BrowserWindow, shell, ipcMain } = require('electron');
 const path = require('path');
 const fs = require('fs');
 
@@ -21,6 +21,7 @@ function createWindow() {
         alwaysOnTop: true,
         backgroundColor: '#030303',
         webPreferences: {
+            preload: path.join(__dirname, 'preload.js'),
             nodeIntegration: false,
             contextIsolation: true
         }
@@ -45,6 +46,29 @@ function createWindow() {
             shell.openExternal(url);
         }
         return { action: 'deny' };
+    });
+
+    // Toggle window size logic
+    let isDefaultSize = (mainWindow.getBounds().width === 600 && mainWindow.getBounds().height === 1180);
+    let previousBounds = null;
+
+    ipcMain.on('toggle-window-size', () => {
+        const bounds = mainWindow.getBounds();
+        const currentlyDefault = (bounds.width === 600 && bounds.height === 1180);
+        
+        if (currentlyDefault) {
+            if (previousBounds) {
+                mainWindow.setBounds(previousBounds);
+            }
+        } else {
+            previousBounds = bounds;
+            mainWindow.setBounds({ width: 600, height: 1180 });
+        }
+    });
+            // Optionally center the window or leave it where it is
+            // mainWindow.center();
+            isDefaultSize = true;
+        }
     });
 }
 
