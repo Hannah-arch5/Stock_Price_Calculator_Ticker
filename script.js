@@ -998,3 +998,61 @@ function recalculateRecord(record) {
         record.details = `<span>Base: ${recCurrency}${initial}</span><span>Target: ${recCurrency}${final}</span>`;
     }
 }
+
+// Split View Drag Logic
+const resizer = document.getElementById('split-resizer');
+const controlPanel = document.querySelector('.control-panel');
+
+if (resizer && controlPanel) {
+    let isDragging = false;
+    let startX = 0;
+    let startWidth = 0;
+
+    // Load saved width
+    const savedLeftWidth = localStorage.getItem('calcLeftPanelWidth');
+    if (savedLeftWidth) {
+        controlPanel.style.setProperty('--left-flex', `0 0 ${savedLeftWidth}px`);
+    } else {
+        // Emulate 1fr / 1.2fr ratio
+        controlPanel.style.setProperty('--left-flex', `0 0 45.45%`);
+    }
+
+    resizer.addEventListener('mousedown', (e) => {
+        isDragging = true;
+        startX = e.clientX;
+        startWidth = controlPanel.getBoundingClientRect().width;
+        document.body.style.cursor = 'col-resize';
+        document.body.style.userSelect = 'none';
+    });
+
+    window.addEventListener('mousemove', (e) => {
+        if (!isDragging) return;
+        const dx = e.clientX - startX;
+        let newWidth = startWidth + dx;
+        
+        // Enforce left panel min width
+        if (newWidth < 235) newWidth = 235;
+
+        // Enforce right panel min width (281px)
+        const splitView = document.querySelector('.split-view');
+        const splitViewWidth = splitView.getBoundingClientRect().width;
+        const resizerWidth = resizer.getBoundingClientRect().width;
+        
+        const maxLeftWidth = splitViewWidth - resizerWidth - 281;
+        if (newWidth > maxLeftWidth) newWidth = maxLeftWidth;
+
+        controlPanel.style.setProperty('--left-flex', `0 0 ${newWidth}px`);
+    });
+
+    window.addEventListener('mouseup', () => {
+        if (isDragging) {
+            isDragging = false;
+            document.body.style.cursor = '';
+            document.body.style.userSelect = '';
+            
+            // Save width
+            const finalWidth = controlPanel.getBoundingClientRect().width;
+            localStorage.setItem('calcLeftPanelWidth', finalWidth);
+        }
+    });
+}
