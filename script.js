@@ -1015,3 +1015,11 @@ if (resizer && controlPanel) {
         }
     });
 }
+
+// Window Size Toggle Button
+const sizeToggleBtn = document.getElementById('size-toggle-btn');
+if (sizeToggleBtn && window.electronAPI) {
+    sizeToggleBtn.addEventListener('click', () => {
+        window.electronAPI.toggleWindowSize();
+    });
+}
