@@ -582,9 +582,9 @@ function renderHistory() {
 
             if (record.inputs && record.inputs.base !== undefined) {
                 const upDownText = record.inputs.isUp ? 'Up' : 'Down';
-                formattedDetails = `<span class="edit-trigger-val" data-field="base">Base: ${recCurrency}<span class="edit-container-val">${record.inputs.base}</span></span><span><span class="editable-toggle" data-field="isUp">${upDownText}</span> <span class="edit-trigger-val" data-field="perc"><span class="edit-container-val">${record.inputs.perc}</span>%</span></span>`;
+                formattedDetails = `<span>Base: ${recCurrency}<span class="edit-trigger-val" data-field="base"><span class="edit-container-val">${record.inputs.base}</span></span></span><span><span class="editable-toggle" data-field="isUp">${upDownText}</span> <span class="edit-trigger-val" data-field="perc"><span class="edit-container-val">${record.inputs.perc}</span>%</span></span>`;
             } else if (record.inputs && record.inputs.initial !== undefined) {
-                formattedDetails = `<span class="edit-trigger-val" data-field="initial">Base: ${recCurrency}<span class="edit-container-val">${record.inputs.initial}</span></span><span class="edit-trigger-val" data-field="final">Target: ${recCurrency}<span class="edit-container-val">${record.inputs.final}</span></span>`;
+                formattedDetails = `<span>Base: ${recCurrency}<span class="edit-trigger-val" data-field="initial"><span class="edit-container-val">${record.inputs.initial}</span></span></span><span>Target: ${recCurrency}<span class="edit-trigger-val" data-field="final"><span class="edit-container-val">${record.inputs.final}</span></span></span>`;
             } else {
                 if (formattedDetails && formattedDetails.includes(' | ')) {
                     const parts = formattedDetails.split(' | ');
@@ -851,7 +851,7 @@ function recalculateRecord(record) {
         record.result = `${record.currency || ''}${formatCurrency(result)}`;
         const recCurrency = record.currency || (record.result && record.result.includes('$') ? '$' : '¥');
         const upDownText = record.inputs.isUp ? 'Up' : 'Down';
-        record.details = `<span class="edit-trigger-val" data-field="base">Base: ${recCurrency}<span class="edit-container-val">${base}</span></span><span><span class="editable-toggle" data-field="isUp">${upDownText}</span> <span class="edit-trigger-val" data-field="perc"><span class="edit-container-val">${perc}</span>%</span></span>`;
+        record.details = `<span>Base: ${recCurrency}<span class="edit-trigger-val" data-field="base"><span class="edit-container-val">${base}</span></span></span><span><span class="editable-toggle" data-field="isUp">${upDownText}</span> <span class="edit-trigger-val" data-field="perc"><span class="edit-container-val">${perc}</span>%</span></span>`;
     } else if (record.inputs && record.inputs.initial !== undefined) {
         const initial = record.inputs.initial;
         const final = record.inputs.final;
@@ -859,7 +859,7 @@ function recalculateRecord(record) {
         record.result = `${Math.abs(pctDecimal * 100).toFixed(2)}%`;
         record.isUp = pctDecimal > 0;
         const recCurrency = record.currency || (record.result && record.result.includes('$') ? '$' : '¥');
-        record.details = `<span class="edit-trigger-val" data-field="initial">Base: ${recCurrency}<span class="edit-container-val">${initial}</span></span><span class="edit-trigger-val" data-field="final">Target: ${recCurrency}<span class="edit-container-val">${final}</span></span>`;
+        record.details = `<span>Base: ${recCurrency}<span class="edit-trigger-val" data-field="initial"><span class="edit-container-val">${initial}</span></span></span><span>Target: ${recCurrency}<span class="edit-trigger-val" data-field="final"><span class="edit-container-val">${final}</span></span></span>`;
     }
 }
 
