@@ -1,28 +1,7 @@
 // Global state
 let currentCurrency = '¥';
-let historyRecords = JSON.parse(localStorage.getItem('calcHistory')) || [];
-let historyVersion = localStorage.getItem('calcHistoryVersion');
-
-if (!historyVersion) {
-    historyRecords.reverse();
-    localStorage.setItem('calcHistoryVersion', '2');
-}
-
-// Migrate flat array to grouped array
-if (historyRecords.length > 0 && !historyRecords[0].records) {
-    const grouped = {};
-    historyRecords.forEach(record => {
-        const sym = record.symbol || 'Uncategorized';
-        if (!grouped[sym]) grouped[sym] = [];
-        grouped[sym].push(record);
-    });
-    historyRecords = Object.keys(grouped).map(sym => ({
-        symbol: sym,
-        records: grouped[sym]
-    }));
-    localStorage.setItem('calcHistory', JSON.stringify(historyRecords));
-}
-
+let historyRecords = [];
+let historyVersion = null;
 // DOM Elements
 const historyListEl = document.getElementById('history-list');
 const currencyRadios = document.getElementsByName('currency');
@@ -30,41 +9,31 @@ const currencySymbols = document.querySelectorAll('.currency-symbol');
 
 // Persistence Logic
 function saveState() {
-    localStorage.setItem('calcHistory', JSON.stringify(historyRecords));
-    localStorage.setItem('calcHistoryVersion', '2');
-    localStorage.setItem('calcInputs', JSON.stringify({
-        currency: currentCurrency,
-        stock1: stockSymbol1Input.value,
-        basePrice: basePriceInput.value,
-        moveDown: document.getElementById('move-down').checked,
-        percentChange: percentageChangeInput.value,
-        stock2: stockSymbol2Input.value,
-        initialPrice: initialPriceInput.value,
-        finalPrice: finalPriceInput.value
-    }));
-}
-
-function loadState() {
-    const saved = JSON.parse(localStorage.getItem('calcInputs'));
-    if (saved) {
-        if (saved.currency === '$') {
-            document.getElementById('currency-usd').checked = true;
-        } else {
-            document.getElementById('currency-cny').checked = true;
+    // Strip runtime-only fields that should not persist between sessions
+    const cleanRecords = historyRecords.map(group => {
+        const { newsLoaded, newsTimeout, klineMetrics, ...cleanGroup } = group;
+        return cleanGroup;
+    });
+    const stateObj = {
+        historyRecords: cleanRecords,
+        historyVersion: '2',
+        calcInputs: {
+            currency: currentCurrency,
+            stock1: stockSymbol1Input.value,
+            basePrice: basePriceInput.value,
+            moveDown: document.getElementById('move-down').checked,
+            percentChange: percentageChangeInput.value,
+            stock2: stockSymbol2Input.value,
+            initialPrice: initialPriceInput.value,
+            finalPrice: finalPriceInput.value
         }
-        
-        stockSymbol1Input.value = saved.stock1 || '';
-        basePriceInput.value = saved.basePrice || '';
-        if (saved.moveDown) {
-            document.getElementById('move-down').checked = true;
-        } else {
-            document.getElementById('move-up').checked = true;
-        }
-        percentageChangeInput.value = saved.percentChange || '';
-        
-        stockSymbol2Input.value = saved.stock2 || '';
-        initialPriceInput.value = saved.initialPrice || '';
-        finalPriceInput.value = saved.finalPrice || '';
+    };
+    if (window.electronAPI && window.electronAPI.saveData) {
+        window.electronAPI.saveData(JSON.stringify(stateObj));
+    } else {
+        localStorage.setItem('calcHistory', JSON.stringify(cleanRecords));
+        localStorage.setItem('calcHistoryVersion', '2');
+        localStorage.setItem('calcInputs', JSON.stringify(stateObj.calcInputs));
     }
 }
 
@@ -329,7 +298,13 @@ function renderHistory() {
         if (tagsEl) {
             const tag = document.createElement('button');
             tag.className = 'quick-tag mono';
-            tag.textContent = group.symbol;
+            
+            let tagText = group.symbol;
+            if (group.name) {
+                const cleanName = group.name.replace(/\s+/g, '');
+                tagText = cleanName.length <= 3 ? cleanName : cleanName.substring(0, 2);
+            }
+            tag.textContent = tagText;
             
             // Re-apply the priority dot color to the tag border/text if we want, or just leave it gray
             if (group.records[0] && group.records[0].urgency) {
@@ -389,11 +364,134 @@ function renderHistory() {
         
         const headerEl = document.createElement('div');
         headerEl.className = 'group-header';
-        
         const titleEl = document.createElement('div');
-        titleEl.innerHTML = group.symbol !== 'Uncategorized' 
-            ? `<a href="https://www.tradingview.com/chart/?symbol=${encodeURIComponent(group.symbol)}" class="stock-link" target="_blank">${group.symbol}</a>`
-            : group.symbol;
+        titleEl.className = 'group-title-container';
+        
+        if (group.symbol !== 'Uncategorized') {
+            const linkA = document.createElement('a');
+            linkA.href = `https://www.tradingview.com/chart/?symbol=${encodeURIComponent(group.symbol)}`;
+            linkA.className = 'stock-link';
+            linkA.target = '_blank';
+            
+            const codeSpan = document.createElement('span');
+            codeSpan.className = 'stock-code';
+            codeSpan.textContent = group.symbol;
+            
+            const nameSpan = document.createElement('span');
+            nameSpan.className = 'stock-name';
+            nameSpan.textContent = group.name ? group.name : '';
+            nameSpan.style.marginLeft = '8px';
+            
+            linkA.appendChild(codeSpan);
+            titleEl.appendChild(linkA);
+            titleEl.appendChild(nameSpan);
+            
+            // Prevent link navigation on double click
+            let clickTimeout = null;
+            linkA.addEventListener('click', (e) => {
+                if (e.target.tagName === 'INPUT') return;
+                e.preventDefault();
+                if (clickTimeout) {
+                    clearTimeout(clickTimeout);
+                    clickTimeout = null;
+                } else {
+                    clickTimeout = setTimeout(() => {
+                        window.open(linkA.href, '_blank');
+                        clickTimeout = null;
+                    }, 250);
+                }
+            });
+            
+            const makeEditable = (spanEl, initialValue, onSave) => {
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.className = 'edit-symbol-input mono';
+                input.value = initialValue;
+                input.style.fontSize = 'inherit';
+                input.style.fontWeight = 'inherit';
+                input.style.color = 'inherit';
+                input.style.background = 'transparent';
+                input.style.border = '1px solid var(--border-color)';
+                input.style.borderRadius = '4px';
+                input.style.outline = 'none';
+                input.style.width = '100px';
+                input.style.padding = '0 4px';
+                input.style.margin = '0';
+                
+                spanEl.textContent = '';
+                spanEl.appendChild(input);
+                input.focus();
+                input.select();
+                
+                let saved = false;
+                const finishEdit = () => {
+                    if (saved) return;
+                    saved = true;
+                    onSave(input.value);
+                };
+                
+                input.addEventListener('blur', finishEdit);
+                input.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') finishEdit();
+                    if (e.key === 'Escape') {
+                        saved = true;
+                        onSave(initialValue); // cancel
+                    }
+                });
+            };
+
+            codeSpan.addEventListener('dblclick', (e) => {
+                e.stopPropagation();
+                if (codeSpan.querySelector('input')) return;
+                makeEditable(codeSpan, group.symbol, (newVal) => {
+                    newVal = newVal.trim().toUpperCase();
+                    if (newVal && newVal !== group.symbol) {
+                        group.symbol = newVal;
+                        group.records.forEach(r => r.symbol = newVal);
+                        group.name = '';
+                        group.nameFetched = false;
+                        
+                        const existingGroupIndex = historyRecords.findIndex(g => g !== group && g.symbol === newVal);
+                        if (existingGroupIndex !== -1) {
+                            historyRecords[existingGroupIndex].records.unshift(...group.records);
+                            historyRecords = historyRecords.filter(g => g !== group);
+                        }
+                        saveState();
+                        renderHistory();
+                    } else {
+                        codeSpan.textContent = group.symbol;
+                    }
+                });
+            });
+            
+            nameSpan.addEventListener('dblclick', (e) => {
+                e.stopPropagation();
+                if (nameSpan.querySelector('input')) return;
+                makeEditable(nameSpan, group.name || '', (newVal) => {
+                    newVal = newVal.trim();
+                    if (newVal !== (group.name || '')) {
+                        group.name = newVal;
+                        saveState();
+                        renderHistory();
+                    } else {
+                        nameSpan.textContent = group.name || '';
+                    }
+                });
+            });
+
+            if (!group.name && !group.nameFetched) {
+                group.nameFetched = true;
+                fetchStockName(group.symbol).then(name => {
+                    if (name) {
+                        group.name = name;
+                        saveState();
+                        renderHistory();
+                    }
+                });
+            }
+        } else {
+            titleEl.textContent = group.symbol;
+        }
             
         const deleteGroupBtn = document.createElement('button');
         deleteGroupBtn.className = 'delete-btn';
@@ -434,56 +532,6 @@ function renderHistory() {
         
         headerEl.appendChild(titleEl);
         headerEl.appendChild(headerActions);
-        
-        headerEl.addEventListener('dblclick', (e) => {
-            if (e.target.closest('.delete-btn')) return;
-            if (e.target.closest('.urgency-dot')) return;
-            if (headerEl.querySelector('.edit-symbol-input')) return;
-            
-            const originalHTML = titleEl.innerHTML;
-            const input = document.createElement('input');
-            input.type = 'text';
-            input.className = 'edit-symbol-input mono';
-            input.value = group.symbol !== 'Uncategorized' ? group.symbol : '';
-            input.style.fontSize = 'inherit';
-            input.style.fontWeight = 'inherit';
-            input.style.color = 'inherit';
-            input.style.background = 'transparent';
-            input.style.border = 'none';
-            input.style.outline = 'none';
-            input.style.width = '120px';
-            input.style.padding = '0';
-            input.style.margin = '0';
-            
-            titleEl.innerHTML = '';
-            titleEl.appendChild(input);
-            input.focus();
-            input.select();
-            
-            const saveNewSymbol = () => {
-                const newSymbol = input.value.trim().toUpperCase();
-                if (newSymbol && newSymbol !== group.symbol && newSymbol !== 'UNCATEGORIZED') {
-                    group.symbol = newSymbol;
-                    group.records.forEach(r => r.symbol = newSymbol);
-                    
-                    const existingGroupIndex = historyRecords.findIndex(g => g !== group && g.symbol === newSymbol);
-                    if (existingGroupIndex !== -1) {
-                        historyRecords[existingGroupIndex].records.unshift(...group.records);
-                        historyRecords = historyRecords.filter(g => g !== group);
-                    }
-                    saveState();
-                    renderHistory();
-                } else {
-                    titleEl.innerHTML = originalHTML;
-                }
-            };
-            
-            input.addEventListener('blur', saveNewSymbol);
-            input.addEventListener('keydown', (ev) => {
-                if (ev.key === 'Enter') input.blur();
-                else if (ev.key === 'Escape') titleEl.innerHTML = originalHTML;
-            });
-        });
             
         const listEl = document.createElement('div');
         listEl.className = 'group-list';
@@ -503,41 +551,14 @@ function renderHistory() {
             const downColor = recCurrency === '¥' ? '#32d74b' : '#ff453a';
             const resultColor = record.isUp ? upColor : downColor;
 
-            let formattedDetails = record.details;
-            
-            if (!record.inputs) {
-                if (record.type === 'Target Price' || record.type === 'Target Projection' || record.details.includes('Up ') || record.details.includes('Down ')) {
-                    const baseMatch = record.details.match(/Base:\s*.\s*([\d.]+)/);
-                    const percMatch = record.details.match(/(Up|Down)\s+([\d.]+)%/);
-                    if (baseMatch && percMatch) {
-                        record.inputs = {
-                            base: parseFloat(baseMatch[1]),
-                            perc: parseFloat(percMatch[2]),
-                            isUp: percMatch[1] === 'Up'
-                        };
-                    }
-                } else {
-                    const initialMatch = record.details.match(/Base:\s*.\s*([\d.]+)/);
-                    const finalMatch = record.details.match(/Target:\s*.\s*([\d.]+)/);
-                    if (initialMatch && finalMatch) {
-                        record.inputs = {
-                            initial: parseFloat(initialMatch[1]),
-                            final: parseFloat(finalMatch[2])
-                        };
-                    }
-                }
+            if (applyDynamicBindings(group, record)) {
+                recalculateRecord(record);
             }
-
-            if (record.inputs && record.inputs.base !== undefined) {
-                const upDownText = record.inputs.isUp ? 'Up' : 'Down';
-                formattedDetails = `<span class="edit-trigger-val" data-field="base">Base: ${recCurrency}<span class="edit-container-val">${record.inputs.base}</span></span><span><span class="editable-toggle" data-field="isUp">${upDownText}</span> <span class="edit-trigger-val" data-field="perc"><span class="edit-container-val">${record.inputs.perc}</span>%</span></span>`;
-            } else if (record.inputs && record.inputs.initial !== undefined) {
-                formattedDetails = `<span class="edit-trigger-val" data-field="initial">Base: ${recCurrency}<span class="edit-container-val">${record.inputs.initial}</span></span><span class="edit-trigger-val" data-field="final">Target: ${recCurrency}<span class="edit-container-val">${record.inputs.final}</span></span>`;
-            } else {
-                if (formattedDetails.includes(' | ')) {
-                    const parts = formattedDetails.split(' | ');
-                    formattedDetails = `<span>${parts[0]}</span><span>${parts[1]}</span>`;
-                }
+            
+            let formattedDetails = record.details;
+            if (formattedDetails && formattedDetails.includes(' | ')) {
+                const parts = formattedDetails.split(' | ');
+                formattedDetails = `<span>${parts[0]}</span><span>${parts[1]}</span>`;
             }
 
             item.innerHTML = `
@@ -576,117 +597,7 @@ function renderHistory() {
             item.addEventListener('click', (e) => {
                 if (e.target.closest('.delete-btn') || e.target.closest('.row-delete')) return;
                 
-                const typeSpan = e.target.closest('.type');
-                if (typeSpan) {
-                    if (typeSpan.querySelector('.edit-type-input')) return;
-                    
-                    const originalText = record.type;
-                    const input = document.createElement('input');
-                    input.type = 'text';
-                    input.className = 'edit-type-input mono';
-                    input.value = originalText;
-                    input.style.fontSize = 'inherit';
-                    input.style.fontWeight = 'inherit';
-                    input.style.color = 'inherit';
-                    input.style.background = 'transparent';
-                    input.style.border = 'none';
-                    input.style.outline = 'none';
-                    input.style.width = '120px';
-                    input.style.padding = '0';
-                    input.style.margin = '0';
-                    
-                    typeSpan.innerHTML = '';
-                    typeSpan.appendChild(input);
-                    input.focus();
-                    input.select();
-                    
-                    let saved = false;
-                    const saveNewType = () => {
-                        if (saved) return;
-                        saved = true;
-                        const newType = input.value.trim();
-                        if (newType && newType !== record.type) {
-                            record.type = newType;
-                            saveState();
-                        }
-                        renderHistory();
-                    };
-                    
-                    input.addEventListener('blur', saveNewType);
-                    input.addEventListener('keydown', (ke) => {
-                        if (ke.key === 'Enter') {
-                            input.blur(); // will trigger saveNewType via blur
-                        }
-                        if (ke.key === 'Escape') {
-                            input.value = originalText;
-                            input.blur(); // will restore original via blur
-                        }
-                    });
-                    return;
-                }
-                
-                const editableToggle = e.target.closest('.editable-toggle');
-                if (editableToggle && record.inputs) {
-                    record.inputs.isUp = !record.inputs.isUp;
-                    record.isUp = record.inputs.isUp;
-                    recalculateRecord(record);
-                    saveState();
-                    renderHistory();
-                    return;
-                }
-
-                const editTrigger = e.target.closest('.edit-trigger-val');
-                if (editTrigger && record.inputs) {
-                    const editContainer = editTrigger.querySelector('.edit-container-val');
-                    if (!editContainer || editContainer.querySelector('.edit-val-input')) return;
-                    
-                    const field = editTrigger.dataset.field;
-                    const originalVal = record.inputs[field];
-                    const input = document.createElement('input');
-                    input.type = 'number';
-                    input.step = 'any';
-                    input.className = 'edit-val-input mono';
-                    input.value = originalVal;
-                    input.style.fontSize = 'inherit';
-                    input.style.fontWeight = 'inherit';
-                    input.style.color = 'inherit';
-                    input.style.background = 'transparent';
-                    input.style.border = 'none';
-                    input.style.outline = 'none';
-                    input.style.width = Math.max(30, originalVal.toString().length * 8 + 10) + 'px';
-                    input.style.padding = '0';
-                    input.style.margin = '0';
-                    
-                    editContainer.innerHTML = '';
-                    editContainer.appendChild(input);
-                    input.focus();
-                    input.select();
-                    
-                    let saved = false;
-                    const saveNewVal = () => {
-                        if (saved) return;
-                        saved = true;
-                        const newVal = parseFloat(input.value);
-                        if (!isNaN(newVal) && newVal !== originalVal) {
-                            record.inputs[field] = newVal;
-                            recalculateRecord(record);
-                            saveState();
-                        }
-                        renderHistory();
-                    };
-                    
-                    input.addEventListener('blur', saveNewVal);
-                    input.addEventListener('keydown', (ke) => {
-                        if (ke.key === 'Enter') {
-                            input.blur();
-                        }
-                        if (ke.key === 'Escape') {
-                            input.value = originalVal;
-                            input.blur();
-                        }
-                    });
-                    return;
-                }
+                // Inline editing logic removed to prevent interference with double-click highlighting
                 
                 if (e.detail === 1) {
                     item.clickTimer = setTimeout(() => {
@@ -753,10 +664,18 @@ function renderHistory() {
             <textarea class="group-note mono" placeholder="Add notes...">${group.note || ''}</textarea>
         `;
         
-        // Trigger background fetch for this stock's news
-        setTimeout(() => {
-            loadStockNews(group.symbol, groupIndex);
-        }, 100);
+        clearTimeout(group.newsTimeout);
+        // Reset newsLoaded so news is always fetched on app start/re-render
+        group.newsLoaded = false;
+        group.newsTimeout = setTimeout(() => {
+            if (!group.newsLoaded) {
+                loadStockNews(group.symbol, groupIndex);
+                group.newsLoaded = true;
+            }
+            if (!group.klineMetrics) {
+                loadKlineMetrics(group, groupIndex);
+            }
+        }, 200);
         
         const tfInputs = memoArea.querySelectorAll('.tf-input');
         tfInputs.forEach(input => {
@@ -894,6 +813,31 @@ function getDragAfterTag(container, x, y) {
         }
     }
     return null;
+}
+
+async function fetchStockName(symbol) {
+    if (!symbol || symbol === 'Uncategorized') return '';
+    try {
+        const url = `https://smartbox.gtimg.cn/s3/?v=2&q=${symbol}&t=all`;
+        let text;
+        if (window.electronAPI && window.electronAPI.fetchFinancialData) {
+            text = await window.electronAPI.fetchFinancialData(url);
+        } else {
+            const res = await fetch(url);
+            text = await res.text();
+        }
+        
+        const match = text.match(/v_hint="(.*?)"/);
+        if (match && match[1]) {
+            const parts = match[1].split('^')[0].split('~');
+            if (parts.length >= 3) {
+                return JSON.parse('"' + parts[2] + '"');
+            }
+        }
+    } catch (e) {
+        console.error('Failed to fetch stock name', e);
+    }
+    return '';
 }
 
 function updateArrayFromDOMTags() {
@@ -1144,9 +1088,88 @@ function populateForm(record) {
 }
 
 // Initial Setup
-loadState();
-updateCurrency();
-renderHistory();
+async function initializeData() {
+    let stateObj = null;
+    
+    // 1. Try to load from IPC file storage
+    if (window.electronAPI && window.electronAPI.loadData) {
+        try {
+            const dataStr = await window.electronAPI.loadData();
+            if (dataStr) {
+                stateObj = JSON.parse(dataStr);
+            }
+        } catch (e) {
+            console.error('[DATA] Failed to load/parse IPC data:', e);
+        }
+    }
+    
+    // 2. Fallback to localStorage for initial migration
+    if (!stateObj) {
+        historyRecords = JSON.parse(localStorage.getItem('calcHistory')) || [];
+        historyVersion = localStorage.getItem('calcHistoryVersion');
+        
+        if (!historyVersion) {
+            historyRecords.reverse();
+            historyVersion = '2';
+        }
+        
+        if (historyRecords.length > 0 && !historyRecords[0].records) {
+            const grouped = {};
+            historyRecords.forEach(record => {
+                const sym = record.symbol || 'Uncategorized';
+                if (!grouped[sym]) grouped[sym] = [];
+                grouped[sym].push(record);
+            });
+            historyRecords = Object.keys(grouped).map(sym => ({
+                symbol: sym,
+                records: grouped[sym]
+            }));
+        }
+        
+        const savedInputs = JSON.parse(localStorage.getItem('calcInputs'));
+        stateObj = {
+            historyRecords: historyRecords,
+            historyVersion: historyVersion,
+            calcInputs: savedInputs
+        };
+        
+        // Save immediately to migrate to file storage
+        if (historyRecords.length > 0) {
+            setTimeout(saveState, 500); 
+        }
+    } else {
+        historyRecords = stateObj.historyRecords || [];
+        historyVersion = stateObj.historyVersion;
+    }
+    
+    // Populate UI from calcInputs
+    const saved = stateObj.calcInputs;
+    if (saved) {
+        if (saved.currency === '$') {
+            document.getElementById('currency-usd').checked = true;
+        } else {
+            document.getElementById('currency-cny').checked = true;
+        }
+        
+        stockSymbol1Input.value = saved.stock1 || '';
+        basePriceInput.value = saved.basePrice || '';
+        if (saved.moveDown) {
+            document.getElementById('move-down').checked = true;
+        } else {
+            document.getElementById('move-up').checked = true;
+        }
+        percentageChangeInput.value = saved.percentChange || '';
+        
+        stockSymbol2Input.value = saved.stock2 || '';
+        initialPriceInput.value = saved.initialPrice || '';
+        finalPriceInput.value = saved.finalPrice || '';
+    }
+
+    updateCurrency();
+    renderHistory();
+}
+
+initializeData();
 
 // Auto-select text in input fields on focus
 document.querySelectorAll('input[type="number"], input[type="text"]').forEach(input => {
@@ -1299,3 +1322,187 @@ async function loadStockNews(symbol, groupIndex) {
         panel.innerHTML = '<div style="font-size: 0.7rem; color: var(--fg-dim);">Failed to load insights.</div>';
     }
 }
+
+
+// ---------------------------------------------------------
+// Background K-Line Metrics Fetching
+// ---------------------------------------------------------
+
+function getTencentSymbol(c) {
+    let codeMatch = c.match(/[A-Za-z0-9]+/);
+    if (!codeMatch) return null;
+    let code = codeMatch[0].toLowerCase();
+    if (/^\d{6}$/.test(code)) return (code.startsWith('6') || code.startsWith('9')) ? `sh${code}` : `sz${code}`;
+    if (/^\d{5}$/.test(code)) return `hk${code}`; 
+    return `us${code.toUpperCase()}`;
+}
+
+async function loadKlineMetrics(group, groupIndex) {
+    const tsym = getTencentSymbol(group.symbol);
+    if (!tsym) return;
+
+    if (!group.klineMetrics) {
+        group.klineMetrics = {
+            m5: { high: null, low: null },
+            m30: { high: null, low: null },
+            day: { high: null, low: null },
+            week: { high: null, low: null }
+        };
+    }
+
+    const fetchKline = async (type, intervalParam) => {
+        const isAShare = tsym.startsWith('sh') || tsym.startsWith('sz');
+        
+        if (isAShare) {
+            let scale = 5;
+            let datalen = 320;
+            if (type === 'm5') { scale = 5; datalen = 320; }
+            else if (type === 'm30') { scale = 30; datalen = 320; }
+            else if (type === 'day') { scale = 240; datalen = 320; }
+            else if (type === 'week') { scale = 1200; datalen = 320; }
+            
+            const url = `https://quotes.sina.cn/cn/api/json_v2.php/CN_MarketData.getKLineData?symbol=${tsym}&scale=${scale}&ma=no&datalen=${datalen}`;
+            try {
+                const res = await fetch(url);
+                const data = await res.json();
+                if (data && Array.isArray(data) && data.length > 0) {
+                    let maxHigh = -Infinity;
+                    let minLow = Infinity;
+                    for (let i = 0; i < data.length; i++) {
+                        const h = parseFloat(data[i].high);
+                        const l = parseFloat(data[i].low);
+                        if (h > maxHigh) maxHigh = h;
+                        if (l < minLow) minLow = l;
+                    }
+                    return { high: maxHigh, low: minLow };
+                }
+            } catch (e) {
+                console.error(`Failed to fetch Sina ${type} for ${tsym}`, e);
+            }
+        } else {
+            const endpoint = (type === 'm5' || type === 'm30') ? 'mkline' : 'kline';
+            const url = `https://ifzq.gtimg.cn/appstock/app/kline/${endpoint}?param=${tsym},${intervalParam},,,320,`;
+            try {
+                const res = await fetch(url);
+                const data = await res.json();
+                if (data && data.code === 0 && data.data && data.data[tsym] && data.data[tsym][intervalParam]) {
+                    const arr = data.data[tsym][intervalParam];
+                    if (arr.length > 0) {
+                        let maxHigh = -Infinity;
+                        let minLow = Infinity;
+                        for (let i = 0; i < arr.length; i++) {
+                            const h = parseFloat(arr[i][3]);
+                            const l = parseFloat(arr[i][4]);
+                            if (h > maxHigh) maxHigh = h;
+                            if (l < minLow) minLow = l;
+                        }
+                        return { high: maxHigh, low: minLow };
+                    }
+                }
+            } catch (e) {
+                console.error(`Failed to fetch Tencent ${type} for ${tsym}`, e);
+            }
+        }
+        return { high: null, low: null };
+    };
+
+    const [m5, m30, day, week] = await Promise.all([
+        fetchKline('m5', 'm5'),
+        fetchKline('m30', 'm30'),
+        fetchKline('day', 'day'),
+        fetchKline('week', 'week')
+    ]);
+
+    group.klineMetrics = { m5, m30, day, week };
+    
+    // Update any dynamically bound records in the UI now that data is fresh
+    updateDynamicRecords(group, groupIndex);
+}
+
+// ---------------------------------------------------------
+// Dynamic Record Bindings
+// ---------------------------------------------------------
+
+function applyDynamicBindings(group, record) {
+    if (!group.klineMetrics) return false;
+    
+    // Rule 1: D线追踪 (D has fallen) -> Base = 30m High, Target = 5m Low
+    if (record.type.includes('目前D已经跌') && group.klineMetrics.m30.high !== null && group.klineMetrics.m5.low !== null) {
+        record.inputs = {
+            initial: group.klineMetrics.m30.high,
+            final: group.klineMetrics.m5.low
+        };
+        const diff = record.inputs.final - record.inputs.initial;
+        record.isUp = diff >= 0;
+        record.percentage = ((Math.abs(diff) / record.inputs.initial) * 100).toFixed(2) + '%';
+        record.result = record.percentage;
+        const recCurrency = record.currency || (record.result && record.result.includes('$') ? '$' : '¥');
+        record.details = `Base: ${recCurrency}${record.inputs.initial.toFixed(2)} | Target: ${recCurrency}${record.inputs.final.toFixed(2)}`;
+        return true;
+    }
+    
+    return false;
+}
+
+function updateDynamicRecords(group, groupIndex) {
+    if (!group.klineMetrics) return;
+    const groupEl = document.getElementById(`group-${groupIndex}`);
+    if (!groupEl) return;
+    
+    let hasUpdates = false;
+    const recordEls = groupEl.querySelectorAll('.editorial-list > .item');
+    recordEls.forEach((item, recIndex) => {
+        const record = group.records[recIndex];
+        const wasUpdated = applyDynamicBindings(group, record);
+        
+        if (wasUpdated) {
+            hasUpdates = true;
+            recalculateRecord(record);
+            
+            // Update the UI directly to avoid focus loss
+            const recCurrency = record.currency || (record.result && record.result.includes('$') ? '$' : '¥');
+            const infoSpan = item.querySelector('.info');
+            if (infoSpan) {
+                infoSpan.innerHTML = record.details;
+            }
+            
+            const upColor = recCurrency === '¥' ? '#ff453a' : '#32d74b';
+            const downColor = recCurrency === '¥' ? '#32d74b' : '#ff453a';
+            
+            const resultDiv = item.querySelector('.col-result');
+            if (resultDiv) {
+                resultDiv.style.color = record.isUp ? upColor : downColor;
+                resultDiv.innerHTML = record.result;
+            }
+            
+            // Seamlessly update top calculator if this record is currently selected
+            if (typeof editingGroupIndex !== 'undefined' && editingGroupIndex === groupIndex && editingRecordIndex === recIndex) {
+                const initialInput = document.getElementById('initial-input');
+                const finalInput = document.getElementById('final-input');
+                const resultEl = document.getElementById('result');
+                if (initialInput && finalInput && resultEl) {
+                    if (document.activeElement !== initialInput) initialInput.value = record.inputs.initial;
+                    if (document.activeElement !== finalInput) finalInput.value = record.inputs.final;
+                    resultEl.textContent = record.result;
+                    resultEl.style.color = record.isUp ? upColor : downColor;
+                }
+            }
+        }
+    });
+    
+    if (hasUpdates) {
+        saveState(); // Ensure the dynamically updated values are saved
+    }
+}
+
+// Background polling for real-time updates
+setInterval(() => {
+    historyRecords.forEach((group, groupIndex) => {
+        // Find if this group has any dynamic records before fetching
+        const hasDynamic = group.records.some(r => r.type.includes('目前D已经跌') || r.type.includes('30卖点2') || r.type.includes('D卖点1'));
+        if (hasDynamic) {
+            loadKlineMetrics(group, groupIndex);
+        }
+    });
+}, 3000); // Check for updates every 3 seconds
+

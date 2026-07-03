@@ -1,10 +1,59 @@
 const { app, BrowserWindow, shell, ipcMain } = require('electron');
 const path = require('path');
 const fs = require('fs');
+const os = require('os');
+
+// Pin userData to a fixed path so data is always in the same place
+// regardless of where the .app bundle is located
+const FIXED_USER_DATA = path.join(os.homedir(), 'Library', 'Application Support', 'ticker');
+app.setPath('userData', FIXED_USER_DATA);
+
+const DATA_FILE = path.join(FIXED_USER_DATA, 'app-data-v1.json');
+
+// Register ALL IPC handlers BEFORE the window is created
+// so they are ready when the renderer loads script.js
+
+ipcMain.handle('load-data', () => {
+    try {
+        if (fs.existsSync(DATA_FILE)) {
+            const content = fs.readFileSync(DATA_FILE, 'utf8');
+            console.log('[main] load-data: returning', content.length, 'chars');
+            return content;
+        }
+        console.log('[main] load-data: file not found at', DATA_FILE);
+    } catch(e) {
+        console.error('[main] load-data error:', e);
+    }
+    return null;
+});
+
+ipcMain.on('save-data', (event, dataStr) => {
+    try {
+        fs.mkdirSync(FIXED_USER_DATA, { recursive: true });
+        fs.writeFileSync(DATA_FILE, dataStr, 'utf8');
+    } catch(e) {
+        console.error('[main] save-data error:', e);
+    }
+});
+
+ipcMain.handle('fetch-financial-data', async (event, url) => {
+    try {
+        const response = await fetch(url, {
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36'
+            }
+        });
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        return await response.text();
+    } catch (error) {
+        console.error('[main] fetch error:', error);
+        return { error: error.message };
+    }
+});
 
 function createWindow() {
-    const stateFile = path.join(app.getPath('userData'), 'window-state-v9.json');
-    let state = { width: 600, height: 1180 }; // Fallback defaults
+    const stateFile = path.join(FIXED_USER_DATA, 'window-state-v9.json');
+    let state = { width: 600, height: 1180 };
     try {
         if (fs.existsSync(stateFile)) {
             state = JSON.parse(fs.readFileSync(stateFile, 'utf8'));
@@ -23,24 +72,23 @@ function createWindow() {
         webPreferences: {
             preload: path.join(__dirname, 'preload.js'),
             nodeIntegration: false,
-            contextIsolation: true
+            contextIsolation: true,
+            webSecurity: false
         }
     });
 
     mainWindow.loadFile('index.html');
-    
-    // Save state on resize and move
-    const saveState = () => {
+
+    const saveWindowState = () => {
         try {
             const bounds = mainWindow.getBounds();
             fs.writeFileSync(stateFile, JSON.stringify(bounds));
         } catch(e) {}
     };
 
-    mainWindow.on('resize', saveState);
-    mainWindow.on('move', saveState);
+    mainWindow.on('resize', saveWindowState);
+    mainWindow.on('move', saveWindowState);
 
-    // Open external links in default browser
     mainWindow.webContents.setWindowOpenHandler(({ url }) => {
         if (url.startsWith('http')) {
             shell.openExternal(url);
@@ -48,14 +96,12 @@ function createWindow() {
         return { action: 'deny' };
     });
 
-    // Toggle window size logic
-    let isDefaultSize = (mainWindow.getBounds().width === 600 && mainWindow.getBounds().height === 1180);
     let previousBounds = null;
 
     ipcMain.on('toggle-window-size', () => {
         const bounds = mainWindow.getBounds();
         const currentlyDefault = (bounds.width === 600 && bounds.height === 1180);
-        
+
         if (currentlyDefault) {
             if (previousBounds) {
                 mainWindow.setBounds(previousBounds);
@@ -69,21 +115,6 @@ function createWindow() {
 
 app.whenReady().then(() => {
     createWindow();
-
-    ipcMain.handle('fetch-financial-data', async (event, url) => {
-        try {
-            const response = await fetch(url, {
-                headers: {
-                    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36'
-                }
-            });
-            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-            return await response.text();
-        } catch (error) {
-            console.error('Fetch error:', error);
-            return { error: error.message };
-        }
-    });
 
     app.on('activate', () => {
         if (BrowserWindow.getAllWindows().length === 0) {
