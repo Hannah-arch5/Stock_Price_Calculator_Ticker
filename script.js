@@ -736,6 +736,11 @@ function renderHistory() {
             }
         });
         
+        const newsPanel = document.createElement('div');
+        newsPanel.className = 'group-news-panel';
+        newsPanel.id = `news-panel-${groupIndex}`;
+        newsPanel.innerHTML = '<div style="font-size: 0.7rem; color: var(--fg-dim);">Loading insights...</div>';
+
         const memoArea = document.createElement('div');
         memoArea.className = 'group-memo-area';
         
@@ -747,6 +752,11 @@ function renderHistory() {
             </div>
             <textarea class="group-note mono" placeholder="Add notes...">${group.note || ''}</textarea>
         `;
+        
+        // Trigger background fetch for this stock's news
+        setTimeout(() => {
+            loadStockNews(group.symbol, groupIndex);
+        }, 100);
         
         const tfInputs = memoArea.querySelectorAll('.tf-input');
         tfInputs.forEach(input => {
@@ -784,6 +794,7 @@ function renderHistory() {
         }, 0);
 
         groupEl.appendChild(headerEl);
+        groupEl.appendChild(newsPanel);
         groupEl.appendChild(memoArea);
         groupEl.appendChild(listEl);
         historyListEl.appendChild(groupEl);
@@ -1226,4 +1237,65 @@ if (sizeToggleBtn && window.electronAPI) {
     sizeToggleBtn.addEventListener('click', () => {
         window.electronAPI.toggleWindowSize();
     });
+}
+
+// Fetch and render stock news
+async function loadStockNews(symbol, groupIndex) {
+    const panel = document.getElementById(`news-panel-${groupIndex}`);
+    if (!panel) return;
+    
+    const match = symbol.match(/\d{4,6}/);
+    if (!match) {
+        panel.innerHTML = '<div style="font-size: 0.7rem; color: var(--fg-dim);">No news available.</div>';
+        return;
+    }
+    const code = match[0];
+    
+    try {
+        const url = `https://np-anotice-stock.eastmoney.com/api/security/ann?sr=-1&page_size=5&page_index=1&ann_type=A&client_source=WEB&stock_list=${code}&f_node=1`;
+        
+        let jsonStr;
+        if (window.electronAPI && window.electronAPI.fetchFinancialData) {
+            jsonStr = await window.electronAPI.fetchFinancialData(url);
+        } else {
+            const res = await fetch(url);
+            jsonStr = await res.text();
+        }
+        
+        const data = JSON.parse(jsonStr);
+        if (!data || !data.data || !data.data.list || data.data.list.length === 0) {
+            panel.innerHTML = '<div style="font-size: 0.7rem; color: var(--fg-dim);">No recent announcements.</div>';
+            return;
+        }
+        
+        let html = `
+            <div class="news-section">
+                <h4>最新公告</h4>
+                <div class="news-list">
+        `;
+        
+        data.data.list.forEach(item => {
+            const tag = item.columns && item.columns[0] ? item.columns[0].column_name : '公告';
+            const title = item.title;
+            const link = `https://data.eastmoney.com/notices/detail/${code}/${item.art_code}.html`;
+            
+            html += `
+                <a href="${link}" class="news-item" target="_blank">
+                    <span class="news-tag">【${tag}】</span>
+                    <span class="news-text">${title}</span>
+                </a>
+            `;
+        });
+        
+        html += `
+                </div>
+            </div>
+        `;
+        
+        panel.innerHTML = html;
+        
+    } catch (e) {
+        console.error('Failed to load news for', symbol, e);
+        panel.innerHTML = '<div style="font-size: 0.7rem; color: var(--fg-dim);">Failed to load insights.</div>';
+    }
 }
