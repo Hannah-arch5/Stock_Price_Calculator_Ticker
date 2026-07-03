@@ -307,20 +307,25 @@ clearPercentageBtn.addEventListener('click', () => {
     finalPriceInput.value = '';
     handleInput();
 });
+let isRenderingHistory = false;
 
 // History Logic
 function renderHistory() {
-    const tagsEl = document.getElementById('quick-tags');
-    if (tagsEl) tagsEl.innerHTML = '';
+    if (isRenderingHistory) return;
+    isRenderingHistory = true;
 
-    if (historyRecords.length === 0) {
-        historyListEl.innerHTML = '<p class="empty-history">No history yet.</p>';
-        return;
-    }
+    try {
+        const tagsEl = document.getElementById('quick-tags');
+        if (tagsEl) tagsEl.innerHTML = '';
 
-    historyListEl.innerHTML = '';
-    
-    historyRecords.forEach((group, groupIndex) => {
+        if (historyRecords.length === 0) {
+            historyListEl.innerHTML = '<p class="empty-history">No history yet.</p>';
+            return;
+        }
+
+        historyListEl.innerHTML = '';
+        
+        historyRecords.forEach((group, groupIndex) => {
         if (tagsEl) {
             const tag = document.createElement('button');
             tag.className = 'quick-tag mono';
@@ -362,41 +367,6 @@ function renderHistory() {
             };
             tagsEl.appendChild(tag);
         }
-
-        const memoArea = document.createElement('div');
-        memoArea.className = 'group-memo-area';
-        
-        memoArea.innerHTML = `
-            <div class="memo-timeframes">
-                <label><span class="tf-label"><span>W</span><span>:</span></span> <input type="text" class="tf-input mono" data-tf="tf_w" value="${group.tf_w || ''}"></label>
-                <label><span class="tf-label"><span>D</span><span>:</span></span> <input type="text" class="tf-input mono" data-tf="tf_d" value="${group.tf_d || ''}"></label>
-                <label><span class="tf-label"><span>30</span><span>:</span></span> <input type="text" class="tf-input mono" data-tf="tf_30" value="${group.tf_30 || ''}"></label>
-            </div>
-            <textarea class="group-note mono" placeholder="Add notes...">${group.note || ''}</textarea>
-        `;
-        
-        const tfInputs = memoArea.querySelectorAll('.tf-input');
-        tfInputs.forEach(input => {
-            input.addEventListener('blur', () => {
-                const tfKey = input.getAttribute('data-tf');
-                const newVal = input.value.trim();
-                if (newVal !== (group[tfKey] || '')) {
-                    group[tfKey] = newVal;
-                    saveState();
-                }
-            });
-        });
-        
-        const noteEl = memoArea.querySelector('textarea');
-        noteEl.spellcheck = false;
-        
-        noteEl.addEventListener('blur', () => {
-            const newNote = noteEl.value.trim();
-            if (newNote !== (group.note || '')) {
-                group.note = newNote;
-                saveState();
-            }
-        });
 
         const groupEl = document.createElement('div');
         groupEl.className = 'history-group';
@@ -606,6 +576,55 @@ function renderHistory() {
             item.addEventListener('click', (e) => {
                 if (e.target.closest('.delete-btn') || e.target.closest('.row-delete')) return;
                 
+                const typeSpan = e.target.closest('.type');
+                if (typeSpan) {
+                    if (typeSpan.querySelector('.edit-type-input')) return;
+                    
+                    const originalText = record.type;
+                    const input = document.createElement('input');
+                    input.type = 'text';
+                    input.className = 'edit-type-input mono';
+                    input.value = originalText;
+                    input.style.fontSize = 'inherit';
+                    input.style.fontWeight = 'inherit';
+                    input.style.color = 'inherit';
+                    input.style.background = 'transparent';
+                    input.style.border = 'none';
+                    input.style.outline = 'none';
+                    input.style.width = '120px';
+                    input.style.padding = '0';
+                    input.style.margin = '0';
+                    
+                    typeSpan.innerHTML = '';
+                    typeSpan.appendChild(input);
+                    input.focus();
+                    input.select();
+                    
+                    let saved = false;
+                    const saveNewType = () => {
+                        if (saved) return;
+                        saved = true;
+                        const newType = input.value.trim();
+                        if (newType && newType !== record.type) {
+                            record.type = newType;
+                            saveState();
+                        }
+                        renderHistory();
+                    };
+                    
+                    input.addEventListener('blur', saveNewType);
+                    input.addEventListener('keydown', (ke) => {
+                        if (ke.key === 'Enter') {
+                            input.blur(); // will trigger saveNewType via blur
+                        }
+                        if (ke.key === 'Escape') {
+                            input.value = originalText;
+                            input.blur(); // will restore original via blur
+                        }
+                    });
+                    return;
+                }
+                
                 const editableToggle = e.target.closest('.editable-toggle');
                 if (editableToggle && record.inputs) {
                     record.inputs.isUp = !record.inputs.isUp;
@@ -668,7 +687,7 @@ function renderHistory() {
                     });
                     return;
                 }
-
+                
                 if (e.detail === 1) {
                     item.clickTimer = setTimeout(() => {
                         populateForm(record);
@@ -690,6 +709,7 @@ function renderHistory() {
             item.addEventListener('dblclick', (e) => {
                 clearTimeout(item.clickTimer);
                 if (e.target.closest('.row-delete')) return;
+                if (e.target.closest('.edit-type-input')) return;
                 record.highlighted = !record.highlighted;
                 saveState();
                 renderHistory();
@@ -716,11 +736,82 @@ function renderHistory() {
             }
         });
         
+        const memoArea = document.createElement('div');
+        memoArea.className = 'group-memo-area';
+        
+        memoArea.innerHTML = `
+            <div class="memo-timeframes">
+                <label><span class="tf-label"><span>W</span><span>:</span></span> <input type="text" class="tf-input mono" data-tf="tf_w" value="${group.tf_w || ''}"></label>
+                <label><span class="tf-label"><span>D</span><span>:</span></span> <input type="text" class="tf-input mono" data-tf="tf_d" value="${group.tf_d || ''}"></label>
+                <label><span class="tf-label"><span>30</span><span>:</span></span> <input type="text" class="tf-input mono" data-tf="tf_30" value="${group.tf_30 || ''}"></label>
+            </div>
+            <textarea class="group-note mono" placeholder="Add notes...">${group.note || ''}</textarea>
+        `;
+        
+        const tfInputs = memoArea.querySelectorAll('.tf-input');
+        tfInputs.forEach(input => {
+            input.addEventListener('blur', () => {
+                const tfKey = input.getAttribute('data-tf');
+                const newVal = input.value.trim();
+                if (newVal !== (group[tfKey] || '')) {
+                    group[tfKey] = newVal;
+                    saveState();
+                }
+            });
+        });
+        
+        const noteEl = memoArea.querySelector('textarea');
+        noteEl.spellcheck = false;
+        
+        noteEl.addEventListener('blur', () => {
+            const newNote = noteEl.value.trim();
+            if (newNote !== (group.note || '')) {
+                group.note = newNote;
+                saveState();
+            }
+        });
+        
+        noteEl.addEventListener('input', () => {
+            noteEl.style.height = 'auto';
+            noteEl.style.height = (noteEl.scrollHeight) + 'px';
+        });
+        
+        setTimeout(() => {
+            if (noteEl.scrollHeight > 0) {
+                noteEl.style.height = 'auto';
+                noteEl.style.height = (noteEl.scrollHeight) + 'px';
+            }
+        }, 0);
+
         groupEl.appendChild(headerEl);
         groupEl.appendChild(memoArea);
         groupEl.appendChild(listEl);
         historyListEl.appendChild(groupEl);
     });
+    } finally {
+        isRenderingHistory = false;
+    }
+}
+
+function recalculateRecord(record) {
+    if (record.inputs && record.inputs.base !== undefined) {
+        const base = record.inputs.base;
+        const perc = record.inputs.perc;
+        const multiplier = record.inputs.isUp ? (1 + perc / 100) : (1 - perc / 100);
+        const result = base * multiplier;
+        record.result = `${record.currency || ''}${formatCurrency(result)}`;
+        const recCurrency = record.currency || (record.result && record.result.includes('$') ? '$' : '¥');
+        const upDownText = record.inputs.isUp ? 'Up' : 'Down';
+        record.details = `<span>Base: ${recCurrency}${base}</span><span>${upDownText} ${perc}%</span>`;
+    } else if (record.inputs && record.inputs.initial !== undefined) {
+        const initial = record.inputs.initial;
+        const final = record.inputs.final;
+        const pctDecimal = (final - initial) / initial;
+        record.result = `${Math.abs(pctDecimal * 100).toFixed(2)}%`;
+        record.isUp = pctDecimal > 0;
+        const recCurrency = record.currency || (record.result && record.result.includes('$') ? '$' : '¥');
+        record.details = `<span>Base: ${recCurrency}${initial}</span><span>Target: ${recCurrency}${final}</span>`;
+    }
 }
 
 function getDragAfterElement(container, y) {
@@ -818,9 +909,11 @@ function updateArrayFromDOMTags() {
 function updateArrayFromDOM() {
     const groups = [...historyListEl.querySelectorAll('.history-group')];
     const newHistory = [];
+    
     groups.forEach(groupEl => {
         const symbol = groupEl.dataset.symbol;
         const originalGroup = historyRecords.find(g => g.symbol === symbol);
+        
         const memoArea = groupEl.querySelector('.group-memo-area');
         const note = memoArea ? memoArea.querySelector('textarea').value : (originalGroup ? originalGroup.note : '');
         const tf_w = memoArea ? memoArea.querySelector('[data-tf="tf_w"]').value : (originalGroup ? originalGroup.tf_w : '');
@@ -869,6 +962,79 @@ if (clearAllHistoryBtn) {
         historyRecords = [];
         saveState();
         renderHistory();
+    });
+}
+
+const exportHistoryBtn = document.getElementById('export-history-btn');
+if (exportHistoryBtn) {
+    exportHistoryBtn.addEventListener('click', () => {
+        if (historyRecords.length === 0) return;
+        
+        let htmlContent = `
+        <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+        <head>
+            <meta charset="utf-8">
+            <title>Ticker History Export</title>
+            <style>
+                body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #333; line-height: 1.6; }
+                h1 { border-bottom: 2px solid #333; padding-bottom: 5px; }
+                .group { margin-bottom: 30px; }
+                .group-title { font-size: 20px; font-weight: bold; margin-bottom: 5px; color: #000; }
+                .group-note { font-style: italic; color: #666; margin-bottom: 10px; white-space: pre-wrap; }
+                .record-item { margin-bottom: 5px; }
+                .record-type { font-weight: bold; margin-right: 10px; }
+            </style>
+        </head>
+        <body>
+            <h1>Ticker History Export</h1>
+            <p>Generated on: ${new Date().toLocaleString()}</p>
+            <hr>
+        `;
+        
+        historyRecords.forEach(group => {
+            htmlContent += `<div class="group">`;
+            htmlContent += `<div class="group-title">${group.symbol}</div>`;
+            if (group.tf_w || group.tf_d || group.tf_30) {
+                htmlContent += `<div class="group-note" style="margin-bottom: 5px; font-weight: bold;">`;
+                if (group.tf_w) htmlContent += `W: ${group.tf_w} &nbsp;&nbsp;`;
+                if (group.tf_d) htmlContent += `D: ${group.tf_d} &nbsp;&nbsp;`;
+                if (group.tf_30) htmlContent += `30: ${group.tf_30}`;
+                htmlContent += `</div>`;
+            }
+            if (group.note) {
+                htmlContent += `<div class="group-note">${group.note.replace(/\n/g, '<br>')}</div>`;
+            }
+            htmlContent += `<ul>`;
+            group.records.forEach(record => {
+                let detailsText = record.details.replace(/<\/span><span>/g, ' | ').replace(/<[^>]+>/g, '');
+                let typeText = record.type;
+                
+                const recCurrency = record.currency || (record.result && record.result.includes('$') ? '$' : '¥');
+                const upColor = recCurrency === '¥' ? '#ff453a' : '#32d74b';
+                const downColor = recCurrency === '¥' ? '#32d74b' : '#ff453a';
+                const resultColor = record.isUp ? upColor : downColor;
+                
+                htmlContent += `<li class="record-item">
+                    <span class="record-type">[${typeText}]</span> 
+                    <span>${detailsText}</span> 
+                    <strong>&rarr; <span style="color: ${resultColor};">${record.result}</span></strong>
+                </li>`;
+            });
+            htmlContent += `</ul></div>`;
+        });
+        
+        htmlContent += `</body></html>`;
+        
+        const blob = new Blob(['\ufeff', htmlContent], {
+            type: 'application/msword'
+        });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `Ticker_Export_${new Date().toISOString().slice(0,10)}.doc`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
     });
 }
 
@@ -978,89 +1144,20 @@ document.querySelectorAll('input[type="number"], input[type="text"]').forEach(in
     });
 });
 
-function recalculateRecord(record) {
-    if (record.inputs && record.inputs.base !== undefined) {
-        const base = record.inputs.base;
-        const perc = record.inputs.perc;
-        const multiplier = record.inputs.isUp ? (1 + perc / 100) : (1 - perc / 100);
-        const result = base * multiplier;
-        record.result = `${record.currency || ''}${formatCurrency(result)}`;
-        const recCurrency = record.currency || (record.result && record.result.includes('$') ? '$' : '¥');
-        const upDownText = record.inputs.isUp ? 'Up' : 'Down';
-        record.details = `<span>Base: ${recCurrency}${base}</span><span>${upDownText} ${perc}%</span>`;
-    } else if (record.inputs && record.inputs.initial !== undefined) {
-        const initial = record.inputs.initial;
-        const final = record.inputs.final;
-        const pctDecimal = (final - initial) / initial;
-        record.result = `${Math.abs(pctDecimal * 100).toFixed(2)}%`;
-        record.isUp = pctDecimal > 0;
-        const recCurrency = record.currency || (record.result && record.result.includes('$') ? '$' : '¥');
-        record.details = `<span>Base: ${recCurrency}${initial}</span><span>Target: ${recCurrency}${final}</span>`;
+// Theme Toggle Logic
+const themeToggleBtn = document.getElementById('theme-toggle-btn');
+if (themeToggleBtn) {
+    const savedTheme = localStorage.getItem('ticker-theme');
+    if (savedTheme === 'light') {
+        document.body.classList.add('light-theme');
     }
-}
-
-// Split View Drag Logic
-const resizer = document.getElementById('split-resizer');
-const controlPanel = document.querySelector('.control-panel');
-
-if (resizer && controlPanel) {
-    let isDragging = false;
-    let startX = 0;
-    let startWidth = 0;
-
-    // Load saved width
-    const savedLeftWidth = localStorage.getItem('calcLeftPanelWidth');
-    if (savedLeftWidth) {
-        controlPanel.style.setProperty('--left-flex', `0 0 ${savedLeftWidth}px`);
-    } else {
-        // Emulate 1fr / 1.2fr ratio
-        controlPanel.style.setProperty('--left-flex', `0 0 45.45%`);
-    }
-
-    resizer.addEventListener('mousedown', (e) => {
-        isDragging = true;
-        startX = e.clientX;
-        startWidth = controlPanel.getBoundingClientRect().width;
-        document.body.style.cursor = 'col-resize';
-        document.body.style.userSelect = 'none';
-    });
-
-    window.addEventListener('mousemove', (e) => {
-        if (!isDragging) return;
-        const dx = e.clientX - startX;
-        let newWidth = startWidth + dx;
-        
-        // Enforce left panel min width
-        if (newWidth < 235) newWidth = 235;
-
-        // Enforce right panel min width (281px)
-        const splitView = document.querySelector('.split-view');
-        const splitViewWidth = splitView.getBoundingClientRect().width;
-        const resizerWidth = resizer.getBoundingClientRect().width;
-        
-        const maxLeftWidth = splitViewWidth - resizerWidth - 281;
-        if (newWidth > maxLeftWidth) newWidth = maxLeftWidth;
-
-        controlPanel.style.setProperty('--left-flex', `0 0 ${newWidth}px`);
-    });
-
-    window.addEventListener('mouseup', () => {
-        if (isDragging) {
-            isDragging = false;
-            document.body.style.cursor = '';
-            document.body.style.userSelect = '';
-            
-            // Save width
-            const finalWidth = controlPanel.getBoundingClientRect().width;
-            localStorage.setItem('calcLeftPanelWidth', finalWidth);
+    
+    themeToggleBtn.addEventListener('click', () => {
+        document.body.classList.toggle('light-theme');
+        if (document.body.classList.contains('light-theme')) {
+            localStorage.setItem('ticker-theme', 'light');
+        } else {
+            localStorage.setItem('ticker-theme', 'dark');
         }
-    });
-}
-
-// Window Size Toggle Button
-const sizeToggleBtn = document.getElementById('size-toggle-btn');
-if (sizeToggleBtn && window.electronAPI) {
-    sizeToggleBtn.addEventListener('click', () => {
-        window.electronAPI.toggleWindowSize();
     });
 }
