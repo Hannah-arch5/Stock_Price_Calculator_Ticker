@@ -556,9 +556,40 @@ function renderHistory() {
             }
             
             let formattedDetails = record.details;
-            if (formattedDetails && formattedDetails.includes(' | ')) {
-                const parts = formattedDetails.split(' | ');
-                formattedDetails = `<span>${parts[0]}</span><span>${parts[1]}</span>`;
+            
+            if (!record.inputs) {
+                if (record.type === 'Target Price' || record.type === 'Target Projection' || (record.details && (record.details.includes('Up ') || record.details.includes('Down ')))) {
+                    const baseMatch = record.details && record.details.match(/Base:\s*.\s*([\d.]+)/);
+                    const percMatch = record.details && record.details.match(/(Up|Down)\s+([\d.]+)%/);
+                    if (baseMatch && percMatch) {
+                        record.inputs = {
+                            base: parseFloat(baseMatch[1]),
+                            perc: parseFloat(percMatch[2]),
+                            isUp: percMatch[1] === 'Up'
+                        };
+                    }
+                } else {
+                    const initialMatch = record.details && record.details.match(/Base:\s*.\s*([\d.]+)/);
+                    const finalMatch = record.details && record.details.match(/Target:\s*.\s*([\d.]+)/);
+                    if (initialMatch && finalMatch) {
+                        record.inputs = {
+                            initial: parseFloat(initialMatch[1]),
+                            final: parseFloat(finalMatch[2])
+                        };
+                    }
+                }
+            }
+
+            if (record.inputs && record.inputs.base !== undefined) {
+                const upDownText = record.inputs.isUp ? 'Up' : 'Down';
+                formattedDetails = `<span class="edit-trigger-val" data-field="base">Base: ${recCurrency}<span class="edit-container-val">${record.inputs.base}</span></span><span><span class="editable-toggle" data-field="isUp">${upDownText}</span> <span class="edit-trigger-val" data-field="perc"><span class="edit-container-val">${record.inputs.perc}</span>%</span></span>`;
+            } else if (record.inputs && record.inputs.initial !== undefined) {
+                formattedDetails = `<span class="edit-trigger-val" data-field="initial">Base: ${recCurrency}<span class="edit-container-val">${record.inputs.initial}</span></span><span class="edit-trigger-val" data-field="final">Target: ${recCurrency}<span class="edit-container-val">${record.inputs.final}</span></span>`;
+            } else {
+                if (formattedDetails && formattedDetails.includes(' | ')) {
+                    const parts = formattedDetails.split(' | ');
+                    formattedDetails = `<span>${parts[0]}</span><span>${parts[1]}</span>`;
+                }
             }
 
             item.innerHTML = `
@@ -597,7 +628,68 @@ function renderHistory() {
             item.addEventListener('click', (e) => {
                 if (e.target.closest('.delete-btn') || e.target.closest('.row-delete')) return;
                 
-                // Inline editing logic removed to prevent interference with double-click highlighting
+                const editableToggle = e.target.closest('.editable-toggle');
+                if (editableToggle && record.inputs) {
+                    record.inputs.isUp = !record.inputs.isUp;
+                    record.isUp = record.inputs.isUp;
+                    recalculateRecord(record);
+                    saveState();
+                    renderHistory();
+                    return;
+                }
+
+                const editTrigger = e.target.closest('.edit-trigger-val');
+                if (editTrigger && record.inputs) {
+                    const editContainer = editTrigger.querySelector('.edit-container-val');
+                    if (!editContainer || editContainer.querySelector('.edit-val-input')) return;
+                    
+                    const field = editTrigger.dataset.field;
+                    const originalVal = record.inputs[field];
+                    const input = document.createElement('input');
+                    input.type = 'number';
+                    input.step = 'any';
+                    input.className = 'edit-val-input mono';
+                    input.value = originalVal;
+                    input.style.fontSize = 'inherit';
+                    input.style.fontWeight = 'inherit';
+                    input.style.color = 'inherit';
+                    input.style.background = 'transparent';
+                    input.style.border = 'none';
+                    input.style.outline = 'none';
+                    input.style.width = Math.max(30, originalVal.toString().length * 8 + 10) + 'px';
+                    input.style.padding = '0';
+                    input.style.margin = '0';
+                    
+                    editContainer.innerHTML = '';
+                    editContainer.appendChild(input);
+                    input.focus();
+                    input.select();
+                    
+                    let saved = false;
+                    const saveNewVal = () => {
+                        if (saved) return;
+                        saved = true;
+                        const newVal = parseFloat(input.value);
+                        if (!isNaN(newVal) && newVal !== originalVal) {
+                            record.inputs[field] = newVal;
+                            recalculateRecord(record);
+                            saveState();
+                        }
+                        renderHistory();
+                    };
+                    
+                    input.addEventListener('blur', saveNewVal);
+                    input.addEventListener('keydown', (ke) => {
+                        if (ke.key === 'Enter') {
+                            input.blur();
+                        }
+                        if (ke.key === 'Escape') {
+                            input.value = originalVal;
+                            input.blur();
+                        }
+                    });
+                    return;
+                }
                 
                 if (e.detail === 1) {
                     item.clickTimer = setTimeout(() => {
