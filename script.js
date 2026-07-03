@@ -628,6 +628,29 @@ function renderHistory() {
             item.addEventListener('click', (e) => {
                 if (e.target.closest('.delete-btn') || e.target.closest('.row-delete')) return;
                 
+                if (e.detail === 1) {
+                    item.clickTimer = setTimeout(() => {
+                        populateForm(record);
+                    }, 200);
+                }
+            });
+
+            // Prevent drag from input
+            const sharesInput = item.querySelector('.shares-inline-input');
+            sharesInput.addEventListener('mousedown', e => e.stopPropagation());
+            sharesInput.addEventListener('click', e => e.stopPropagation());
+            
+            // Save shares value on change/blur
+            sharesInput.addEventListener('change', () => {
+                record.shares = sharesInput.value;
+                saveState();
+            });
+
+            item.addEventListener('dblclick', (e) => {
+                clearTimeout(item.clickTimer);
+                if (e.target.closest('.row-delete')) return;
+                if (e.target.closest('.edit-type-input')) return;
+                
                 const editableToggle = e.target.closest('.editable-toggle');
                 if (editableToggle && record.inputs) {
                     record.inputs.isUp = !record.inputs.isUp;
@@ -635,7 +658,6 @@ function renderHistory() {
                     recalculateRecord(record);
                     saveState();
                     
-                    // Manually update the DOM instead of calling renderHistory()
                     const infoSpan = item.querySelector('.info');
                     if (infoSpan) infoSpan.innerHTML = record.details;
                     const resultDiv = item.querySelector('.col-result');
@@ -686,7 +708,6 @@ function renderHistory() {
                             recalculateRecord(record);
                             saveState();
                             
-                            // Manually update the DOM instead of calling renderHistory()
                             const infoSpan = item.querySelector('.info');
                             if (infoSpan) infoSpan.innerHTML = record.details;
                             const resultDiv = item.querySelector('.col-result');
@@ -698,7 +719,6 @@ function renderHistory() {
                                 resultDiv.innerHTML = record.result;
                             }
                         } else {
-                            // If not changed, just revert the input back to text
                             const infoSpan = item.querySelector('.info');
                             if (infoSpan) infoSpan.innerHTML = record.details;
                         }
@@ -706,9 +726,7 @@ function renderHistory() {
                     
                     input.addEventListener('blur', saveNewVal);
                     input.addEventListener('keydown', (ke) => {
-                        if (ke.key === 'Enter') {
-                            input.blur();
-                        }
+                        if (ke.key === 'Enter') input.blur();
                         if (ke.key === 'Escape') {
                             input.value = originalVal;
                             input.blur();
@@ -717,28 +735,6 @@ function renderHistory() {
                     return;
                 }
                 
-                if (e.detail === 1) {
-                    item.clickTimer = setTimeout(() => {
-                        populateForm(record);
-                    }, 200);
-                }
-            });
-
-            // Prevent drag from input
-            const sharesInput = item.querySelector('.shares-inline-input');
-            sharesInput.addEventListener('mousedown', e => e.stopPropagation());
-            sharesInput.addEventListener('click', e => e.stopPropagation());
-            
-            // Save shares value on change/blur
-            sharesInput.addEventListener('change', () => {
-                record.shares = sharesInput.value;
-                saveState();
-            });
-
-            item.addEventListener('dblclick', (e) => {
-                clearTimeout(item.clickTimer);
-                if (e.target.closest('.row-delete')) return;
-                if (e.target.closest('.edit-type-input')) return;
                 record.highlighted = !record.highlighted;
                 item.classList.toggle('highlighted', record.highlighted);
                 saveState();
