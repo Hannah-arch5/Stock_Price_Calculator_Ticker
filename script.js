@@ -625,30 +625,7 @@ function renderHistory() {
                 renderHistory();
             });
 
-            
             item.addEventListener('click', (e) => {
-                try {
-                    const fs = require('fs');
-                    const os = require('os');
-                    const logPath = os.homedir() + '/Desktop/ticker_debug.txt';
-                    let log = "--- CLICK EVENT ---
-";
-                    log += "Target class: " + e.target.className + "
-";
-                    log += "Target HTML: " + e.target.outerHTML + "
-";
-                    log += "Has editable-toggle: " + !!e.target.closest('.editable-toggle') + "
-";
-                    log += "Has edit-trigger-val: " + !!e.target.closest('.edit-trigger-val') + "
-";
-                    log += "Record inputs: " + JSON.stringify(record.inputs) + "
-";
-                    log += "Item HTML: " + item.innerHTML + "
-";
-                    fs.appendFileSync(logPath, log + "
-");
-                } catch (err) {}
-
                 if (e.target.closest('.delete-btn') || e.target.closest('.row-delete')) return;
                 
                 const editableToggle = e.target.closest('.editable-toggle');
@@ -719,6 +696,7 @@ function renderHistory() {
                                 resultDiv.innerHTML = record.result;
                             }
                         } else {
+                            recalculateRecord(record);
                             const infoSpan = item.querySelector('.info');
                             if (infoSpan) infoSpan.innerHTML = record.details;
                         }
