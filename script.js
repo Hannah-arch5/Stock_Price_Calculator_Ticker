@@ -622,8 +622,8 @@ function renderHistory() {
                 if (e.target.closest('.row-delete')) return;
                 if (e.target.closest('.edit-type-input')) return;
                 record.highlighted = !record.highlighted;
+                item.classList.toggle('highlighted', record.highlighted);
                 saveState();
-                renderHistory();
             });
 
             item.querySelector('.item-delete-btn').addEventListener('click', (e) => {
