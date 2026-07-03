@@ -110,11 +110,10 @@ body {
   content: '';
   position: absolute;
   left: 50%;
-  top: 10%;
-  bottom: 10%;
+  top: 0;
+  bottom: 0;
   width: 1px;
-  background-color: var(--fg-dim);
-  opacity: 0.1; /* very subtle visual hint */
+  background-color: var(--border);
 }
 
 .toggles-row {
@@ -406,7 +405,6 @@ input[type=number] {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  border-left: 1px solid var(--border);
   padding-left: 4vw;
   flex: var(--right-flex, 1 1 281px);
   min-width: 281px;
