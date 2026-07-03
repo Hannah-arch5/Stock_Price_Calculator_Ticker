@@ -628,29 +628,6 @@ function renderHistory() {
             item.addEventListener('click', (e) => {
                 if (e.target.closest('.delete-btn') || e.target.closest('.row-delete')) return;
                 
-                if (e.detail === 1) {
-                    item.clickTimer = setTimeout(() => {
-                        populateForm(record);
-                    }, 200);
-                }
-            });
-
-            // Prevent drag from input
-            const sharesInput = item.querySelector('.shares-inline-input');
-            sharesInput.addEventListener('mousedown', e => e.stopPropagation());
-            sharesInput.addEventListener('click', e => e.stopPropagation());
-            
-            // Save shares value on change/blur
-            sharesInput.addEventListener('change', () => {
-                record.shares = sharesInput.value;
-                saveState();
-            });
-
-            item.addEventListener('dblclick', (e) => {
-                clearTimeout(item.clickTimer);
-                if (e.target.closest('.row-delete')) return;
-                if (e.target.closest('.edit-type-input')) return;
-                
                 const editableToggle = e.target.closest('.editable-toggle');
                 if (editableToggle && record.inputs) {
                     record.inputs.isUp = !record.inputs.isUp;
@@ -732,6 +709,33 @@ function renderHistory() {
                             input.blur();
                         }
                     });
+                    return;
+                }
+                
+                if (e.detail === 1) {
+                    item.clickTimer = setTimeout(() => {
+                        populateForm(record);
+                    }, 200);
+                }
+            });
+
+            // Prevent drag from input
+            const sharesInput = item.querySelector('.shares-inline-input');
+            sharesInput.addEventListener('mousedown', e => e.stopPropagation());
+            sharesInput.addEventListener('click', e => e.stopPropagation());
+            
+            // Save shares value on change/blur
+            sharesInput.addEventListener('change', () => {
+                record.shares = sharesInput.value;
+                saveState();
+            });
+
+            item.addEventListener('dblclick', (e) => {
+                clearTimeout(item.clickTimer);
+                if (e.target.closest('.row-delete')) return;
+                if (e.target.closest('.edit-type-input')) return;
+                
+                if (e.target.closest('.editable-toggle') || e.target.closest('.edit-trigger-val')) {
                     return;
                 }
                 
