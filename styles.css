@@ -405,7 +405,7 @@ input[type=number] {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  padding-left: 4vw;
+  padding-left: 1vw;
   flex: var(--right-flex, 1 1 281px);
   min-width: 281px;
 }
