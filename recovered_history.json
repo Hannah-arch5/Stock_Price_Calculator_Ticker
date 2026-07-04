@@ -1,0 +1,626 @@
+[
+  {
+    "symbol": "603618",
+    "records": [
+      {
+        "type": "目前D已经跌",
+        "mode": "percentage",
+        "symbol": "603618",
+        "details": "Base: ¥57.21 | Target: ¥45.01",
+        "result": "21.32%",
+        "isUp": false,
+        "inputs": {
+          "initial": 57.21,
+          "final": 45.01
+        },
+        "currency": "¥",
+        "urgency": "red",
+        "shares": "",
+        "percentage": "21.32%",
+        "highlighted": false
+      },
+      {
+        "type": "30卖点2",
+        "symbol": "603618",
+        "details": "<span>Base: ¥45.01</span><span>Up 13%</span>",
+        "result": "50.8613",
+        "isUp": true,
+        "inputs": {
+          "base": 45.01,
+          "perc": 13,
+          "isUp": true
+        },
+        "urgency": "red",
+        "shares": "400",
+        "highlighted": false
+      },
+      {
+        "type": "D卖点1",
+        "symbol": "603618",
+        "details": "<span>Base: ¥47.75</span><span>Up 23%</span>",
+        "result": "¥58.7325",
+        "isUp": true,
+        "inputs": {
+          "base": 47.75,
+          "perc": 23,
+          "isUp": true
+        },
+        "currency": "¥",
+        "urgency": "red",
+        "shares": "400",
+        "highlighted": true
+      }
+    ],
+    "note": "47.50 - 400 买入\n47.10  - 400 卖出\n周一9：15挂单53.9 - 400买入\n周一9：25挂单49.30 - 400买入",
+    "tf_w": "有回撤迹象",
+    "tf_d": "正在回撤",
+    "tf_30": "等待30到0轴高点",
+    "newsTimeout": 112,
+    "klineMetrics": {
+      "m5": {
+        "high": 57.21,
+        "low": 45.01
+      },
+      "m30": {
+        "high": 57.21,
+        "low": 33.72
+      },
+      "day": {
+        "high": 57.21,
+        "low": 5.23
+      },
+      "week": {
+        "high": 57.21,
+        "low": 3.63
+      }
+    },
+    "newsLoaded": true
+  },
+  {
+    "symbol": "三角",
+    "records": [
+      {
+        "type": "30已经涨了",
+        "mode": "percentage",
+        "symbol": "三角",
+        "details": "<span>Base: ¥20.61</span><span>Target: ¥23.56</span>",
+        "result": "14.31%",
+        "isUp": true,
+        "inputs": {
+          "initial": 20.61,
+          "final": 23.56
+        },
+        "currency": "¥",
+        "urgency": "green",
+        "shares": ""
+      },
+      {
+        "type": "30买点2",
+        "mode": "target",
+        "symbol": "三角",
+        "details": "<span>Base: ¥23.56</span><span>Down 6.4%</span>",
+        "result": "¥22.0522",
+        "isUp": false,
+        "inputs": {
+          "base": 23.56,
+          "perc": 6.4,
+          "isUp": false
+        },
+        "currency": "¥",
+        "urgency": "green",
+        "shares": "",
+        "highlighted": true
+      },
+      {
+        "type": "30卖点1（目标30线高点）",
+        "symbol": "三角",
+        "details": "<span>Base: ¥21.71</span><span>Up 10%</span>",
+        "result": "23.881",
+        "isUp": true,
+        "inputs": {
+          "base": 21.71,
+          "perc": 10,
+          "isUp": true
+        },
+        "highlighted": false,
+        "urgency": "green",
+        "shares": "8000"
+      },
+      {
+        "type": "D卖点1（目标D到0轴高点）",
+        "symbol": "三角",
+        "details": "<span>Base: ¥20.61</span><span>Up 20%</span>",
+        "result": "24.732",
+        "isUp": true,
+        "inputs": {
+          "base": 20.61,
+          "perc": 20,
+          "isUp": true
+        },
+        "highlighted": true,
+        "urgency": "green",
+        "shares": "2300"
+      },
+      {
+        "type": "D卖点2（目标D到0轴高点）",
+        "mode": "target",
+        "symbol": "三角",
+        "details": "<span>Base: ¥20.61</span><span>Up 29%</span>",
+        "result": "¥26.5869",
+        "isUp": true,
+        "inputs": {
+          "base": 20.61,
+          "perc": 29,
+          "isUp": true
+        },
+        "currency": "¥",
+        "urgency": "green",
+        "shares": ""
+      }
+    ],
+    "note": "22.66 - 8000买入\n23.35 - 8000卖出\n\n23.38 - 2300买入\n23.35 - 2300卖出",
+    "tf_w": "在0轴低点（等待启动）",
+    "tf_d": "出现背驰已启动",
+    "tf_30": "等待0轴高点",
+    "newsTimeout": 114,
+    "newsLoaded": true
+  },
+  {
+    "symbol": "工业",
+    "records": [
+      {
+        "type": "D已跌",
+        "mode": "percentage",
+        "symbol": "工业",
+        "details": "<span>Base: ¥84.95</span><span>Target: ¥62.99</span>",
+        "result": "25.85%",
+        "isUp": false,
+        "inputs": {
+          "initial": 84.95,
+          "final": 62.99
+        },
+        "currency": "¥",
+        "urgency": "red",
+        "shares": ""
+      },
+      {
+        "type": "30卖点1",
+        "mode": "target",
+        "symbol": "工业",
+        "details": "<span>Base: ¥62.99</span><span>Up 6.4%</span>",
+        "result": "¥67.0214",
+        "isUp": true,
+        "inputs": {
+          "base": 62.99,
+          "perc": 6.4,
+          "isUp": true
+        },
+        "currency": "¥",
+        "urgency": "red",
+        "highlighted": true,
+        "shares": "700"
+      },
+      {
+        "type": "D卖点1",
+        "mode": "target",
+        "symbol": "工业",
+        "details": "<span>Base: ¥62.99</span><span>Up 15%</span>",
+        "result": "¥72.4385",
+        "isUp": true,
+        "inputs": {
+          "base": 62.99,
+          "perc": 15,
+          "isUp": true
+        },
+        "currency": "¥",
+        "urgency": "red",
+        "shares": "700"
+      },
+      {
+        "type": "w买点1",
+        "symbol": "工业",
+        "details": "<span>Base: ¥84.95</span><span>Down 30%</span>",
+        "result": "¥59.465",
+        "isUp": false,
+        "inputs": {
+          "base": 84.95,
+          "perc": 30,
+          "isUp": false
+        },
+        "currency": "¥",
+        "urgency": "red",
+        "shares": "700"
+      }
+    ],
+    "note": "66.59 - 700买入\n65 - 700卖出\n要卖出，如果明天继续跌，就先不要动，等一波小涨\nw还会继续跌",
+    "tf_w": "在回抽0轴",
+    "tf_d": "已回抽0轴",
+    "tf_30": "在0轴低点，继续等背驰",
+    "newsTimeout": 116,
+    "newsLoaded": true
+  },
+  {
+    "symbol": "澜起",
+    "records": [
+      {
+        "type": "30线已跌",
+        "mode": "percentage",
+        "symbol": "澜起",
+        "details": "<span>Base: ¥332.9</span><span>Target: ¥255.76</span>",
+        "result": "23.17%",
+        "isUp": false,
+        "inputs": {
+          "initial": 332.9,
+          "final": 255.76
+        },
+        "currency": "¥",
+        "urgency": "red",
+        "shares": ""
+      },
+      {
+        "type": "30线已涨",
+        "mode": "percentage",
+        "symbol": "澜起",
+        "details": "<span>Base: ¥255.76</span><span>Target: ¥280.79</span>",
+        "result": "9.79%",
+        "isUp": true,
+        "inputs": {
+          "initial": 255.76,
+          "final": 280.79
+        },
+        "currency": "¥",
+        "urgency": "red",
+        "shares": ""
+      },
+      {
+        "type": "30卖点1",
+        "mode": "target",
+        "symbol": "澜起",
+        "details": "<span>Base: ¥255.76</span><span>Up 7%</span>",
+        "result": "¥273.6632",
+        "isUp": true,
+        "inputs": {
+          "base": 255.76,
+          "perc": 7,
+          "isUp": true
+        },
+        "currency": "¥",
+        "urgency": "red",
+        "highlighted": true,
+        "shares": "200"
+      }
+    ],
+    "note": "230.36 -200卖出\n259 -315买入\n275 -100卖出\n\n等跌可买入",
+    "tf_w": "有下跌迹象",
+    "tf_d": "有下跌迹象",
+    "tf_30": "等回抽0轴低点",
+    "newsTimeout": 118,
+    "newsLoaded": true
+  },
+  {
+    "symbol": "中国",
+    "records": [
+      {
+        "type": "D已经涨了",
+        "mode": "percentage",
+        "symbol": "中国",
+        "details": "<span>Base: ¥28.99</span><span>Target: ¥34.77</span>",
+        "result": "19.94%",
+        "isUp": true,
+        "inputs": {
+          "initial": 28.99,
+          "final": 34.77
+        },
+        "currency": "¥",
+        "urgency": "red",
+        "shares": ""
+      },
+      {
+        "type": "30已经跌了",
+        "mode": "percentage",
+        "symbol": "中国",
+        "details": "<span>Base: ¥34.77</span><span>Target: ¥31.64</span>",
+        "result": "9.00%",
+        "isUp": false,
+        "inputs": {
+          "initial": 34.77,
+          "final": 31.64
+        },
+        "currency": "¥",
+        "urgency": "red",
+        "shares": ""
+      },
+      {
+        "type": "30卖点2",
+        "mode": "target",
+        "symbol": "中国",
+        "details": "<span>Base: ¥31.64</span><span>Up 14.5%</span>",
+        "result": "¥36.2278",
+        "isUp": true,
+        "inputs": {
+          "base": 31.64,
+          "perc": 14.5,
+          "isUp": true
+        },
+        "currency": "¥",
+        "urgency": "red",
+        "shares": "300",
+        "highlighted": true
+      },
+      {
+        "type": "D卖点1",
+        "symbol": "中国",
+        "details": "<span>Base: ¥28.99</span><span>Up 20%</span>",
+        "result": "¥34.788",
+        "isUp": true,
+        "inputs": {
+          "base": 28.99,
+          "perc": 20,
+          "isUp": true
+        },
+        "currency": "¥",
+        "urgency": "red",
+        "shares": "300"
+      }
+    ],
+    "note": "34.4 - 300买入\n这个成本增加，要多做一点。\n等涨，在36左右可以卖出300。如果跌就先不要操作。",
+    "tf_w": "还在回抽0轴",
+    "tf_d": "出现背驰已启动",
+    "tf_30": "已回抽0轴",
+    "newsTimeout": 120,
+    "newsLoaded": true
+  },
+  {
+    "symbol": "东方",
+    "records": [
+      {
+        "type": "30已跌",
+        "mode": "percentage",
+        "symbol": "东方",
+        "details": "<span>Base: ¥13.2</span><span>Target: ¥11.5</span>",
+        "result": "12.88%",
+        "isUp": false,
+        "inputs": {
+          "initial": 13.2,
+          "final": 11.5
+        },
+        "currency": "¥",
+        "urgency": "orange",
+        "shares": ""
+      },
+      {
+        "type": "D卖点1",
+        "mode": "target",
+        "symbol": "东方",
+        "details": "<span>Base: ¥11.5</span><span>Up 20%</span>",
+        "result": "¥13.8",
+        "isUp": true,
+        "inputs": {
+          "base": 11.5,
+          "perc": 20,
+          "isUp": true
+        },
+        "currency": "¥",
+        "urgency": "orange",
+        "shares": "3600",
+        "highlighted": true
+      },
+      {
+        "type": "Target Projection",
+        "symbol": "东方",
+        "details": "<span>Base: ¥11.3</span><span>Up 29%</span>",
+        "result": "¥14.577",
+        "isUp": true,
+        "inputs": {
+          "base": 11.3,
+          "perc": 29,
+          "isUp": true
+        },
+        "currency": "¥",
+        "highlighted": true,
+        "urgency": "orange",
+        "shares": "3800"
+      }
+    ],
+    "note": "12.04 - 3600买入\n13.72 - 3800买入",
+    "tf_w": "已回抽0轴等待启动",
+    "tf_d": "出现背驰已启动",
+    "tf_30": "已回抽0轴低点等待再次启动",
+    "newsTimeout": 122,
+    "newsLoaded": true
+  },
+  {
+    "symbol": "钧达",
+    "records": [
+      {
+        "type": "30线已跌",
+        "mode": "percentage",
+        "symbol": "钧达",
+        "details": "<span>Base: ¥61.99</span><span>Target: ¥57.08</span>",
+        "result": "7.92%",
+        "isUp": false,
+        "inputs": {
+          "initial": 61.99,
+          "final": 57.08
+        },
+        "currency": "¥",
+        "urgency": "green",
+        "shares": "",
+        "highlighted": false
+      },
+      {
+        "type": "30卖点2",
+        "mode": "target",
+        "symbol": "钧达",
+        "details": "<span>Base: ¥57.8</span><span>Up 10%</span>",
+        "result": "¥63.58",
+        "isUp": true,
+        "inputs": {
+          "base": 57.8,
+          "perc": 10,
+          "isUp": true
+        },
+        "currency": "¥",
+        "urgency": "green",
+        "shares": "1800",
+        "highlighted": true
+      },
+      {
+        "type": "D卖点1",
+        "symbol": "钧达",
+        "details": "<span>Base: ¥55.46</span><span>Up 19%</span>",
+        "result": "¥65.9974",
+        "isUp": true,
+        "inputs": {
+          "base": 55.46,
+          "perc": 19,
+          "isUp": true
+        },
+        "currency": "¥",
+        "urgency": "green",
+        "shares": "1800",
+        "highlighted": true
+      }
+    ],
+    "note": "59.80 - 1800 卖出\n57.91 - 300 买入\n只能等大跌，预计将错过这轮涨幅",
+    "tf_w": "即将回抽0轴",
+    "tf_d": "在0轴低点已启动",
+    "tf_30": "正在回抽0轴低点等待再次启动",
+    "newsTimeout": 124,
+    "newsLoaded": true
+  },
+  {
+    "symbol": "福鞍",
+    "records": [
+      {
+        "type": "D卖点1（等30到0轴高点）",
+        "symbol": "福鞍",
+        "details": "<span>Base: ¥14.32</span><span>Up 16%</span>",
+        "result": "¥16.6112",
+        "isUp": true,
+        "inputs": {
+          "base": 14.32,
+          "perc": 16,
+          "isUp": true
+        },
+        "currency": "¥",
+        "urgency": "green",
+        "highlighted": true,
+        "shares": "1300"
+      }
+    ],
+    "note": "19.017 - 1400买入\n等涨多一点卖 做T",
+    "tf_w": "已回抽0轴",
+    "tf_d": "已在0轴低点随时启动",
+    "tf_30": "出现背驰，等到0轴高点",
+    "newsTimeout": 126,
+    "newsLoaded": true
+  },
+  {
+    "symbol": "科士达",
+    "records": [
+      {
+        "type": "D买点1",
+        "symbol": "科士达",
+        "details": "Base: ¥56.87 | Down 34%",
+        "result": "¥37.5342",
+        "isUp": false,
+        "inputs": {
+          "base": 56.87,
+          "perc": 34,
+          "isUp": false
+        },
+        "urgency": "green",
+        "shares": "1100",
+        "highlighted": true
+      }
+    ],
+    "note": "47.67 - 1100卖出\n只能继续等待大跌",
+    "tf_w": "还在回抽0轴",
+    "tf_d": "刚回抽0轴预测再跌创新低",
+    "tf_30": "等到0轴低点",
+    "newsTimeout": 128,
+    "newsLoaded": true
+  },
+  {
+    "symbol": "航发",
+    "records": [
+      {
+        "type": "30买点2",
+        "mode": "target",
+        "symbol": "航发",
+        "details": "<span>Base: ¥38.7</span><span>Down 5%</span>",
+        "result": "¥36.765",
+        "isUp": false,
+        "inputs": {
+          "base": 38.7,
+          "perc": 5,
+          "isUp": false
+        },
+        "currency": "¥",
+        "shares": ""
+      },
+      {
+        "type": "D卖点（目标D到0轴高点）",
+        "symbol": "航发",
+        "details": "<span>Base: ¥36</span><span>Up 17%</span>",
+        "result": "¥42.12",
+        "isUp": true,
+        "inputs": {
+          "base": 36,
+          "perc": 17,
+          "isUp": true
+        },
+        "currency": "¥",
+        "highlighted": true,
+        "urgency": null,
+        "shares": ""
+      }
+    ],
+    "note": "30线出现背驰 36左右可以买入",
+    "tf_w": "已回抽0轴随时启动",
+    "tf_d": "出现背驰已启动",
+    "tf_30": "即将出现背驰即将启动",
+    "newsTimeout": 130,
+    "newsLoaded": true
+  },
+  {
+    "symbol": "双良",
+    "records": [
+      {
+        "type": "D卖点1",
+        "symbol": "双良",
+        "details": "<span>Base: ¥4.66</span><span>Up 14%</span>",
+        "result": "¥5.3124",
+        "isUp": true,
+        "inputs": {
+          "base": 4.66,
+          "perc": 14,
+          "isUp": true
+        },
+        "currency": "¥",
+        "highlighted": true,
+        "shares": ""
+      },
+      {
+        "type": "Target Price",
+        "symbol": "双良",
+        "details": "Base: ¥4.26 | Up 25%",
+        "result": "¥5.325",
+        "isUp": true,
+        "inputs": {
+          "base": 4.26,
+          "perc": 25,
+          "isUp": true
+        },
+        "shares": ""
+      }
+    ],
+    "note": "等D出现背驰",
+    "tf_w": "在0轴低点已启动",
+    "tf_d": "在0轴低点已启动",
+    "tf_30": "出现背驰，等到0轴高点",
+    "newsTimeout": 132,
+    "newsLoaded": true
+  }
+]

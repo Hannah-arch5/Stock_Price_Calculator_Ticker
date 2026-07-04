@@ -155,8 +155,8 @@ body {
 .calc-section {
   display: flex;
   flex-direction: column;
-  margin-bottom: 3rem;
-  padding-bottom: 3rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1.5rem;
   border-bottom: 1px dashed var(--border);
 }
 .calc-section:last-child {
@@ -533,7 +533,7 @@ input[type=number] {
   flex-direction: column;
   gap: 0.5rem;
   margin-top: 0.75rem;
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.85rem;
   padding-bottom: 0.75rem;
   border-bottom: 1px dashed #222;
 }
@@ -586,6 +586,19 @@ input[type=number] {
   -webkit-line-clamp: 1;
   -webkit-box-orient: vertical;
   overflow: hidden;
+}
+
+.event-text {
+  -webkit-line-clamp: unset;
+  display: block;
+}
+
+.news-date {
+  margin-left: auto;
+  padding-left: 1rem;
+  color: var(--fg-dim);
+  font-size: 0.65rem;
+  white-space: nowrap;
 }
 
 .memo-timeframes {
@@ -856,3 +869,78 @@ body.light-theme .list-row:hover::before { background-color: #f5f5f5; }
 body.light-theme .list-row.highlighted::before { background-color: #ebebeb; }
 body.light-theme .global-action-btn { color: #cccccc; }
 body.light-theme .global-action-btn:hover { color: var(--fg-dim); background: rgba(0, 0, 0, 0.05); }
+
+/* News Tabs */
+.news-tabs {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.news-tab {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--fg-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  padding-bottom: 0.2rem;
+  transition: color var(--transition-fast);
+}
+
+.news-tab:hover {
+  color: var(--fg);
+}
+
+.news-tab.active {
+  color: var(--accent);
+}
+
+.news-content-area {
+  display: none;
+}
+.news-content-area.active {
+  display: block;
+}
+.custom-label {
+    display: inline-flex;
+    align-items: center;
+    background-color: transparent;
+    color: var(--fg-dim);
+    border: 1px dashed var(--border);
+    padding: 4px 12px;
+    border-radius: 100px !important;
+    font-size: 0.8rem;
+    font-family: 'JetBrains Mono', monospace;
+    cursor: pointer;
+    user-select: none;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+.custom-label:hover {
+    background-color: var(--border);
+    color: var(--fg);
+}
+.custom-label.dragging-label {
+    opacity: 0.5;
+    border-style: dashed;
+}
+.custom-label-input {
+    background: transparent;
+    border: none;
+    color: var(--fg-color);
+    font-family: inherit;
+    font-size: inherit;
+    font-weight: inherit;
+    width: 60px;
+    outline: none;
+    padding: 0;
+    margin: 0;
+}
+.trash-zone.active {
+    background: rgba(255, 255, 255, 0.1) !important;
+    border: 1px solid var(--fg) !important;
+    pointer-events: auto !important;
+    color: var(--fg) !important;
+    box-shadow: 0 0 12px rgba(255, 255, 255, 0.1);
+}

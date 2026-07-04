@@ -2,7 +2,32 @@
 let currentCurrency = '¥';
 let historyRecords = [];
 let historyVersion = null;
-// DOM Elements
+let customLabels = [];
+const NEWS_CACHE = {};
+const INDUSTRY_MAPPING = {
+  "元件": "459", "动物保健Ⅱ": "1254", "航空机场": "420", "银行Ⅱ": "475", "电池": "1033",
+  "煤炭开采": "1250", "软件开发": "737", "一般零售": "482", "半导体": "1036", "旅游零售Ⅱ": "1269",
+  "酒店餐饮": "1271", "专业服务": "1043", "旅游及景区": "1272", "化学制品": "538", "食品加工": "1280",
+  "专用设备": "910", "汽车零部件": "481", "商用车": "1264", "计算机设备": "735", "消费电子": "1037",
+  "房地产服务": "1045", "医疗器械": "1041", "广告营销": "1220", "证券Ⅱ": "473", "电网设备": "457",
+  "家居用品": "440", "通用设备": "545", "服装家纺": "1225", "休闲食品": "1281", "工业金属": "1287",
+  "普钢": "1226", "IT服务Ⅱ": "1238", "黑色家电": "1241", "航天装备Ⅱ": "1232", "其他家电Ⅱ": "1243",
+  "医药商业": "1042", "中药Ⅱ": "1040", "保险Ⅱ": "474", "基础建设": "1247", "其他电源设备Ⅱ": "1034",
+  "光伏设备": "1031", "通信设备": "448", "房地产开发": "451", "房屋建设Ⅱ": "1246", "生物制品": "1044",
+  "环境治理": "1235", "多元金融": "738", "养殖业": "1259", "农产品加工": "1256", "光学光电子": "1038",
+  "白酒Ⅱ": "1277", "教育": "740", "化妆品": "1252", "互联网电商": "1268", "电力": "428", "游戏Ⅱ": "1046",
+  "能源金属": "1015", "物流": "422", "造纸": "1267", "数字媒体": "1221", "非金属材料Ⅱ": "1020",
+  "工程机械": "739", "小金属": "1027", "环保设备Ⅱ": "1234", "医疗美容": "1253", "其他电子Ⅱ": "1223",
+  "水泥": "424", "风电设备": "1032", "化学制药": "465", "农业综合Ⅱ": "1257", "汽车服务": "1016",
+  "油气开采Ⅱ": "1276", "乘用车": "1262", "装修建材": "476", "贵金属": "732", "贸易Ⅱ": "484",
+  "小家电": "1244", "通信服务": "736", "化学原料": "1019", "航运港口": "450", "农化制品": "731",
+  "航空装备Ⅱ": "1231", "化学纤维": "471", "医疗服务": "727", "冶钢原料": "1228", "饮料乳品": "1282",
+  "橡胶": "1018", "燃气Ⅱ": "1028", "非白酒": "1279", "炼化及贸易": "1274", "综合Ⅱ": "539",
+  "种植业": "1261", "个护用品": "1251", "体育Ⅱ": "1273", "饲料": "1258", "纺织制造": "1224",
+  "白色家电": "1239", "金属新材料": "1288", "包装印刷": "1265", "铁路公路": "421", "油服工程": "1275",
+  "装修装饰Ⅱ": "725", "自动化设备": "1237", "厨卫电器": "1240", "航海装备Ⅱ": "1230", "摩托车及其他": "1263",
+  "饰品": "734", "文娱用品": "1266"
+};
 const historyListEl = document.getElementById('history-list');
 const currencyRadios = document.getElementsByName('currency');
 const currencySymbols = document.querySelectorAll('.currency-symbol');
@@ -17,6 +42,7 @@ function saveState() {
     const stateObj = {
         historyRecords: cleanRecords,
         historyVersion: '2',
+        customLabels: customLabels,
         calcInputs: {
             currency: currentCurrency,
             stock1: stockSymbol1Input.value,
@@ -330,8 +356,11 @@ function renderHistory() {
                 if (e.target !== tag) return;
                 tag.classList.remove('dragging-tag');
                 updateArrayFromDOMTags();
+                historyRecords.forEach(g => {
+                    const groupNode = historyListEl.querySelector(`[data-symbol="${g.symbol}"]`);
+                    if (groupNode) historyListEl.appendChild(groupNode);
+                });
                 saveState();
-                renderHistory();
             });
 
             tag.onclick = () => {
@@ -358,8 +387,14 @@ function renderHistory() {
             if (e.target !== groupEl) return;
             groupEl.classList.remove('dragging-group');
             updateArrayFromDOM();
+            const tagsEl = document.getElementById('quick-tags');
+            if (tagsEl) {
+                historyRecords.forEach(g => {
+                    const tagNode = tagsEl.querySelector(`[data-symbol="${g.symbol}"]`);
+                    if (tagNode) tagsEl.appendChild(tagNode);
+                });
+            }
             saveState();
-            renderHistory();
         });
         
         const headerEl = document.createElement('div');
@@ -368,39 +403,23 @@ function renderHistory() {
         titleEl.className = 'group-title-container';
         
         if (group.symbol !== 'Uncategorized') {
-            const linkA = document.createElement('a');
-            linkA.href = `https://www.tradingview.com/chart/?symbol=${encodeURIComponent(group.symbol)}`;
-            linkA.className = 'stock-link';
-            linkA.target = '_blank';
+            const chartUrl = `https://www.tradingview.com/chart/?symbol=${encodeURIComponent(group.symbol)}`;
             
             const codeSpan = document.createElement('span');
-            codeSpan.className = 'stock-code';
+            codeSpan.className = 'stock-code stock-link';
             codeSpan.textContent = group.symbol;
+            codeSpan.title = "Click to edit code";
+            codeSpan.style.cursor = "pointer";
             
             const nameSpan = document.createElement('span');
-            nameSpan.className = 'stock-name';
+            nameSpan.className = 'stock-name stock-link';
             nameSpan.textContent = group.name ? group.name : '';
             nameSpan.style.marginLeft = '8px';
+            nameSpan.title = "Click to edit, Double-click to open chart";
+            nameSpan.style.cursor = "pointer";
             
-            linkA.appendChild(codeSpan);
-            titleEl.appendChild(linkA);
+            titleEl.appendChild(codeSpan);
             titleEl.appendChild(nameSpan);
-            
-            // Prevent link navigation on double click
-            let clickTimeout = null;
-            linkA.addEventListener('click', (e) => {
-                if (e.target.tagName === 'INPUT') return;
-                e.preventDefault();
-                if (clickTimeout) {
-                    clearTimeout(clickTimeout);
-                    clickTimeout = null;
-                } else {
-                    clickTimeout = setTimeout(() => {
-                        window.open(linkA.href, '_blank');
-                        clickTimeout = null;
-                    }, 250);
-                }
-            });
             
             const makeEditable = (spanEl, initialValue, onSave) => {
                 const input = document.createElement('input');
@@ -440,7 +459,7 @@ function renderHistory() {
                 });
             };
 
-            codeSpan.addEventListener('dblclick', (e) => {
+            codeSpan.addEventListener('click', (e) => {
                 e.stopPropagation();
                 if (codeSpan.querySelector('input')) return;
                 makeEditable(codeSpan, group.symbol, (newVal) => {
@@ -464,19 +483,31 @@ function renderHistory() {
                 });
             });
             
-            nameSpan.addEventListener('dblclick', (e) => {
+            let nameClickTimeout = null;
+            nameSpan.addEventListener('click', (e) => {
+                if (e.target.tagName === 'INPUT') return;
                 e.stopPropagation();
-                if (nameSpan.querySelector('input')) return;
-                makeEditable(nameSpan, group.name || '', (newVal) => {
-                    newVal = newVal.trim();
-                    if (newVal !== (group.name || '')) {
-                        group.name = newVal;
-                        saveState();
-                        renderHistory();
-                    } else {
-                        nameSpan.textContent = group.name || '';
-                    }
-                });
+                
+                if (nameClickTimeout) {
+                    clearTimeout(nameClickTimeout);
+                    nameClickTimeout = null;
+                    window.open(chartUrl, '_blank');
+                } else {
+                    nameClickTimeout = setTimeout(() => {
+                        nameClickTimeout = null;
+                        if (nameSpan.querySelector('input')) return;
+                        makeEditable(nameSpan, group.name || '', (newVal) => {
+                            newVal = newVal.trim();
+                            if (newVal !== (group.name || '')) {
+                                group.name = newVal;
+                                saveState();
+                                renderHistory();
+                            } else {
+                                nameSpan.textContent = group.name || '';
+                            }
+                        });
+                    }, 250);
+                }
             });
 
             if (!group.name && !group.nameFetched) {
@@ -617,12 +648,39 @@ function renderHistory() {
                 item.classList.add('dragging');
                 e.dataTransfer.effectAllowed = 'move';
             });
+            
+            item.addEventListener('dragover', (e) => {
+                const draggingLabel = document.querySelector('.dragging-label');
+                if (draggingLabel) {
+                    e.preventDefault();
+                    item.style.border = '2px dashed var(--accent-color)';
+                }
+            });
+            
+            item.addEventListener('dragleave', (e) => {
+                item.style.border = '';
+            });
+            
+            item.addEventListener('drop', (e) => {
+                item.style.border = '';
+                const draggingLabel = document.querySelector('.dragging-label');
+                if (draggingLabel) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const text = draggingLabel.textContent;
+                    if (text) {
+                        record.type = text;
+                        saveState();
+                        const titleEl = item.querySelector('.type');
+                        if (titleEl) titleEl.textContent = text;
+                    }
+                }
+            });
 
             item.addEventListener('dragend', () => {
                 item.classList.remove('dragging');
                 updateArrayFromDOM();
                 saveState();
-                renderHistory();
             });
 
             item.addEventListener('click', (e) => {
@@ -712,6 +770,49 @@ function renderHistory() {
                     });
                     return;
                 }
+                const typeSpan = e.target.closest('.type');
+                if (typeSpan) {
+                    if (typeSpan.querySelector('.edit-type-input')) return;
+                    
+                    const originalText = record.type;
+                    const input = document.createElement('input');
+                    input.type = 'text';
+                    input.className = 'edit-type-input mono';
+                    input.value = originalText;
+                    input.style.fontSize = 'inherit';
+                    input.style.fontWeight = 'inherit';
+                    input.style.color = 'inherit';
+                    input.style.background = 'transparent';
+                    input.style.border = 'none';
+                    input.style.outline = 'none';
+                    input.style.width = Math.max(80, originalText.length * 8 + 10) + 'px';
+                    input.style.padding = '0';
+                    input.style.margin = '0';
+                    
+                    typeSpan.innerHTML = '';
+                    typeSpan.appendChild(input);
+                    input.focus();
+                    input.select();
+                    
+                    let saved = false;
+                    const saveNewType = () => {
+                        if (saved) return;
+                        saved = true;
+                        record.type = input.value;
+                        saveState();
+                        typeSpan.textContent = record.type;
+                    };
+                    
+                    input.addEventListener('blur', saveNewType);
+                    input.addEventListener('keydown', (ke) => {
+                        if (ke.key === 'Enter') input.blur();
+                        if (ke.key === 'Escape') {
+                            input.value = originalText;
+                            input.blur();
+                        }
+                    });
+                    return;
+                }
                 
                 if (e.detail === 1) {
                     item.clickTimer = setTimeout(() => {
@@ -768,8 +869,45 @@ function renderHistory() {
         
         const newsPanel = document.createElement('div');
         newsPanel.className = 'group-news-panel';
-        newsPanel.id = `news-panel-${groupIndex}`;
-        newsPanel.innerHTML = '<div style="font-size: 0.7rem; color: var(--fg-dim);">Loading insights...</div>';
+        newsPanel.id = `news-panel-${group.symbol}`;
+        
+        if (NEWS_CACHE[group.symbol]) {
+            newsPanel.innerHTML = NEWS_CACHE[group.symbol];
+            const tabs = newsPanel.querySelectorAll('.news-tab');
+            const contentAreas = newsPanel.querySelectorAll('.news-content-area');
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    tabs.forEach(t => t.classList.remove('active'));
+                    contentAreas.forEach(c => {
+                        c.classList.remove('active');
+                        c.classList.add('hidden');
+                    });
+                    tab.classList.add('active');
+                    const targetId = tab.getAttribute('data-target');
+                    const targetContent = newsPanel.querySelector(`#${targetId}`);
+                    if (targetContent) {
+                        targetContent.classList.remove('hidden');
+                        targetContent.classList.add('active');
+                    }
+                });
+            });
+        } else {
+            newsPanel.innerHTML = '<div style="font-size: 0.7rem; color: var(--fg-dim);">Loading insights...</div>';
+            clearTimeout(group.newsTimeout);
+            group.newsLoaded = false;
+            group.newsTimeout = setTimeout(() => {
+                if (!group.newsLoaded) {
+                    loadStockNews(group.symbol, groupIndex);
+                    group.newsLoaded = true;
+                }
+            }, 0);
+        }
+        
+        setTimeout(() => {
+            if (!group.klineMetrics) {
+                loadKlineMetrics(group, groupIndex);
+            }
+        }, 0);
 
         const memoArea = document.createElement('div');
         memoArea.className = 'group-memo-area';
@@ -984,18 +1122,18 @@ function updateArrayFromDOM() {
     const groups = [...historyListEl.querySelectorAll('.history-group')];
     const newHistory = [];
     
-    groups.forEach(groupEl => {
+    groups.forEach((groupEl, groupIndex) => {
         const symbol = groupEl.dataset.symbol;
-        const originalGroup = historyRecords.find(g => g.symbol === symbol);
+        const originalGroup = historyRecords.find(g => g.symbol === symbol) || {};
         
         const memoArea = groupEl.querySelector('.group-memo-area');
-        const note = memoArea ? memoArea.querySelector('textarea').value : (originalGroup ? originalGroup.note : '');
-        const tf_w = memoArea ? memoArea.querySelector('[data-tf="tf_w"]').value : (originalGroup ? originalGroup.tf_w : '');
-        const tf_d = memoArea ? memoArea.querySelector('[data-tf="tf_d"]').value : (originalGroup ? originalGroup.tf_d : '');
-        const tf_30 = memoArea ? memoArea.querySelector('[data-tf="tf_30"]').value : (originalGroup ? originalGroup.tf_30 : '');
+        const note = memoArea ? memoArea.querySelector('textarea').value : originalGroup.note || '';
+        const tf_w = memoArea ? memoArea.querySelector('[data-tf="tf_w"]').value : originalGroup.tf_w || '';
+        const tf_d = memoArea ? memoArea.querySelector('[data-tf="tf_d"]').value : originalGroup.tf_d || '';
+        const tf_30 = memoArea ? memoArea.querySelector('[data-tf="tf_30"]').value : originalGroup.tf_30 || '';
 
         const items = [...groupEl.querySelectorAll('.history-item')];
-        const records = items.map(item => {
+        const records = items.map((item, itemIndex) => {
             const originalGroupIndex = parseInt(item.dataset.groupIndex, 10);
             const originalItemIndex = parseInt(item.dataset.itemIndex, 10);
             const record = historyRecords[originalGroupIndex].records[originalItemIndex];
@@ -1005,10 +1143,13 @@ function updateArrayFromDOM() {
                 record.shares = sharesInput.value;
             }
             
+            item.dataset.groupIndex = groupIndex;
+            item.dataset.itemIndex = itemIndex;
+            
             return record;
         });
         if (records.length > 0) {
-            newHistory.push({ symbol, records, note, tf_w, tf_d, tf_30 });
+            newHistory.push(Object.assign({}, originalGroup, { symbol, records, note, tf_w, tf_d, tf_30 }));
         }
     });
     
@@ -1246,9 +1387,11 @@ async function initializeData() {
         }
         
         const savedInputs = JSON.parse(localStorage.getItem('calcInputs'));
+        customLabels = JSON.parse(localStorage.getItem('customLabels')) || [];
         stateObj = {
             historyRecords: historyRecords,
             historyVersion: historyVersion,
+            customLabels: customLabels,
             calcInputs: savedInputs
         };
         
@@ -1259,6 +1402,7 @@ async function initializeData() {
     } else {
         historyRecords = stateObj.historyRecords || [];
         historyVersion = stateObj.historyVersion;
+        customLabels = stateObj.customLabels || [];
     }
     
     // Populate UI from calcInputs
@@ -1285,6 +1429,7 @@ async function initializeData() {
     }
 
     updateCurrency();
+    renderCustomLabels();
     renderHistory();
 }
 
@@ -1383,8 +1528,10 @@ if (sizeToggleBtn && window.electronAPI) {
 
 // Fetch and render stock news
 async function loadStockNews(symbol, groupIndex) {
-    const panel = document.getElementById(`news-panel-${groupIndex}`);
+    const panel = document.getElementById(`news-panel-${symbol}`);
     if (!panel) return;
+    
+    panel.innerHTML = '<div style="font-size: 0.7rem; color: var(--fg-dim); padding: 1rem 0;">Loading...</div>';
     
     const match = symbol.match(/\d{4,6}/);
     if (!match) {
@@ -1393,52 +1540,266 @@ async function loadStockNews(symbol, groupIndex) {
     }
     const code = match[0];
     
+    // Determine EastMoney specific code format (e.g. SH603618 or SZ300775)
+    let emCode = code;
+    if (symbol.includes('SH') || code.startsWith('6')) {
+        emCode = `SH${code}`;
+    } else if (symbol.includes('SZ') || code.startsWith('0') || code.startsWith('3')) {
+        emCode = `SZ${code}`;
+    }
+    
     try {
-        const url = `https://np-anotice-stock.eastmoney.com/api/security/ann?sr=-1&page_size=5&page_index=1&ann_type=A&client_source=WEB&stock_list=${code}&f_node=1`;
+        const noticesUrl = `https://np-anotice-stock.eastmoney.com/api/security/ann?sr=-1&page_size=5&page_index=1&ann_type=A&client_source=WEB&stock_list=${code}&f_node=1`;
+        const f10Url = `https://emweb.securities.eastmoney.com/PC_HSF10/NewFinanceAnalysis/ZYZBAjaxNew?type=0&code=${emCode}`;
+        const forecastUrl = `https://datacenter-web.eastmoney.com/api/data/v1/get?sortColumns=NOTICE_DATE&sortTypes=-1&pageSize=5&pageNumber=1&reportName=RPT_PUBLIC_OP_NEWPREDICT&columns=SECURITY_NAME_ABBR,NOTICE_DATE,PREDICT_CONTENT,PREDICT_TYPE,PREDICT_FINANCE_CODE,ADD_AMP_LOWER,ADD_AMP_UPPER&filter=(SECURITY_CODE%3D%22${code}%22)`;
+        const researchUrl = `https://reportapi.eastmoney.com/report/list?pageSize=3&pageNo=1&qType=0&code=${code}&beginTime=2026-01-01&endTime=2026-12-31`;
         
-        let jsonStr;
-        if (window.electronAPI && window.electronAPI.fetchFinancialData) {
-            jsonStr = await window.electronAPI.fetchFinancialData(url);
+        const secid = emCode.startsWith('SH') ? '1.' + code : '0.' + code;
+        const push2Url = `https://push2.eastmoney.com/api/qt/stock/get?secid=${secid}&fields=f127`;
+        
+        let [noticesJsonStr, f10JsonStr, forecastJsonStr, researchJsonStr, push2JsonStr] = await Promise.all([
+            (window.electronAPI && window.electronAPI.fetchFinancialData) 
+                ? window.electronAPI.fetchFinancialData(noticesUrl) : fetch(noticesUrl).then(r => r.text()),
+            (window.electronAPI && window.electronAPI.fetchFinancialData)
+                ? window.electronAPI.fetchFinancialData(f10Url) : fetch(f10Url).then(r => r.text()),
+            (window.electronAPI && window.electronAPI.fetchFinancialData)
+                ? window.electronAPI.fetchFinancialData(forecastUrl) : fetch(forecastUrl).then(r => r.text()),
+            (window.electronAPI && window.electronAPI.fetchFinancialData)
+                ? window.electronAPI.fetchFinancialData(researchUrl) : fetch(researchUrl).then(r => r.text()),
+            (window.electronAPI && window.electronAPI.fetchFinancialData)
+                ? window.electronAPI.fetchFinancialData(push2Url) : fetch(push2Url).then(r => r.text())
+        ]);
+        
+        const emData = JSON.parse(noticesJsonStr);
+        let noticesHtml = '';
+        if (emData && emData.data && emData.data.list && emData.data.list.length > 0) {
+            emData.data.list.forEach(item => {
+                const tag = item.columns && item.columns[0] ? item.columns[0].column_name : '公告';
+                const title = item.title;
+                const link = `https://data.eastmoney.com/notices/detail/${code}/${item.art_code}.html`;
+                const noticeDate = item.notice_date ? item.notice_date.substring(0, 10) : '';
+                
+                noticesHtml += `
+                    <a href="${link}" class="news-item" target="_blank">
+                        <span class="news-tag">【${tag}】</span>
+                        <span class="news-text event-text">${title}</span>
+                        <span class="news-date">${noticeDate}</span>
+                    </a>
+                `;
+            });
         } else {
-            const res = await fetch(url);
-            jsonStr = await res.text();
+            noticesHtml = '<div style="font-size: 0.7rem; color: var(--fg-dim);">No recent announcements.</div>';
         }
         
-        const data = JSON.parse(jsonStr);
-        if (!data || !data.data || !data.data.list || data.data.list.length === 0) {
-            panel.innerHTML = '<div style="font-size: 0.7rem; color: var(--fg-dim);">No recent announcements.</div>';
-            return;
-        }
+        let eventsHtml = '';
+        let eventsList = [];
         
-        let html = `
-            <div class="news-section">
-                <h4>最新公告</h4>
-                <div class="news-list">
-        `;
+        // 1. Get the latest earnings forecasts (业绩预告)
+        try {
+            const forecastData = JSON.parse(forecastJsonStr);
+            if (forecastData && forecastData.result && forecastData.result.data && forecastData.result.data.length > 0) {
+                let seenDates = new Set();
+                let addedCount = 0;
+                
+                // Group by date to avoid duplicates (e.g. net profit and deducted net profit on the same day)
+                for (let forecast of forecastData.result.data) {
+                    const date = forecast.NOTICE_DATE ? forecast.NOTICE_DATE.substring(0, 10) : '';
+                    if (!date || seenDates.has(date)) continue;
+                    
+                    // Prefer 004 (net profit) if multiple exist for this date
+                    let bestForecast = forecastData.result.data.find(d => d.NOTICE_DATE === forecast.NOTICE_DATE && d.PREDICT_FINANCE_CODE === '004') || forecast;
+                    
+                    seenDates.add(date);
+                    
+                    let tag = bestForecast.PREDICT_TYPE || '预告';
+                    if (tag.length > 2) tag = tag.substring(0, 2);
+                    
+                    let text = bestForecast.PREDICT_CONTENT;
+                    if (bestForecast.ADD_AMP_LOWER !== null && bestForecast.ADD_AMP_UPPER !== null && bestForecast.ADD_AMP_LOWER !== undefined) {
+                        const lower = Math.round(bestForecast.ADD_AMP_LOWER);
+                        const upper = Math.round(bestForecast.ADD_AMP_UPPER);
+                        const name = bestForecast.SECURITY_NAME_ABBR || '该公司';
+                        if (lower === upper) {
+                            text = `${name}发布业绩预告。净利润同比${tag} ${lower}%。`;
+                        } else {
+                            text = `${name}发布业绩预告。净利润同比${tag} ${lower}% 到 ${upper}%。`;
+                        }
+                    }
+                    
+                    const link = `https://emweb.securities.eastmoney.com/PC_HSF10/NewFinanceAnalysis/Index?type=web&code=${emCode}`;
+                    if (date && date.startsWith('2026')) {
+                        eventsList.push({ link, tag, text, date });
+                    }
+                    
+                    addedCount++;
+                    if (addedCount >= 2) break; // Limit to 2 recent forecasts
+                }
+            }
+        } catch(e) {}
         
-        data.data.list.forEach(item => {
-            const tag = item.columns && item.columns[0] ? item.columns[0].column_name : '公告';
-            const title = item.title;
-            const link = `https://data.eastmoney.com/notices/detail/${code}/${item.art_code}.html`;
-            
-            html += `
-                <a href="${link}" class="news-item" target="_blank">
-                    <span class="news-tag">【${tag}】</span>
-                    <span class="news-text">${title}</span>
-                </a>
-            `;
+        // 2. Get the latest financial report summary (财报)
+        try { 
+            const f10Data = JSON.parse(f10JsonStr); 
+            if (f10Data && f10Data.data && f10Data.data.length > 0) {
+                f10Data.data.slice(0, 2).forEach(report => {
+                    const reportName = report.REPORT_DATE_NAME || '财报';
+                    const noticeDate = report.NOTICE_DATE ? report.NOTICE_DATE.substring(0, 10) : '';
+                    
+                    let summary = `${report.SECURITY_NAME_ABBR}发布${reportName}。`;
+                    if (report.PARENTNETPROFITTZ !== null && report.PARENTNETPROFITTZ !== undefined) {
+                        summary += `净利润同比${report.PARENTNETPROFITTZ >= 0 ? '增长' : '下降'}${Math.abs(report.PARENTNETPROFITTZ).toFixed(2)}%。`;
+                    }
+                    if (report.TOTALOPERATEREVETZ !== null && report.TOTALOPERATEREVETZ !== undefined) {
+                        summary += `营收同比${report.TOTALOPERATEREVETZ >= 0 ? '增长' : '下降'}${Math.abs(report.TOTALOPERATEREVETZ).toFixed(2)}%。`;
+                    }
+                    
+                    const f10Link = `https://emweb.securities.eastmoney.com/PC_HSF10/NewFinanceAnalysis/Index?type=web&code=${emCode}`;
+                    if (noticeDate && noticeDate.startsWith('2026')) {
+                        eventsList.push({ link: f10Link, tag: '财报', text: summary, date: noticeDate });
+                    }
+                });
+            }
+        } catch(e) {}
+        
+        // 3. Get the latest research reports for industry/forecasts (研报)
+        try {
+            const researchData = JSON.parse(researchJsonStr);
+            if (researchData && researchData.data && researchData.data.length > 0) {
+                researchData.data.slice(0, 3).forEach(report => {
+                    const date = report.publishDate ? report.publishDate.substring(0, 10) : '';
+                    const text = `${report.orgSName}: ${report.title}`;
+                    const link = `https://data.eastmoney.com/report/zw_stock.jshtml?infocode=${report.infoCode}`;
+                    if (date && date.startsWith('2026')) {
+                        eventsList.push({ link, tag: '研报', text, date });
+                    }
+                });
+            }
+        } catch(e) {}
+        
+        // Sort events by date descending (newest first)
+        eventsList.sort((a, b) => {
+            const dateA = new Date(a.date).getTime() || 0;
+            const dateB = new Date(b.date).getTime() || 0;
+            return dateB - dateA;
         });
         
-        html += `
+        if (eventsList.length > 0) {
+            eventsList.forEach(event => {
+                eventsHtml += `
+                    <a href="${event.link}" class="news-item" target="_blank">
+                        <span class="news-tag">【${event.tag}】</span>
+                        <span class="news-text event-text">${event.text}</span>
+                        <span class="news-date">${event.date}</span>
+                    </a>
+                `;
+            });
+        } else {
+            eventsHtml = '<div style="font-size: 0.7rem; color: var(--fg-dim);">No recent events found.</div>';
+        }
+
+        // 4. Get Industry Reports based on f127 industry name
+        let industryName = '行业研报';
+        let indReportsHtml = '';
+        try {
+            const push2Data = JSON.parse(push2JsonStr);
+            if (push2Data && push2Data.data && push2Data.data.f127) {
+                industryName = push2Data.data.f127;
+            }
+        } catch (e) {}
+        
+        const indCode = INDUSTRY_MAPPING[industryName];
+        if (indCode) {
+            const indUrl = `https://reportapi.eastmoney.com/report/list?pageSize=5&pageNo=1&qType=1&industryCode=${indCode}&beginTime=2026-01-01&endTime=2026-12-31`;
+            try {
+                const indStr = (window.electronAPI && window.electronAPI.fetchFinancialData)
+                     ? await window.electronAPI.fetchFinancialData(indUrl) : await fetch(indUrl).then(r => r.text());
+                const indData = JSON.parse(indStr);
+                let indList = [];
+                if (indData && indData.data && indData.data.length > 0) {
+                     indData.data.forEach(report => {
+                         const date = report.publishDate ? report.publishDate.substring(0, 10) : '';
+                         const text = `${report.orgSName}: ${report.title}`;
+                         const link = `https://data.eastmoney.com/report/zw_industry.jshtml?infocode=${report.infoCode}`;
+                         if (date && date.startsWith('2026')) {
+                             indList.push({ link, tag: '研报', text, date });
+                         }
+                     });
+                }
+                if (indList.length > 0) {
+                    indList.forEach(event => {
+                        indReportsHtml += `
+                            <a href="${event.link}" class="news-item" target="_blank">
+                                <span class="news-tag">【${event.tag}】</span>
+                                <span class="news-text event-text">${event.text}</span>
+                                <span class="news-date">${event.date}</span>
+                            </a>
+                        `;
+                    });
+                } else {
+                    indReportsHtml = '<div style="font-size: 0.7rem; color: var(--fg-dim);">No recent industry reports found.</div>';
+                }
+            } catch (e) {
+                indReportsHtml = '<div style="font-size: 0.7rem; color: var(--fg-dim);">Failed to load industry reports.</div>';
+            }
+        } else {
+            indReportsHtml = '<div style="font-size: 0.7rem; color: var(--fg-dim);">Industry reports not available.</div>';
+        }
+
+        let html = `
+            <div class="news-section">
+                <div class="news-tabs">
+                    <div class="news-tab active" data-target="events-content-${symbol}">Events</div>
+                    <div class="news-tab" data-target="industry-content-${symbol}">${industryName}</div>
+                    <div class="news-tab" data-target="notices-content-${symbol}">最新公告</div>
+                </div>
+                
+                <div class="news-content-area active" id="events-content-${symbol}">
+                    <div class="news-list">
+                        ${eventsHtml}
+                    </div>
+                </div>
+                
+                <div class="news-content-area hidden" id="industry-content-${symbol}">
+                    <div class="news-list">
+                        ${indReportsHtml}
+                    </div>
+                </div>
+                
+                <div class="news-content-area hidden" id="notices-content-${symbol}">
+                    <div class="news-list">
+                        ${noticesHtml}
+                    </div>
                 </div>
             </div>
         `;
         
+        NEWS_CACHE[symbol] = html;
         panel.innerHTML = html;
         
+        const tabs = panel.querySelectorAll('.news-tab');
+        const contentAreas = panel.querySelectorAll('.news-content-area');
+        
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                tabs.forEach(t => t.classList.remove('active'));
+                contentAreas.forEach(c => {
+                    c.classList.remove('active');
+                    c.classList.add('hidden');
+                });
+                
+                tab.classList.add('active');
+                const targetId = tab.getAttribute('data-target');
+                const targetContent = panel.querySelector(`#${targetId}`);
+                if (targetContent) {
+                    targetContent.classList.remove('hidden');
+                    targetContent.classList.add('active');
+                }
+            });
+        });
+        
     } catch (e) {
-        console.error('Failed to load news for', symbol, e);
-        panel.innerHTML = '<div style="font-size: 0.7rem; color: var(--fg-dim);">Failed to load insights.</div>';
+        console.error('Error fetching news/events:', e);
+        panel.innerHTML = '<div style="font-size: 0.7rem; color: var(--fg-dim);">Failed to load news.</div>';
     }
 }
 
@@ -1625,3 +1986,156 @@ setInterval(() => {
     });
 }, 3000); // Check for updates every 3 seconds
 
+
+// ---------------------------------------------------------
+// Custom Labels Logic
+// ---------------------------------------------------------
+const customLabelsContainer = document.getElementById('custom-labels-container');
+const addCustomLabelBtn = document.getElementById('add-custom-label-btn');
+const customLabelsTrash = document.getElementById('custom-labels-trash');
+
+function renderCustomLabels() {
+    if (!customLabelsContainer) return;
+    customLabelsContainer.innerHTML = '';
+    
+    customLabels.forEach((label, index) => {
+        const labelEl = document.createElement('div');
+        labelEl.className = 'custom-label';
+        labelEl.textContent = label;
+        labelEl.draggable = true;
+        labelEl.dataset.index = index;
+        
+        // Drag events for reordering and trash
+        labelEl.addEventListener('dragstart', (e) => {
+            labelEl.classList.add('dragging-label');
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('text/plain', label);
+            if (customLabelsTrash) customLabelsTrash.style.display = 'flex';
+        });
+        
+        labelEl.addEventListener('dragend', (e) => {
+            labelEl.classList.remove('dragging-label');
+            if (customLabelsTrash) {
+                customLabelsTrash.style.display = 'none';
+                customLabelsTrash.classList.remove('active');
+            }
+            // Update array from DOM order
+            const currentDOM = [...customLabelsContainer.querySelectorAll('.custom-label')];
+            customLabels = currentDOM.map(el => el.textContent);
+            saveState();
+        });
+        
+        // Click to Edit
+        labelEl.addEventListener('click', () => {
+            if (labelEl.querySelector('input')) return;
+            
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.className = 'custom-label-input';
+            input.value = label;
+            
+            labelEl.textContent = '';
+            labelEl.appendChild(input);
+            input.focus();
+            input.select();
+            
+            let saved = false;
+            const finishEdit = () => {
+                if (saved) return;
+                saved = true;
+                const newVal = input.value.trim();
+                if (newVal) {
+                    customLabels[index] = newVal;
+                } else {
+                    // Remove if empty
+                    customLabels.splice(index, 1);
+                }
+                saveState();
+                renderCustomLabels();
+            };
+            
+            input.addEventListener('blur', finishEdit);
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') finishEdit();
+                if (e.key === 'Escape') {
+                    saved = true;
+                    renderCustomLabels();
+                }
+            });
+        });
+        
+        customLabelsContainer.appendChild(labelEl);
+    });
+}
+
+if (addCustomLabelBtn) {
+    addCustomLabelBtn.addEventListener('click', () => {
+        customLabels.push('New Label');
+        saveState();
+        renderCustomLabels();
+        
+        // Auto-trigger edit mode on the last added element
+        setTimeout(() => {
+            const newEl = customLabelsContainer.lastElementChild;
+            if (newEl) newEl.click();
+        }, 0);
+    });
+}
+
+if (customLabelsContainer) {
+    customLabelsContainer.addEventListener('dragover', (e) => {
+        const draggingLabel = document.querySelector('.dragging-label');
+        if (!draggingLabel) return;
+        
+        e.preventDefault();
+        const afterElement = getDragAfterCustomLabel(customLabelsContainer, e.clientX, e.clientY);
+        if (afterElement == null) {
+            customLabelsContainer.appendChild(draggingLabel);
+        } else {
+            customLabelsContainer.insertBefore(draggingLabel, afterElement);
+        }
+    });
+}
+
+function getDragAfterCustomLabel(container, x, y) {
+    const draggableElements = [...container.querySelectorAll('.custom-label:not(.dragging-label)')];
+    
+    for (const child of draggableElements) {
+        const box = child.getBoundingClientRect();
+        if (y >= box.top && y <= box.bottom) {
+            if (x < box.left + box.width / 2) {
+                return child;
+            }
+        }
+    }
+    return null;
+}
+
+if (customLabelsTrash) {
+    customLabelsTrash.addEventListener('dragover', (e) => {
+        const draggingLabel = document.querySelector('.dragging-label');
+        if (draggingLabel) {
+            e.preventDefault();
+            customLabelsTrash.classList.add('active');
+        }
+    });
+    
+    customLabelsTrash.addEventListener('dragleave', (e) => {
+        customLabelsTrash.classList.remove('active');
+    });
+    
+    customLabelsTrash.addEventListener('drop', (e) => {
+        const draggingLabel = document.querySelector('.dragging-label');
+        if (draggingLabel) {
+            e.preventDefault();
+            const indexToRemove = parseInt(draggingLabel.dataset.index, 10);
+            if (!isNaN(indexToRemove)) {
+                customLabels.splice(indexToRemove, 1);
+                saveState();
+                renderCustomLabels();
+            }
+        }
+        customLabelsTrash.classList.remove('active');
+        customLabelsTrash.style.display = 'none';
+    });
+}

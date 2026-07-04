@@ -157,6 +157,20 @@
                     <button class="btn-minimal save-btn" id="save-percentage-btn">Save Delta</button>
                     <button class="clear-btn-inline" id="clear-percentage-btn">Clear</button>
                 </div>
+                
+                <!-- Custom Labels Section -->
+                <div class="calc-section custom-labels-section" id="custom-labels-mode" style="border-bottom: none; flex-grow: 1; padding-bottom: 50px;">
+                    <div class="custom-labels-container" id="custom-labels-container" style="display: flex; flex-wrap: wrap; gap: 6px; min-height: 10px;">
+                        <!-- Custom labels will be injected here -->
+                    </div>
+                </div>
+                
+                <div style="position: sticky; bottom: 0; left: 0; width: 100%; height: 0; overflow: visible; z-index: 50;">
+                    <button class="inline-text-btn" id="add-custom-label-btn" title="Add a custom label" style="position: absolute; right: 0; bottom: 10px; font-size: 1.2rem; background: transparent; width: 24px; height: 24px; border-radius: 4px; border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--fg-muted); pointer-events: auto;">+</button>
+                    <div class="trash-zone" id="custom-labels-trash" style="display: none; position: absolute; bottom: 10px; left: 0; width: 100%; height: 40px; background: rgba(255, 255, 255, 0.03); border: 1px dashed var(--border); border-radius: 6px; align-items: center; justify-content: center; color: var(--fg-muted); font-size: 0.8rem; pointer-events: auto; transition: all 0.2s ease;">
+                        Drop here to delete
+                    </div>
+                </div>
             </section>
             
             <div class="resizer" id="split-resizer"></div>

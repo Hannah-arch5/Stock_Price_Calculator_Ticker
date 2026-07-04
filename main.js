@@ -36,13 +36,27 @@ ipcMain.on('save-data', (event, dataStr) => {
     }
 });
 
+const YahooFinance = require('yahoo-finance2').default;
+const yahooFinance = new YahooFinance();
+
+ipcMain.handle('fetch-yahoo', async (event, symbol) => {
+    try {
+        const result = await yahooFinance.quoteSummary(symbol, { modules: ['calendarEvents', 'summaryDetail', 'financialData', 'price'] });
+        const news = await yahooFinance.search(symbol, { newsCount: 5 });
+        return { quoteSummary: result, news: news.news };
+    } catch (e) {
+        console.error('[main] fetch-yahoo error:', e);
+        return { error: e.message };
+    }
+});
+
 ipcMain.handle('fetch-financial-data', async (event, url) => {
     try {
-        const response = await fetch(url, {
-            headers: {
-                'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36'
-            }
-        });
+        const headers = url.includes('push2.eastmoney.com') 
+            ? {} 
+            : { 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36' };
+            
+        const response = await fetch(url, { headers });
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         return await response.text();
     } catch (error) {

@@ -1,0 +1,6 @@
+{
+  "calcHistoryVersion": "2",
+  "calcInputs": "{\"currency\":\"¥\",\"stock1\":\"\",\"basePrice\":\"\",\"moveDown\":false,\"percentChange\":\"\",\"stock2\":\"\",\"initialPrice\":\"\",\"finalPrice\":\"\"}",
+  "history-v9": "[{\"symbol\":\"603618\",\"records\":[{\"id\":1,\"type\":\"Base\",\"inputs\":{},\"result\":\"47.00\",\"isUp\":true}]}]",
+  "calcHistory": "[]"
+}
