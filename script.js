@@ -308,6 +308,8 @@ let isRenderingHistory = false;
 function renderHistory() {
     if (isRenderingHistory) return;
     isRenderingHistory = true;
+    
+    const prevScrollTop = historyListEl.scrollTop;
 
     try {
         const tagsEl = document.getElementById('quick-tags');
@@ -501,7 +503,7 @@ function renderHistory() {
                             if (newVal !== (group.name || '')) {
                                 group.name = newVal;
                                 saveState();
-                                renderHistory();
+                                nameSpan.textContent = newVal;
                             } else {
                                 nameSpan.textContent = group.name || '';
                             }
@@ -516,7 +518,7 @@ function renderHistory() {
                     if (name) {
                         group.name = name;
                         saveState();
-                        renderHistory();
+                        nameSpan.textContent = name;
                     }
                 });
             }
@@ -533,7 +535,16 @@ function renderHistory() {
                 <line x1="6" y1="6" x2="18" y2="18"></line>
             </svg>
         `;
-        deleteGroupBtn.onclick = () => { deleteHistoryGroup(groupIndex); };
+        deleteGroupBtn.onclick = () => {
+            const currentGroupIndex = historyRecords.indexOf(group);
+            if (currentGroupIndex > -1) {
+                historyRecords.splice(currentGroupIndex, 1);
+            }
+            groupEl.remove();
+            const tagEl = document.getElementById('quick-tags')?.querySelector(`[data-symbol="${group.symbol}"]`);
+            if (tagEl) tagEl.remove();
+            saveState();
+        };
         
         const urgencyContainer = document.createElement('div');
         urgencyContainer.className = 'urgency-dots';
@@ -550,8 +561,30 @@ function renderHistory() {
                 e.stopPropagation();
                 const isSelected = dot.classList.contains('selected');
                 group.records.forEach(r => r.urgency = isSelected ? null : color);
+                
+                const allDots = urgencyContainer.querySelectorAll('.urgency-dot');
+                allDots.forEach(d => d.classList.remove('selected'));
+                if (!isSelected) {
+                    dot.classList.add('selected');
+                }
+                
+                const tagEl = document.getElementById('quick-tags')?.querySelector(`[data-symbol="${group.symbol}"]`);
+                if (tagEl) {
+                    if (isSelected) {
+                        tagEl.style.color = '';
+                        tagEl.style.borderColor = '';
+                    } else {
+                        const colors = {
+                            'green': '#32d74b',
+                            'orange': '#ff9f0a',
+                            'red': '#ff453a'
+                        };
+                        tagEl.style.color = colors[color];
+                        tagEl.style.borderColor = colors[color];
+                    }
+                }
+                
                 saveState();
-                renderHistory();
             };
             urgencyContainer.appendChild(dot);
         });
@@ -848,7 +881,23 @@ function renderHistory() {
 
             item.querySelector('.item-delete-btn').addEventListener('click', (e) => {
                 e.stopPropagation();
-                deleteHistory(groupIndex, itemIndex);
+                const currentRecordIndex = group.records.indexOf(record);
+                if (currentRecordIndex > -1) {
+                    group.records.splice(currentRecordIndex, 1);
+                }
+                
+                if (group.records.length === 0) {
+                    const currentGroupIndex = historyRecords.indexOf(group);
+                    if (currentGroupIndex > -1) {
+                        historyRecords.splice(currentGroupIndex, 1);
+                    }
+                    groupEl.remove();
+                    const tagEl = document.getElementById('quick-tags')?.querySelector(`[data-symbol="${group.symbol}"]`);
+                    if (tagEl) tagEl.remove();
+                } else {
+                    item.remove();
+                }
+                saveState();
             });
             
             listEl.appendChild(item);
@@ -935,31 +984,42 @@ function renderHistory() {
         }, 200);
         
         const tfInputs = memoArea.querySelectorAll('.tf-input');
-        tfInputs.forEach(input => {
-            input.addEventListener('blur', () => {
-                const tfKey = input.getAttribute('data-tf');
-                const newVal = input.value.trim();
-                if (newVal !== (group[tfKey] || '')) {
-                    group[tfKey] = newVal;
-                    saveState();
+        let memoSaveTimeout;
+        const noteEl = memoArea.querySelector('textarea');
+        const debouncedSave = () => {
+            clearTimeout(memoSaveTimeout);
+            memoSaveTimeout = setTimeout(() => {
+                let changed = false;
+                tfInputs.forEach(input => {
+                    const tfKey = input.getAttribute('data-tf');
+                    const newVal = input.value.trim();
+                    if (newVal !== (group[tfKey] || '')) {
+                        group[tfKey] = newVal;
+                        changed = true;
+                    }
+                });
+                const newNote = noteEl.value.trim();
+                if (newNote !== (group.note || '')) {
+                    group.note = newNote;
+                    changed = true;
                 }
-            });
+                if (changed) saveState();
+            }, 500);
+        };
+
+        tfInputs.forEach(input => {
+            input.addEventListener('blur', debouncedSave);
+            input.addEventListener('input', debouncedSave);
         });
         
-        const noteEl = memoArea.querySelector('textarea');
         noteEl.spellcheck = false;
         
-        noteEl.addEventListener('blur', () => {
-            const newNote = noteEl.value.trim();
-            if (newNote !== (group.note || '')) {
-                group.note = newNote;
-                saveState();
-            }
-        });
+        noteEl.addEventListener('blur', debouncedSave);
         
         noteEl.addEventListener('input', () => {
             noteEl.style.height = 'auto';
             noteEl.style.height = (noteEl.scrollHeight) + 'px';
+            debouncedSave();
         });
         
         setTimeout(() => {
@@ -975,6 +1035,11 @@ function renderHistory() {
         groupEl.appendChild(listEl);
         historyListEl.appendChild(groupEl);
     });
+        if (historyRecords.length > 0 && prevScrollTop > 0) {
+            historyListEl.scrollTop = prevScrollTop;
+        }
+    } catch (error) {
+        console.error('Error rendering history:', error);
     } finally {
         isRenderingHistory = false;
     }
@@ -1149,27 +1214,20 @@ function updateArrayFromDOM() {
             return record;
         });
         if (records.length > 0) {
-            newHistory.push(Object.assign({}, originalGroup, { symbol, records, note, tf_w, tf_d, tf_30 }));
+            originalGroup.symbol = symbol;
+            originalGroup.records = records;
+            originalGroup.note = note;
+            originalGroup.tf_w = tf_w;
+            originalGroup.tf_d = tf_d;
+            originalGroup.tf_30 = tf_30;
+            newHistory.push(originalGroup);
         }
     });
     
     historyRecords = newHistory;
 }
 
-window.deleteHistory = function(groupIndex, itemIndex) {
-    historyRecords[groupIndex].records.splice(itemIndex, 1);
-    if (historyRecords[groupIndex].records.length === 0) {
-        historyRecords.splice(groupIndex, 1);
-    }
-    saveState();
-    renderHistory();
-};
 
-window.deleteHistoryGroup = function(groupIndex) {
-    historyRecords.splice(groupIndex, 1);
-    saveState();
-    renderHistory();
-};
 
 const clearAllHistoryBtn = document.getElementById('clear-all-history-btn');
 if (clearAllHistoryBtn) {
@@ -1531,6 +1589,33 @@ async function loadStockNews(symbol, groupIndex) {
     const panel = document.getElementById(`news-panel-${symbol}`);
     if (!panel) return;
     
+    const attachTabs = () => {
+        const tabs = panel.querySelectorAll('.news-tab');
+        const contentAreas = panel.querySelectorAll('.news-content-area');
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                tabs.forEach(t => t.classList.remove('active'));
+                contentAreas.forEach(c => {
+                    c.classList.remove('active');
+                    c.classList.add('hidden');
+                });
+                tab.classList.add('active');
+                const targetId = tab.getAttribute('data-target');
+                const targetContent = panel.querySelector(`#${targetId}`);
+                if (targetContent) {
+                    targetContent.classList.remove('hidden');
+                    targetContent.classList.add('active');
+                }
+            });
+        });
+    };
+    
+    if (NEWS_CACHE[symbol]) {
+        panel.innerHTML = NEWS_CACHE[symbol];
+        attachTabs();
+        return;
+    }
+    
     panel.innerHTML = '<div style="font-size: 0.7rem; color: var(--fg-dim); padding: 1rem 0;">Loading...</div>';
     
     const match = symbol.match(/\d{4,6}/);
@@ -1776,26 +1861,7 @@ async function loadStockNews(symbol, groupIndex) {
         NEWS_CACHE[symbol] = html;
         panel.innerHTML = html;
         
-        const tabs = panel.querySelectorAll('.news-tab');
-        const contentAreas = panel.querySelectorAll('.news-content-area');
-        
-        tabs.forEach(tab => {
-            tab.addEventListener('click', () => {
-                tabs.forEach(t => t.classList.remove('active'));
-                contentAreas.forEach(c => {
-                    c.classList.remove('active');
-                    c.classList.add('hidden');
-                });
-                
-                tab.classList.add('active');
-                const targetId = tab.getAttribute('data-target');
-                const targetContent = panel.querySelector(`#${targetId}`);
-                if (targetContent) {
-                    targetContent.classList.remove('hidden');
-                    targetContent.classList.add('active');
-                }
-            });
-        });
+        attachTabs();
         
     } catch (e) {
         console.error('Error fetching news/events:', e);
