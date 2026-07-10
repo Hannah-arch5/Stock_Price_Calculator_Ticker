@@ -1,7 +1,10 @@
-const { app, BrowserWindow, shell, ipcMain } = require('electron');
+const { app, BrowserWindow, shell, ipcMain, nativeTheme } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const os = require('os');
+const { exec } = require('child_process');
+
+nativeTheme.themeSource = 'dark';
 
 // Pin userData to a fixed path so data is always in the same place
 // regardless of where the .app bundle is located
@@ -14,15 +17,30 @@ const DATA_FILE = path.join(FIXED_USER_DATA, 'app-data-v1.json');
 // so they are ready when the renderer loads script.js
 
 ipcMain.handle('load-data', () => {
+    const backupFile = `${DATA_FILE}.bak`;
     try {
         if (fs.existsSync(DATA_FILE)) {
             const content = fs.readFileSync(DATA_FILE, 'utf8');
-            console.log('[main] load-data: returning', content.length, 'chars');
-            return content;
+            if (content.trim().length > 0 && content.trim().startsWith('{')) {
+                JSON.parse(content); // Verify it is valid JSON
+                console.log('[main] load-data: returning', content.length, 'chars');
+                return content;
+            } else {
+                throw new Error("File is empty or not valid JSON object");
+            }
         }
         console.log('[main] load-data: file not found at', DATA_FILE);
     } catch(e) {
-        console.error('[main] load-data error:', e);
+        console.error('[main] load-data error, attempting backup:', e);
+        try {
+            if (fs.existsSync(backupFile)) {
+                const backupContent = fs.readFileSync(backupFile, 'utf8');
+                console.log('[main] load-data: returning BACKUP', backupContent.length, 'chars');
+                return backupContent;
+            }
+        } catch(backupErr) {
+            console.error('[main] backup also failed:', backupErr);
+        }
     }
     return null;
 });
@@ -30,10 +48,89 @@ ipcMain.handle('load-data', () => {
 ipcMain.on('save-data', (event, dataStr) => {
     try {
         fs.mkdirSync(FIXED_USER_DATA, { recursive: true });
-        fs.writeFileSync(DATA_FILE, dataStr, 'utf8');
+        const tempFile = `${DATA_FILE}.tmp`;
+        const backupFile = `${DATA_FILE}.bak`;
+        
+        // 1. Write to a temporary file (atomic write)
+        fs.writeFileSync(tempFile, dataStr, 'utf8');
+        
+        // 2. Backup the current good file before overwriting
+        if (fs.existsSync(DATA_FILE)) {
+            fs.copyFileSync(DATA_FILE, backupFile);
+        }
+        
+        // 3. Atomically replace the old file with the new file
+        fs.renameSync(tempFile, DATA_FILE);
     } catch(e) {
         console.error('[main] save-data error:', e);
     }
+});
+
+ipcMain.on('open-pdf-window', (event, pdfPath) => {
+    let fullPath = pdfPath;
+    if (!path.isAbsolute(pdfPath)) {
+        fullPath = path.join(os.homedir(), 'Zotero', 'storage', pdfPath);
+    }
+    if (fs.existsSync(fullPath)) {
+        const pdfWin = new BrowserWindow({
+            width: 1000,
+            height: 800,
+            titleBarStyle: 'hiddenInset',
+            backgroundColor: '#030303',
+            alwaysOnTop: true,
+            webPreferences: { plugins: true }
+        });
+        pdfWin.loadFile(fullPath);
+    } else {
+        console.error('[main] PDF not found at:', fullPath);
+    }
+});
+
+ipcMain.handle('open-pdf-by-key', async (event, key) => {
+    return new Promise((resolve) => {
+        const pythonScript = app.isPackaged 
+        ? path.join(process.resourcesPath, 'get_pdf_path.py')
+        : path.join(__dirname, 'get_pdf_path.py');
+        const cmd = `python3 "${pythonScript}" "${key}"`;
+        fs.appendFileSync('/tmp/ticker_pdf_debug.txt', `[open-pdf-by-key] Running: ${cmd}\n`);
+        
+        exec(cmd, (error, stdout, stderr) => {
+            if (error) {
+                fs.appendFileSync('/tmp/ticker_pdf_debug.txt', `[open-pdf-by-key] Error: ${error.message} - Stderr: ${stderr}\n`);
+                console.error('[main] open-pdf-by-key error:', stderr || error.message);
+                resolve(null);
+                return;
+            }
+            try {
+                fs.appendFileSync('/tmp/ticker_pdf_debug.txt', `[open-pdf-by-key] Stdout: ${stdout}\n`);
+                const result = JSON.parse(stdout);
+                if (result.success && result.pdfPath) {
+                    let fullPath = result.pdfPath;
+                    if (!path.isAbsolute(fullPath)) {
+                        fullPath = path.join(os.homedir(), 'Zotero', 'storage', fullPath);
+                    }
+                    if (fs.existsSync(fullPath)) {
+                        fs.appendFileSync('/tmp/ticker_pdf_debug.txt', `[open-pdf-by-key] Resolving: ${fullPath}\n`);
+                        resolve(fullPath);
+                    } else {
+                        fs.appendFileSync('/tmp/ticker_pdf_debug.txt', `[open-pdf-by-key] File not found: ${fullPath}\n`);
+                        resolve(null);
+                    }
+                } else {
+                    fs.appendFileSync('/tmp/ticker_pdf_debug.txt', `[open-pdf-by-key] Failed JSON result\n`);
+                    resolve(null);
+                }
+            } catch (e) {
+                fs.appendFileSync('/tmp/ticker_pdf_debug.txt', `[open-pdf-by-key] Catch error: ${e.message}\n`);
+                console.error('[main] open-pdf-by-key parse error:', e);
+                resolve(null);
+            }
+        });
+    });
+});
+
+ipcMain.on('open-external', (event, url) => {
+    shell.openExternal(url);
 });
 
 const YahooFinance = require('yahoo-finance2').default;
@@ -48,6 +145,54 @@ ipcMain.handle('fetch-yahoo', async (event, symbol) => {
         console.error('[main] fetch-yahoo error:', e);
         return { error: e.message };
     }
+});
+ipcMain.handle('fetch-zotero-api', async (event, url) => {
+    try {
+        const response = await fetch(url, {
+            headers: { 'User-Agent': 'Ticker-App/1.0' }
+        });
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        return await response.json();
+    } catch (error) {
+        console.error('[main] fetch-zotero-api error:', error);
+        return { error: error.message };
+    }
+});
+
+ipcMain.handle('query-zotero', async (event, args) => {
+    return new Promise((resolve) => {
+        let dbPath, action, collectionId;
+        if (typeof args === 'string' || !args) {
+            dbPath = args || 'default';
+            action = 'get_items';
+            collectionId = '';
+        } else {
+            dbPath = args.dbPath || 'default';
+            action = args.action || 'get_items';
+            collectionId = args.collectionId || '';
+        }
+        
+        const pythonScript = app.isPackaged 
+            ? path.join(process.resourcesPath, 'zotero_query.py')
+            : path.join(__dirname, 'zotero_query.py');
+            
+        const cmd = `python3 "${pythonScript}" "${dbPath}" "${action}" "${collectionId}"`;
+        
+        exec(cmd, (error, stdout, stderr) => {
+            if (error) {
+                console.error('[main] query-zotero exec error:', stderr || error.message);
+                resolve({ error: stderr || error.message });
+                return;
+            }
+            try {
+                const result = JSON.parse(stdout);
+                resolve(result);
+            } catch (e) {
+                console.error('[main] query-zotero parse error:', e);
+                resolve({ error: 'Failed to parse python script output: ' + e.message });
+            }
+        });
+    });
 });
 
 ipcMain.handle('fetch-financial-data', async (event, url) => {
@@ -87,7 +232,9 @@ function createWindow() {
             preload: path.join(__dirname, 'preload.js'),
             nodeIntegration: false,
             contextIsolation: true,
-            webSecurity: false
+            webSecurity: false,
+            plugins: true,
+            webviewTag: true
         }
     });
 
@@ -110,19 +257,35 @@ function createWindow() {
         return { action: 'deny' };
     });
 
-    let previousBounds = null;
+    let userSizes = { 
+        size1: { width: 800, height: 1180 }, 
+        size2: { width: 1440, height: 1180 } 
+    };
+    const sizesFile = path.join(FIXED_USER_DATA, 'custom-sizes.json');
+    try {
+        if (fs.existsSync(sizesFile)) {
+            userSizes = JSON.parse(fs.readFileSync(sizesFile, 'utf8'));
+        }
+    } catch(e) {}
+
+    let isSize2 = false;
+
+    ipcMain.on('record-size', (event, index) => {
+        const bounds = mainWindow.getBounds();
+        if (index === 1) userSizes.size1 = { width: bounds.width, height: bounds.height };
+        if (index === 2) userSizes.size2 = { width: bounds.width, height: bounds.height };
+        try {
+            fs.writeFileSync(sizesFile, JSON.stringify(userSizes), 'utf8');
+        } catch(e) {}
+    });
 
     ipcMain.on('toggle-window-size', () => {
-        const bounds = mainWindow.getBounds();
-        const currentlyDefault = (bounds.width === 600 && bounds.height === 1180);
-
-        if (currentlyDefault) {
-            if (previousBounds) {
-                mainWindow.setBounds(previousBounds);
-            }
+        if (isSize2) {
+            mainWindow.setBounds(userSizes.size1);
+            isSize2 = false;
         } else {
-            previousBounds = bounds;
-            mainWindow.setBounds({ width: 600, height: 1180 });
+            mainWindow.setBounds(userSizes.size2);
+            isSize2 = true;
         }
     });
 }

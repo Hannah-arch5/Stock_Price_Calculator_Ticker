@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;500;700;900&family=JetBrains+Mono:wght@100..800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles.css?v=2">
 </head>
 <body>
     <div class="drag-bar"></div>
@@ -48,12 +48,15 @@
         <!-- Huge header -->
         <header class="masthead">
             <h1>Ticker</h1>
-            <div class="masthead-controls">
-                <div class="currency-selector">
+            <div class="nav-links">
+                <div class="nav-item active">Insights</div>
+                <div class="nav-item">Screener</div>
+                <div class="nav-item">Reverse</div>
+                <button class="nav-settings-btn" id="nav-currency-toggle">CNY</button>
+                
+                <div class="currency-selector" style="display: none;">
                     <input type="radio" id="currency-cny" name="currency" value="CNY" checked>
-                    <label for="currency-cny" class="currency-btn">CNY</label>
                     <input type="radio" id="currency-usd" name="currency" value="USD">
-                    <label for="currency-usd" class="currency-btn">USD</label>
                 </div>
             </div>
         </header>
@@ -188,9 +191,101 @@
                     <!-- Dynamic history rows will be injected here -->
                 </div>
             </section>
+            
+            <!-- Research Panel Resizer (Hidden by default, shown via CSS when width >= 900px) -->
+            <div class="resizer" id="research-resizer"></div>
+            
+            <!-- Far Right: Research & AI Panel -->
+            <section class="research-panel" id="research-panel">
+                <div class="research-header">
+                    <div class="research-tabs">
+                        <button class="research-tab active" data-target="zotero-view">Zotero</button>
+                        <button class="research-tab" data-target="pdf-view" id="pdf-tab" style="display: none;">PDF Reader</button>
+                        <button class="research-tab" data-target="gemini-view">Gemini</button>
+                        <button class="research-tab" data-target="settings-view">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="3"></circle>
+                                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                            </svg>
+                        </button>
+                    </div>
+                    <div id="zotero-header-controls" style="display: flex; gap: 0.5rem; align-items: center;">
+                        <button class="clear-btn" id="zotero-sync-btn">Sync</button>
+                    </div>
+                </div>
+                
+                <!-- Zotero View -->
+                <div class="research-content-area active" id="zotero-view" style="display: flex; flex-direction: column; height: 100%;">
+                    <div class="zotero-split-view" style="display: flex; flex: 1; overflow: hidden; position: relative;">
+                        <div class="zotero-collections-list" id="zotero-collections" style="flex: 0 0 200px; min-width: 120px; overflow-y: auto;">
+                            <!-- Collections injected here -->
+                        </div>
+                        <div class="zotero-resizer" id="zotero-resizer" style="width: 5px; cursor: col-resize; background-color: transparent; border-right: 1px solid var(--border); margin: 0 2px; transition: background-color 0.2s;" onmouseover="this.style.backgroundColor='var(--accent)'" onmouseout="this.style.backgroundColor='transparent'"></div>
+                        <div class="zotero-list" id="zotero-list" style="flex: 1; overflow-y: auto; min-width: 200px;">
+                            <!-- Items injected here -->
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- PDF View -->
+                <div class="research-content-area" id="pdf-view" style="height: 100%;">
+                    <div style="display: flex; justify-content: flex-end; padding: 4px; background: #030303; border-bottom: 1px solid var(--border); z-index: 10;">
+                        <button id="pdf-popout-btn" class="btn-minimal" style="padding: 2px 8px; font-size: 0.75rem; display: flex; align-items: center; gap: 4px; opacity: 0.7;">
+                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                            Pop Out
+                        </button>
+                    </div>
+                    <div style="flex-grow: 1; overflow: hidden; position: relative;">
+                        <webview id="pdf-webview" plugins style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; background: #030303;"></webview>
+                    </div>
+                </div>
+                
+                <!-- Gemini View -->
+                <div class="research-content-area hidden" id="gemini-view">
+                    <div class="gemini-chat-history" id="gemini-chat-history">
+                        <!-- Chat messages injected here -->
+                        <div class="gemini-message system">Welcome to Gemini. Ask me to analyze any stock or literature.</div>
+                    </div>
+                    <div class="gemini-input-area terminal-input-area">
+                        <span class="terminal-prompt">&gt;</span>
+                        <textarea id="gemini-input" class="terminal-textarea" placeholder="_" rows="1"></textarea>
+                        <button class="terminal-send-btn" id="gemini-send-btn">[ENTER]</button>
+                    </div>
+                </div>
+                
+                <!-- Settings View -->
+                <div class="research-content-area hidden" id="settings-view">
+                    <div class="settings-group">
+                        <h3 class="section-title">Zotero Integration</h3>
+                        <div class="input-minimal-wrapper">
+                            <input type="text" id="settings-zotero-path" class="input-minimal mono" placeholder="~/Zotero/zotero.sqlite">
+                            <span class="input-label">Local SQLite Path</span>
+                        </div>
+                        <div class="settings-separator">OR</div>
+                        <div class="input-minimal-wrapper">
+                            <input type="text" id="settings-zotero-userid" class="input-minimal mono" placeholder="User ID">
+                            <span class="input-label">Zotero Web User ID</span>
+                        </div>
+                        <div class="input-minimal-wrapper">
+                            <input type="password" id="settings-zotero-key" class="input-minimal mono" placeholder="API Key">
+                            <span class="input-label">Zotero Web API Key</span>
+                        </div>
+                    </div>
+                    
+                    <div class="settings-group" style="margin-top: 2rem;">
+                        <h3 class="section-title">Gemini Integration</h3>
+                        <div class="input-minimal-wrapper">
+                            <input type="password" id="settings-gemini-key" class="input-minimal mono" placeholder="AIzaSy...">
+                            <span class="input-label">Gemini API Key</span>
+                        </div>
+                    </div>
+                    
+                    <button class="btn-minimal save-btn" id="save-settings-btn" style="margin-top: 2rem;">Save Settings</button>
+                </div>
+            </section>
         </div>
     </div>
 
-    <script src="script.js"></script>
+    <script src="main_script.js"></script>
 </body>
 </html>

@@ -72,6 +72,10 @@ function updateCurrency() {
             break;
         }
     }
+    const navToggle = document.getElementById('nav-currency-toggle');
+    if (navToggle) {
+        navToggle.textContent = selected;
+    }
 
     currentCurrency = selected === 'CNY' ? '¥' : '$';
     
@@ -93,6 +97,28 @@ function updateCurrency() {
 }
 
 currencyRadios.forEach(radio => radio.addEventListener('change', updateCurrency));
+
+const navCurrencyToggle = document.getElementById('nav-currency-toggle');
+if (navCurrencyToggle) {
+    navCurrencyToggle.addEventListener('click', () => {
+        const isCNY = navCurrencyToggle.textContent === 'CNY';
+        navCurrencyToggle.textContent = isCNY ? 'USD' : 'CNY';
+        const targetRadio = document.getElementById(isCNY ? 'currency-usd' : 'currency-cny');
+        if (targetRadio) {
+            targetRadio.checked = true;
+            updateCurrency();
+        }
+    });
+}
+
+const navItems = document.querySelectorAll('.nav-links .nav-item:not(.currency-nav-item)');
+navItems.forEach(item => {
+    item.addEventListener('click', () => {
+        navItems.forEach(n => n.classList.remove('active'));
+        item.classList.add('active');
+    });
+});
+
 
 function formatCurrency(value) {
     return value.toFixed(4).replace(/\.?0+$/, ''); 
@@ -519,6 +545,12 @@ function renderHistory() {
                         group.name = name;
                         saveState();
                         nameSpan.textContent = name;
+                        
+                        const tagEl = document.getElementById('quick-tags')?.querySelector(`[data-symbol="${group.symbol}"]`);
+                        if (tagEl) {
+                            const cleanName = name.replace(/\s+/g, '');
+                            tagEl.textContent = cleanName.length <= 3 ? cleanName : cleanName.substring(0, 2);
+                        }
                     }
                 });
             }
@@ -1579,8 +1611,16 @@ if (resizer && controlPanel) {
 // Window Size Toggle Button
 const sizeToggleBtn = document.getElementById('size-toggle-btn');
 if (sizeToggleBtn && window.electronAPI) {
-    sizeToggleBtn.addEventListener('click', () => {
-        window.electronAPI.toggleWindowSize();
+    sizeToggleBtn.addEventListener('click', (e) => {
+        if (e.metaKey || e.ctrlKey || e.altKey) {
+            window.electronAPI.recordSize(1);
+            alert("Current size saved as 'Size 1'!");
+        } else if (e.shiftKey) {
+            window.electronAPI.recordSize(2);
+            alert("Current size saved as 'Size 2'!");
+        } else {
+            window.electronAPI.toggleWindowSize();
+        }
     });
 }
 
@@ -2203,5 +2243,472 @@ if (customLabelsTrash) {
         }
         customLabelsTrash.classList.remove('active');
         customLabelsTrash.style.display = 'none';
+    });
+}
+
+
+// Middle Panel freeze logic
+const splitView = document.querySelector('.split-view');
+const ledgerPanel = document.querySelector('.ledger-panel');
+const mql = window.matchMedia('(min-width: 1400px)');
+
+function handleMediaQuery(e) {
+    if (e.matches) {
+        let savedMiddle = localStorage.getItem('calcMiddlePanelWidth');
+        if (!savedMiddle) {
+            savedMiddle = '600px'; 
+        } else {
+            savedMiddle = savedMiddle + 'px';
+        }
+        ledgerPanel.style.setProperty('--middle-width', savedMiddle);
+    }
+}
+mql.addListener(handleMediaQuery);
+handleMediaQuery(mql);
+
+// Research Panel Resizer
+const researchResizer = document.getElementById('research-resizer');
+const researchPanel = document.querySelector('.research-panel');
+
+if (researchResizer && researchPanel) {
+    let isResearchDragging = false;
+    let researchStartX = 0;
+    let researchStartWidth = 0;
+
+    
+
+    researchResizer.addEventListener('mousedown', (e) => {
+        isResearchDragging = true;
+        researchStartX = e.clientX;
+        researchStartWidth = researchPanel.getBoundingClientRect().width;
+        document.body.style.cursor = 'col-resize';
+        document.body.style.userSelect = 'none';
+    });
+
+    window.addEventListener('mousemove', (e) => {
+        if (!isResearchDragging) return;
+        const dx = researchStartX - e.clientX; // drag left increases width of right panel
+        let newWidth = researchStartWidth + dx;
+        
+        if (newWidth < 300) newWidth = 300; // Enforce min width
+
+        const splitView = document.querySelector('.split-view');
+        const splitViewWidth = splitView.getBoundingClientRect().width;
+        // prevent it from squishing left panels too much
+        if (newWidth > splitViewWidth - 550) newWidth = splitViewWidth - 550;
+
+        // Dragging the right resizer should change the MIDDLE panel's width, 
+        // since the RIGHT panel is now flex: 1.
+        // dx is negative if dragging left.
+        // If we drag left, we are shrinking the middle panel.
+        const currentMiddleWidth = parseFloat(getComputedStyle(ledgerPanel).getPropertyValue('--middle-width')) || 800;
+        let newMiddleWidth = currentMiddleWidth - dx; // dx is researchStartX - e.clientX
+        
+        if (newMiddleWidth < 281) newMiddleWidth = 281;
+        
+        ledgerPanel.style.setProperty('--middle-width', `${newMiddleWidth}px`);
+        localStorage.setItem('calcMiddlePanelWidth', newMiddleWidth);
+        
+        researchStartX = e.clientX; // reset startX for continuous dragging
+    });
+
+    window.addEventListener('mouseup', () => {
+        if (isResearchDragging) {
+            isResearchDragging = false;
+            document.body.style.cursor = 'default';
+            document.body.style.userSelect = '';
+        }
+    });
+}
+
+// Research Tabs Logic
+const researchTabs = document.querySelectorAll('.research-tab');
+const researchContents = document.querySelectorAll('.research-content-area');
+const rightPanel = document.getElementById('research-panel');
+
+researchTabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+        researchTabs.forEach(t => t.classList.remove('active'));
+        researchContents.forEach(c => {
+            c.classList.remove('active');
+            c.classList.add('hidden');
+        });
+        
+        tab.classList.add('active');
+        const targetId = tab.getAttribute('data-target');
+        const targetContent = document.getElementById(targetId);
+        if (targetContent) {
+            targetContent.classList.remove('hidden');
+            targetContent.classList.add('active');
+        }
+        
+        if (targetId === 'pdf-view') {
+            if (rightPanel) rightPanel.style.width = '800px';
+        } else {
+            if (rightPanel) rightPanel.style.width = '320px';
+        }
+        
+        const zoteroControls = document.getElementById('zotero-header-controls');
+        if (zoteroControls) {
+            zoteroControls.style.display = targetId === 'zotero-view' ? 'flex' : 'none';
+        }
+    });
+});
+
+// Settings Logic
+const settingsZoteroPath = document.getElementById('settings-zotero-path');
+const settingsZoteroUserid = document.getElementById('settings-zotero-userid');
+const settingsZoteroKey = document.getElementById('settings-zotero-key');
+const settingsGeminiKey = document.getElementById('settings-gemini-key');
+const saveSettingsBtn = document.getElementById('save-settings-btn');
+
+function loadSettings() {
+    if (settingsZoteroPath) settingsZoteroPath.value = localStorage.getItem('zoteroPath') || '';
+    if (settingsZoteroUserid) settingsZoteroUserid.value = localStorage.getItem('zoteroUserId') || '';
+    if (settingsZoteroKey) settingsZoteroKey.value = localStorage.getItem('zoteroApiKey') || '';
+    if (settingsGeminiKey) settingsGeminiKey.value = localStorage.getItem('geminiApiKey') || '';
+}
+
+if (saveSettingsBtn) {
+    saveSettingsBtn.addEventListener('click', () => {
+        localStorage.setItem('zoteroPath', settingsZoteroPath.value.trim());
+        localStorage.setItem('zoteroUserId', settingsZoteroUserid.value.trim());
+        localStorage.setItem('zoteroApiKey', settingsZoteroKey.value.trim());
+        localStorage.setItem('geminiApiKey', settingsGeminiKey.value.trim());
+        
+        const originalText = saveSettingsBtn.innerText;
+        saveSettingsBtn.innerText = 'Saved!';
+        setTimeout(() => {
+            saveSettingsBtn.innerText = originalText;
+        }, 1500);
+    });
+}
+loadSettings();
+
+// --- Zotero Integration Logic ---
+const zoteroSyncBtn = document.getElementById('zotero-sync-btn');
+const zoteroList = document.getElementById('zotero-list');
+
+async function fetchZoteroData() {
+    const zoteroCollectionsList = document.getElementById('zotero-collections');
+    const zoteroList = document.getElementById('zotero-list');
+    
+    zoteroList.innerHTML = '<div style="color: var(--fg-dim); font-size: 0.8rem;">Loading Zotero...</div>';
+    if(zoteroCollectionsList) zoteroCollectionsList.innerHTML = '<div style="color: var(--fg-dim); font-size: 0.8rem;">Loading Folders...</div>';
+    
+    const localPath = localStorage.getItem('zoteroPath');
+    const userId = localStorage.getItem('zoteroUserId');
+    const apiKey = localStorage.getItem('zoteroApiKey');
+    
+    const renderItems = (items, isApi) => {
+        zoteroList.innerHTML = '';
+        if (!items || items.length === 0) {
+            zoteroList.innerHTML = '<div style="color: var(--fg-dim); font-size: 0.8rem;">No items found.</div>';
+            return;
+        }
+        items.forEach(item => {
+            if (isApi && item.data && item.data.itemType === 'note') return;
+            const el = document.createElement('div');
+            el.className = 'zotero-item';
+            
+            const title = isApi ? (item.data.title || 'Untitled') : (item.title || 'Untitled');
+            const date = isApi ? (item.data.dateAdded ? item.data.dateAdded.substring(0, 10) : '') : (item.dateAdded ? item.dateAdded.substring(0, 10) : '');
+            const typeStr = isApi ? ` - ${item.data.itemType}` : '';
+            const itemKey = isApi ? (item.data ? item.data.key : item.key) : item.key;
+            
+            el.innerHTML = `
+                <div class="zotero-item-title">${(item.pdfPath || (isApi && item.data && item.data.contentType === 'application/pdf')) ? '<span style="color: var(--fg-dim);">[PDF]</span> ' : ''}${title}</div>
+                <div class="zotero-item-meta">${date}${typeStr}</div>
+            `;
+            el.addEventListener('click', async () => {
+                try {
+                    let fullPath = null;
+                    if (window.electronAPI && window.electronAPI.openPDFByKey) {
+                        fullPath = await window.electronAPI.openPDFByKey(itemKey);
+                    }
+                    if (fullPath) {
+                        window.currentPdfPath = fullPath;
+                        const webview = document.getElementById('pdf-webview');
+                        webview.src = `pdf-viewer.html?file=${encodeURIComponent(fullPath)}`;
+                        const pdfTab = document.getElementById('pdf-tab');
+                        pdfTab.style.display = 'block';
+                        pdfTab.click();
+                    } else if (window.electronAPI && window.electronAPI.openExternal) {
+                        window.electronAPI.openExternal(`zotero://select/library/items/${itemKey}`);
+                        if (geminiInput) {
+                            geminiInput.value = `[Citation: ${title}] `;
+                            document.querySelector('[data-target="gemini-view"]').click();
+                            geminiInput.focus();
+                        }
+                    }
+                } catch (err) {
+                    alert("Error: " + err.message);
+                }
+            });
+            zoteroList.appendChild(el);
+        });
+    };
+
+    const renderTree = (collections, parentEl, parentId, isApi) => {
+        const children = collections.filter(c => isApi ? c.data.parentCollection === (parentId || false) : c.parent_id === parentId);
+        
+        // Guarantee alphabetical order
+        children.sort((a, b) => {
+            const nameA = isApi ? (a.data.name || '') : (a.name || '');
+            const nameB = isApi ? (b.data.name || '') : (b.name || '');
+            return nameA.localeCompare(nameB);
+        });
+
+        if (children.length === 0) return;
+        
+        children.forEach(col => {
+            const wrapper = document.createElement('div');
+            const itemEl = document.createElement('div');
+            itemEl.className = 'zotero-collection-item';
+            
+            const colKey = isApi ? col.key : col.key; 
+            const colId = isApi ? col.key : col.id;
+            const hasChildren = collections.some(c => isApi ? c.data.parentCollection === colKey : c.parent_id === colId);
+            const colName = isApi ? col.data.name : col.name;
+            
+            let toggleHtml = '<div class="zotero-collection-toggle" style="width: 20px;"></div>';
+            if (hasChildren) toggleHtml = `<div class="zotero-collection-toggle" style="width: 20px;">[+]</div>`;
+            
+            itemEl.innerHTML = `${toggleHtml}<span>${colName}</span>`;
+            wrapper.appendChild(itemEl);
+            
+            const childrenContainer = document.createElement('div');
+            childrenContainer.className = 'zotero-collection-children';
+            
+            if (hasChildren) {
+                const toggleBtn = itemEl.querySelector('.zotero-collection-toggle');
+                toggleBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    if (childrenContainer.classList.contains('expanded')) {
+                        childrenContainer.classList.remove('expanded');
+                        toggleBtn.innerText = '[+]';
+                    } else {
+                        childrenContainer.classList.add('expanded');
+                        toggleBtn.innerText = '[-]';
+                    }
+                });
+                renderTree(collections, childrenContainer, colId, isApi);
+                wrapper.appendChild(childrenContainer);
+            }
+            
+            itemEl.addEventListener('click', async () => {
+                document.querySelectorAll('.zotero-collection-item').forEach(el => el.classList.remove('active'));
+                itemEl.classList.add('active');
+                
+                zoteroList.innerHTML = '<div style="color: var(--fg-dim); font-size: 0.8rem;">Loading items...</div>';
+                try {
+                    if (isApi) {
+                        const itemsUrl = `https://api.zotero.org/users/${userId}/collections/${colKey}/items?v=3&key=${apiKey}&limit=50&sort=dateAdded&direction=desc`;
+                        let data;
+                        if (window.electronAPI && window.electronAPI.fetchZoteroAPI) {
+                            data = await window.electronAPI.fetchZoteroAPI(itemsUrl);
+                        } else {
+                            const response = await fetch(itemsUrl);
+                            data = await response.json();
+                        }
+                        renderItems(data, true);
+                    } else {
+                        const res = await window.electronAPI.queryZotero(localPath, 'get_collection_items', colId);
+                        if (res.error) throw new Error(res.error);
+                        renderItems(res.data, false);
+                    }
+                } catch(e) {
+                    zoteroList.innerHTML = `<div style="color: var(--fg-dim); font-size: 0.8rem;">Error: ${e.message}</div>`;
+                }
+            });
+            parentEl.appendChild(wrapper);
+        });
+    };
+
+    try {
+        if (userId && apiKey) { // Cloud API
+            const colsUrl = `https://api.zotero.org/users/${userId}/collections?v=3&key=${apiKey}&limit=100`;
+            let colsData;
+            if (window.electronAPI && window.electronAPI.fetchZoteroAPI) {
+                colsData = await window.electronAPI.fetchZoteroAPI(colsUrl);
+            } else {
+                const response = await fetch(colsUrl);
+                colsData = await response.json();
+            }
+            if (colsData.error) throw new Error(colsData.error);
+            
+            if (zoteroCollectionsList) {
+                zoteroCollectionsList.innerHTML = '';
+                const recentEl = document.createElement('div');
+                recentEl.className = 'zotero-collection-item active';
+                recentEl.innerHTML = `<div class="zotero-collection-toggle" style="width: 20px;"></div><span>RECENT ITEMS</span>`;
+                recentEl.addEventListener('click', () => { fetchZoteroData(); });
+                zoteroCollectionsList.appendChild(recentEl);
+                renderTree(colsData, zoteroCollectionsList, false, true);
+            }
+            
+            const url = `https://api.zotero.org/users/${userId}/items?v=3&key=${apiKey}&limit=50&sort=dateAdded&direction=desc`;
+            let data;
+            if (window.electronAPI && window.electronAPI.fetchZoteroAPI) {
+                data = await window.electronAPI.fetchZoteroAPI(url);
+            } else {
+                const response = await fetch(url);
+                data = await response.json();
+            }
+            renderItems(data, true);
+        } else { // Local DB
+            const colsRes = await window.electronAPI.queryZotero(localPath, 'get_collections');
+            if (colsRes.error) throw new Error(colsRes.error);
+            
+            if (zoteroCollectionsList) {
+                zoteroCollectionsList.innerHTML = '';
+                const recentEl = document.createElement('div');
+                recentEl.className = 'zotero-collection-item active';
+                recentEl.innerHTML = `<div class="zotero-collection-toggle" style="width: 20px;"></div><span>RECENT ITEMS</span>`;
+                recentEl.addEventListener('click', () => { fetchZoteroData(); });
+                zoteroCollectionsList.appendChild(recentEl);
+                renderTree(colsRes.data, zoteroCollectionsList, null, false);
+            }
+            
+            const res = await window.electronAPI.queryZotero(localPath, 'get_items');
+            if (res.error) throw new Error(res.error);
+            renderItems(res.data, false);
+        }
+    } catch(e) {
+        zoteroList.innerHTML = `<div style="color: var(--fg-dim); font-size: 0.8rem;">Error: ${e.message}</div>`;
+        if (zoteroCollectionsList) zoteroCollectionsList.innerHTML = '';
+    }
+}
+
+
+if (zoteroSyncBtn) {
+    zoteroSyncBtn.addEventListener('click', fetchZoteroData);
+}
+
+// --- Gemini Integration Logic ---
+const geminiInput = document.getElementById('gemini-input');
+const geminiSendBtn = document.getElementById('gemini-send-btn');
+const geminiChatHistory = document.getElementById('gemini-chat-history');
+
+let chatContext = [];
+
+async function sendGeminiMessage() {
+    const text = geminiInput.value.trim();
+    if (!text) return;
+    
+    const apiKey = localStorage.getItem('geminiApiKey');
+    if (!apiKey) {
+        appendGeminiMessage('system', 'Please enter your Gemini API Key in the Settings tab first.');
+        return;
+    }
+    
+    appendGeminiMessage('user', text);
+    geminiInput.value = '';
+    
+    chatContext.push({ role: 'user', parts: [{ text: text }] });
+    
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=${apiKey}`;
+    
+    try {
+        const loadingId = 'loading-' + Date.now();
+        const loadingEl = document.createElement('div');
+        loadingEl.className = 'gemini-message system';
+        loadingEl.id = loadingId;
+        loadingEl.innerText = 'Thinking...';
+        geminiChatHistory.appendChild(loadingEl);
+        geminiChatHistory.scrollTop = geminiChatHistory.scrollHeight;
+        
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ contents: chatContext })
+        });
+        
+        document.getElementById(loadingId)?.remove();
+        
+        if (!response.ok) {
+            const errData = await response.json();
+            throw new Error(errData.error?.message || 'API Error');
+        }
+        
+        const data = await response.json();
+        const reply = data.candidates?.[0]?.content?.parts?.[0]?.text;
+        
+        if (reply) {
+            chatContext.push({ role: 'model', parts: [{ text: reply }] });
+            appendGeminiMessage('assistant', reply);
+        } else {
+            appendGeminiMessage('system', 'Received empty response.');
+        }
+    } catch (e) {
+        appendGeminiMessage('system', `Error: ${e.message}`);
+    }
+}
+
+function appendGeminiMessage(role, text) {
+    const el = document.createElement('div');
+    el.className = `gemini-message ${role}`;
+    // Replace newlines with <br> for simple formatting
+    el.innerHTML = text.replace(/\n/g, '<br>');
+    geminiChatHistory.appendChild(el);
+    geminiChatHistory.scrollTop = geminiChatHistory.scrollHeight;
+}
+
+if (geminiSendBtn) {
+    geminiSendBtn.addEventListener('click', sendGeminiMessage);
+}
+if (geminiInput) {
+    geminiInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            sendGeminiMessage();
+        }
+    });
+}
+
+const popoutBtn = document.getElementById('pdf-popout-btn');
+if (popoutBtn) {
+    popoutBtn.addEventListener('click', () => {
+        if (window.currentPdfPath && window.electronAPI && window.electronAPI.openPDFWindow) {
+            window.electronAPI.openPDFWindow(window.currentPdfPath);
+        }
+    });
+}
+
+fetchZoteroData();
+
+// Zotero Split View Resizer Logic
+const zoteroResizer = document.getElementById('zotero-resizer');
+let isZoteroResizing = false;
+
+if (zoteroResizer) {
+    zoteroResizer.addEventListener('mousedown', (e) => {
+        isZoteroResizing = true;
+        document.body.style.cursor = 'col-resize';
+        document.body.style.userSelect = 'none';
+    });
+    
+    document.addEventListener('mousemove', (e) => {
+        if (!isZoteroResizing) return;
+        
+        const zoteroView = document.getElementById('zotero-view');
+        const zoteroCollectionsList = document.getElementById('zotero-collections');
+        if (!zoteroView || !zoteroCollectionsList) return;
+        
+        const containerRect = zoteroView.getBoundingClientRect();
+        let newWidth = e.clientX - containerRect.left;
+        
+        if (newWidth < 120) newWidth = 120;
+        if (newWidth > containerRect.width - 200) newWidth = containerRect.width - 200;
+        
+        zoteroCollectionsList.style.flex = `0 0 ${newWidth}px`;
+    });
+    
+    document.addEventListener('mouseup', () => {
+        if (isZoteroResizing) {
+            isZoteroResizing = false;
+            document.body.style.cursor = '';
+            document.body.style.userSelect = '';
+        }
     });
 }

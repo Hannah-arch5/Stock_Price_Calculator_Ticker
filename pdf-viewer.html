@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body, html { 
+            margin: 0; 
+            padding: 0; 
+            width: 100%; 
+            height: 100%; 
+            overflow: hidden; 
+            background: #030303; 
+            color-scheme: dark;
+        }
+        #pdf-embed {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+    <embed id="pdf-embed" type="application/pdf">
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        const file = params.get('file');
+        if (file) {
+            // Note: we use #navpanes=0&toolbar=0 to disable Chromium's internal PDF UI
+            // and view=FitH to scale it to our artificially wide container, creating a crop.
+            document.getElementById('pdf-embed').src = 'file://' + file + '#navpanes=0&toolbar=0&view=FitH';
+        }
+    </script>
+</body>
+</html>

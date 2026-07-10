@@ -13,7 +13,17 @@
     "mac": {
       "target": "dir",
       "icon": "build/icon.png"
-    }
+    },
+    "extraResources": [
+      {
+        "from": "zotero_query.py",
+        "to": "zotero_query.py"
+      },
+      {
+        "from": "get_pdf_path.py",
+        "to": "get_pdf_path.py"
+      }
+    ]
   },
   "keywords": [],
   "author": "",
