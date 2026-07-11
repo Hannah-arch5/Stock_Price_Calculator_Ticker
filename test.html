@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+* { box-sizing: border-box; }
+.list-row {
+  display: flex;
+  width: 400px;
+  background: #333;
+  padding: 1rem 0;
+  transition: padding-left 0.8s;
+  color: white;
+}
+.list-row:hover {
+  padding-left: 1rem;
+}
+.col { flex: 1; border: 1px solid red; }
+</style>
+</head>
+<body>
+  <div class="list-row">
+    <div class="col">Col 1 text</div>
+    <div class="col">Col 2 text</div>
+  </div>
+</body>
+</html>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self' https://*.eastmoney.com https://*.gtimg.cn https://*.sina.cn; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com;">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self' https://*.eastmoney.com https://*.gtimg.cn https://*.sina.cn https://generativelanguage.googleapis.com https://zhibo.sina.com.cn; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com;">
     <title>Ticker</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -37,19 +37,13 @@
                     <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
                 </svg>
             </button>
-            <button id="export-history-btn" class="global-action-btn" title="Export History to Word">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                    <polyline points="7 10 12 15 17 10"></polyline>
-                    <line x1="12" y1="15" x2="12" y2="3"></line>
-                </svg>
-            </button>
         </div>
         <!-- Huge header -->
         <header class="masthead">
             <h1>Ticker</h1>
             <div class="nav-links">
                 <div class="nav-item active">Insights</div>
+                <div class="nav-item">Domestic</div>
                 <div class="nav-item">Screener</div>
                 <div class="nav-item">Reverse</div>
                 <button class="nav-settings-btn" id="nav-currency-toggle">CNY</button>
@@ -182,13 +176,77 @@
             <section class="ledger-panel">
                 <div class="ledger-header">
                     <h2>History Ledger</h2>
-                    <button class="clear-btn" id="clear-all-history-btn">Clear All</button>
+                    <div style="display: flex; align-items: center; gap: 0.75rem;">
+                        <button class="clear-btn" id="clear-all-history-btn">Clear All</button>
+                        <button id="export-history-btn" class="clear-btn" title="Export History to Word" style="width: 24px; height: 24px; padding: 0; display: flex; align-items: center; justify-content: center;">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                <polyline points="7 10 12 15 17 10"></polyline>
+                                <line x1="12" y1="15" x2="12" y2="3"></line>
+                            </svg>
+                        </button>
+                    </div>
                 </div>
                 
                 <div class="quick-tags" id="quick-tags"></div>
                 
                 <div class="editorial-list" id="history-list">
                     <!-- Dynamic history rows will be injected here -->
+                </div>
+            </section>
+
+            <!-- Screener Panel (Panel 4) -->
+            <section class="screener-panel" id="screener-panel" style="display: none; flex: 1; flex-direction: column; overflow: hidden; padding-right: 2rem; min-width: 0;">
+                <h1 class="animate-title" style="font-size: 6vw; font-weight: 900; letter-spacing: -0.04em; line-height: 0.9; text-transform: uppercase; margin-bottom: 2rem;">Market<br>Screener</h1>
+                <div class="input-row animate-fade">
+                    <input type="text" id="screener-min" class="input-minimal-lg" placeholder="MIN PRICE" value="5">
+                    <input type="text" id="screener-max" class="input-minimal-lg" placeholder="MAX PRICE" value="50">
+                    <button class="btn-minimal-lg" id="screener-execute-btn">Execute</button>
+                </div>
+                <div class="editorial-list animate-fade" style="overflow: hidden; display: flex; flex-direction: column; flex: 1;">
+                    <div class="list-header" style="flex-shrink: 0;">
+                        <div>Code</div><div>Name</div><div>Price</div><div>Change</div><div>PE</div><div>PB</div>
+                    </div>
+                    <div id="screener-results" style="overflow-y: auto; flex: 1; padding-bottom: 2rem;">
+                        <!-- Results injected here -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Reverse Panel (Panel 5) -->
+            <section id="reverse-panel" style="display: none; flex-direction: column; flex: 1; padding-right: 2rem; min-width: 0;">
+                <h1 class="animate-title" style="font-size: 6vw; font-weight: 900; letter-spacing: -0.04em; line-height: 0.9; text-transform: uppercase; margin-bottom: 2rem;">Reverse<br>Engineer</h1>
+                <div class="input-row animate-fade" style="margin-bottom: 2rem;">
+                    <input type="text" id="reverse-symbols" class="input-minimal-lg" style="width: 500px; padding: 0.5rem 0;" placeholder="TICKERS (COMMA SEPARATED)">
+                    <button id="reverse-execute-btn" class="btn-minimal-lg">Discover</button>
+                </div>
+                <div id="reverse-results" style="flex: 1; display: flex; flex-direction: column;"></div>
+            </section>
+
+            <!-- Global Domestic Panel (Panel 6) -->
+            <section id="domestic-panel" style="display: none; flex: 1; flex-direction: column; overflow-y: auto; padding-left: 2.5rem; padding-right: 2.5rem; min-width: 0; scrollbar-width: none; -ms-overflow-style: none;">
+                <div class="animate-title" style="margin-bottom: 2rem;">
+                    <h1 style="font-size: 6vw; font-weight: 900; letter-spacing: -0.04em; line-height: 0.9; text-transform: uppercase; margin: 0;">
+                        Global<br>
+                        <div style="display: flex; justify-content: space-between; align-items: flex-end; gap: 1.5rem; width: 100%;">
+                            <span style="flex-shrink: 0;">Domestic</span>
+                            <span id="domestic-status-main" style="font-size: 0.8rem; font-weight: normal; line-height: 1.4; letter-spacing: 0.1em; font-family: 'JetBrains Mono', monospace; color: var(--fg-dim); opacity: 0.5; text-align: right; flex: 1; white-space: normal; word-break: keep-all; padding-bottom: 0.1rem;"></span>
+                        </div>
+                    </h1>
+                    <div style="display: flex; gap: 1.5rem; margin-top: 1.5rem; flex-wrap: wrap;">
+                        <button class="filter-tab active" data-filter="all" id="domestic-filter-all">All</button>
+                        <button class="filter-tab" data-filter="saved" id="domestic-filter-saved">Saved</button>
+                        <button class="filter-tab" data-filter="global" id="domestic-filter-global">Global</button>
+                        <button class="filter-tab" data-filter="domestic" id="domestic-filter-domestic">Domestic</button>
+                        <button class="filter-tab" data-filter="tech" id="domestic-filter-tech">Tech</button>
+                        <button class="filter-tab" data-filter="energy" id="domestic-filter-energy">Energy</button>
+                        <button class="filter-tab" data-filter="politics" id="domestic-filter-politics">Politics</button>
+                        <button class="filter-tab" data-filter="invest" id="domestic-filter-invest">Invest</button>
+                        <button class="filter-tab" data-filter="trade" id="domestic-filter-trade">Trade</button>
+                    </div>
+                </div>
+                <div class="feed-column animate-fade" id="domestic-feed-main" style="display: flex; flex-direction: column; gap: 0;">
+                    <div class="mono" style="color: var(--fg-dim);">Loading global macro news...</div>
                 </div>
             </section>
             
@@ -200,14 +258,14 @@
                 <div class="research-header">
                     <div class="research-tabs">
                         <button class="research-tab active" data-target="zotero-view">Zotero</button>
-                        <button class="research-tab" data-target="pdf-view" id="pdf-tab" style="display: none;">PDF Reader</button>
-                        <button class="research-tab" data-target="gemini-view">Gemini</button>
-                        <button class="research-tab" data-target="settings-view">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <circle cx="12" cy="12" r="3"></circle>
-                                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
-                            </svg>
-                        </button>
+                        <button class="research-tab" data-target="pdf-view" id="pdf-tab">READER</button>
+                        <button class="research-tab" data-target="gemini-view">CHAT</button>
+                        <button class="research-tab" data-target="domestic-view">DOMESTIC</button>
+                        <button class="research-tab" data-target="screener-view">SCREENER</button>
+                        <button class="research-tab" data-target="reverse-view">REVERSE</button>
+                        <button class="research-tab" data-target="watchlist-view">WATCHLIST</button>
+                        <span id="domestic-status" style="display: none; font-size: 0.55rem; color: var(--fg-dim); letter-spacing: 0.08em; opacity: 0.6; white-space: nowrap; font-family: 'JetBrains Mono', monospace; margin-left: auto;"></span>
+
                     </div>
                     <div id="zotero-header-controls" style="display: flex; gap: 0.5rem; align-items: center;">
                         <button class="clear-btn" id="zotero-sync-btn">Sync</button>
@@ -215,7 +273,7 @@
                 </div>
                 
                 <!-- Zotero View -->
-                <div class="research-content-area active" id="zotero-view" style="display: flex; flex-direction: column; height: 100%;">
+                <div class="research-content-area active" id="zotero-view">
                     <div class="zotero-split-view" style="display: flex; flex: 1; overflow: hidden; position: relative;">
                         <div class="zotero-collections-list" id="zotero-collections" style="flex: 0 0 200px; min-width: 120px; overflow-y: auto;">
                             <!-- Collections injected here -->
@@ -228,13 +286,8 @@
                 </div>
                 
                 <!-- PDF View -->
-                <div class="research-content-area" id="pdf-view" style="height: 100%;">
-                    <div style="display: flex; justify-content: flex-end; padding: 4px; background: #030303; border-bottom: 1px solid var(--border); z-index: 10;">
-                        <button id="pdf-popout-btn" class="btn-minimal" style="padding: 2px 8px; font-size: 0.75rem; display: flex; align-items: center; gap: 4px; opacity: 0.7;">
-                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
-                            Pop Out
-                        </button>
-                    </div>
+                <div class="research-content-area hidden" id="pdf-view">
+
                     <div style="flex-grow: 1; overflow: hidden; position: relative;">
                         <webview id="pdf-webview" plugins style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; background: #030303;"></webview>
                     </div>
@@ -242,14 +295,93 @@
                 
                 <!-- Gemini View -->
                 <div class="research-content-area hidden" id="gemini-view">
+                    <!-- Notebook Section -->
+                    <div id="notebook-section" style="flex: 0 0 50%; min-height: 100px; max-height: 80vh; display: flex; flex-direction: column;">
+                        <h2 style="font-size: 0.7rem; margin-bottom: 0.8rem; color: var(--fg-dim); letter-spacing: 0.1em; flex-shrink: 0; display: flex; justify-content: space-between; align-items: center; white-space: nowrap;">
+                            <div style="display: flex; align-items: center;">
+                                <span>NOTEBOOK</span>
+                            </div>
+                            <div style="display: flex; gap: 8px;">
+                                <button class="btn-minimal" id="notebook-save-btn" style="font-size: 0.6rem; padding: 2px 6px; opacity: 0.8; cursor: pointer; color: var(--accent); font-weight: bold;">+ SAVE</button>
+                                <button class="btn-minimal" id="notebook-clear-btn" style="font-size: 0.6rem; padding: 2px 6px; opacity: 0.6; cursor: pointer;" onclick="document.getElementById('chat-notebook').value=''; if(typeof activeNoteId !== 'undefined'){ activeNoteId = null; if(typeof renderNotebookTree === 'function') renderNotebookTree(); }">CLEAR</button>
+                            </div>
+                        </h2>
+                        
+                        <!-- Notebook Split View -->
+                        <div style="display: flex; flex: 1; overflow: hidden; position: relative;">
+                            <div id="notebook-tree-container" style="flex: 0 0 200px; min-width: 120px; overflow-y: auto; border-radius: 8px; margin-right: 5px; padding: 0.5rem; scrollbar-width: none; -ms-overflow-style: none;">
+                                <!-- Tree injected here -->
+                            </div>
+                            <div id="notebook-resizer" style="width: 5px; cursor: col-resize; background-color: transparent; border-right: 1px solid var(--border); margin-right: 5px; transition: background-color 0.2s;" onmouseover="this.style.backgroundColor='var(--accent)'" onmouseout="this.style.backgroundColor='transparent'"></div>
+                            <div style="flex: 1; display: flex; flex-direction: column;">
+                                <textarea class="side-input" id="chat-notebook" style="flex: 1; resize: none; background: transparent; border: 1px solid var(--border); border-radius: 8px; color: #b0b0b0; font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; line-height: 1.5; padding: 0.8rem;" placeholder="Jot down notes, paste text, or draft ideas here..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="notebook-v-resizer" style="height: 5px; cursor: row-resize; background-color: transparent; border-bottom: 1px solid var(--border); margin-bottom: 1rem; transition: background-color 0.2s;" onmouseover="this.style.backgroundColor='var(--accent)'" onmouseout="this.style.backgroundColor='transparent'"></div>
+
+                    <!-- Chat History Section -->
                     <div class="gemini-chat-history" id="gemini-chat-history">
                         <!-- Chat messages injected here -->
-                        <div class="gemini-message system">Welcome to Gemini. Ask me to analyze any stock or literature.</div>
+                        <div class="gemini-message system">Welcome to CHAT. Ask me to analyze any stock or literature.</div>
                     </div>
+                    <div id="chat-attachments-container" style="display: flex; flex-direction: column; gap: 0.25rem; padding: 0 0.5rem; margin-bottom: 0.5rem; max-height: 150px; overflow-y: auto; scrollbar-width: none; -ms-overflow-style: none;"></div>
                     <div class="gemini-input-area terminal-input-area">
                         <span class="terminal-prompt">&gt;</span>
                         <textarea id="gemini-input" class="terminal-textarea" placeholder="_" rows="1"></textarea>
                         <button class="terminal-send-btn" id="gemini-send-btn">[ENTER]</button>
+                    </div>
+                </div>
+
+                <!-- Screener Side Tab -->
+                <div class="research-content-area hidden" id="screener-view">
+                    <div style="flex:1; display:flex; flex-direction: column;">
+                        <h2 style="font-size: 0.7rem; margin-bottom: 1rem; color: var(--fg-dim); letter-spacing: 0.1em; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0;">
+                            <span>SCREENER</span>
+                            <span id="screener-status-side" style="font-size: 0.55rem; opacity: 0.5;">AWAITING</span>
+                        </h2>
+                        <div class="input-row" style="flex-shrink: 0; flex-wrap: wrap; gap: 0.5rem;">
+                            <input type="text" id="screener-min-side" class="side-input" placeholder="MIN" value="5" style="width: 70px;">
+                            <input type="text" id="screener-max-side" class="side-input" placeholder="MAX" value="50" style="width: 70px;">
+                            <button class="side-btn" id="screener-execute-btn-side">Run</button>
+                        </div>
+                        <div id="screener-results-side" style="overflow-y: auto; flex: 1; padding-bottom: 2rem; margin-top: 1rem;"></div>
+                    </div>
+                </div>
+
+                <!-- Reverse Side Tab -->
+                <div class="research-content-area hidden" id="reverse-view">
+                    <div style="flex:1; display:flex; flex-direction: column;">
+                        <h2 style="font-size: 0.7rem; margin-bottom: 1rem; color: var(--fg-dim); letter-spacing: 0.1em; display: flex; align-items: center; gap: 0.5rem; flex-shrink: 0;">
+                            REVERSE ENGINEER
+                        </h2>
+                        <div class="input-row" style="flex-shrink: 0; margin-bottom: 1rem; gap: 0.5rem;">
+                            <input type="text" id="reverse-symbols-side" class="side-input" style="flex:1;" placeholder="TICKERS">
+                            <button id="reverse-execute-btn-side" class="side-btn">Run</button>
+                        </div>
+                        <div id="reverse-results-side" style="flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 1rem; padding-bottom: 2rem;"></div>
+                    </div>
+                </div>
+
+                <!-- Domestic View -->
+                <div class="research-content-area hidden" id="domestic-view" style="overflow-y: auto; padding-left: 2.5rem; padding-right: 2.5rem; scrollbar-width: none; -ms-overflow-style: none;">
+                    <div class="feed-column" id="domestic-feed" style="display: flex; flex-direction: column; gap: 0;">
+                        <div class="mono" style="color: var(--fg-dim);">Loading global macro news...</div>
+                    </div>
+                </div>
+                
+                <!-- Watchlist View -->
+                <div class="research-content-area hidden" id="watchlist-view">
+                    <div style="flex:1; display:flex; flex-direction: column;">
+                        <h2 style="font-size: 0.7rem; margin-bottom: 1rem; color: var(--fg-dim); letter-spacing: 0.1em; display: flex; align-items: center; gap: 0.5rem; flex-shrink: 0;">
+                            NEWS WATCHLIST
+                        </h2>
+                        <div class="input-row" style="flex-shrink: 0; margin-bottom: 1rem; gap: 0.5rem;">
+                            <input type="text" id="watchlist-symbols-input" class="side-input" style="flex: 1;" placeholder="TICKERS (e.g. 600519)">
+                            <button id="watchlist-load-btn" class="side-btn">Load</button>
+                        </div>
+                        <div id="watchlist-feed" style="flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 1rem;"></div>
                     </div>
                 </div>
                 
@@ -282,10 +414,9 @@
                     
                     <button class="btn-minimal save-btn" id="save-settings-btn" style="margin-top: 2rem;">Save Settings</button>
                 </div>
-            </section>
-        </div>
     </div>
 
+    <script src="notebook_tree.js"></script>
     <script src="main_script.js"></script>
 </body>
 </html>

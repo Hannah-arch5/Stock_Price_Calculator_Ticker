@@ -1,3 +1,9 @@
+
+function replayAllAnimations() {
+    document.body.classList.add('disable-animations');
+    document.body.offsetHeight; // trigger reflow
+    document.body.classList.remove('disable-animations');
+}
 // Global state
 let currentCurrency = '¥';
 let historyRecords = [];
@@ -403,6 +409,8 @@ function renderHistory() {
         const groupEl = document.createElement('div');
         groupEl.className = 'history-group';
         groupEl.dataset.symbol = group.symbol;
+        
+        const baseDelay = 0.3 + groupIndex * 0.15;
         groupEl.draggable = true;
         
         groupEl.addEventListener('dragstart', (e) => {
@@ -426,7 +434,8 @@ function renderHistory() {
         });
         
         const headerEl = document.createElement('div');
-        headerEl.className = 'group-header';
+        headerEl.className = 'group-header animate-stagger-row';
+        headerEl.style.animationDelay = `${(baseDelay + 0 * 0.1).toFixed(2)}s`;
         const titleEl = document.createElement('div');
         titleEl.className = 'group-title-container';
         
@@ -634,7 +643,8 @@ function renderHistory() {
         
         group.records.forEach((record, itemIndex) => {
             const item = document.createElement('div');
-            item.className = 'list-row history-item';
+            item.className = 'list-row history-item animate-stagger-row';
+            item.style.animationDelay = `${(baseDelay + (3 + itemIndex) * 0.1).toFixed(2)}s`;
             if (record.highlighted) {
                 item.classList.add('highlighted');
             }
@@ -689,23 +699,25 @@ function renderHistory() {
             }
 
             item.innerHTML = `
-                <div class="col-details">
-                    <span class="type">${record.type}</span>
-                    <span class="info">${formattedDetails}</span>
-                </div>
-                <div class="col-result-group">
-                    <div class="col-result mono" style="color: ${resultColor};">
-                        ${record.result}
+                <div class="row-content">
+                    <div class="col-details">
+                        <span class="type">${record.type}</span>
+                        <span class="info">${formattedDetails}</span>
                     </div>
-                    <input type="number" class="shares-inline-input mono" placeholder="Shares" value="${record.shares || ''}">
-                </div>
-                <div class="row-delete">
-                    <button class="delete-btn item-delete-btn" title="Delete">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
-                            <line x1="18" y1="6" x2="6" y2="18"></line>
-                            <line x1="6" y1="6" x2="18" y2="18"></line>
-                        </svg>
-                    </button>
+                    <div class="col-result-group">
+                        <div class="col-result mono" style="color: ${resultColor};">
+                            ${record.result}
+                        </div>
+                        <input type="number" class="shares-inline-input mono" placeholder="Shares" value="${record.shares || ''}">
+                    </div>
+                    <div class="row-delete">
+                        <button class="delete-btn item-delete-btn" title="Delete">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="18" y1="6" x2="6" y2="18"></line>
+                                <line x1="6" y1="6" x2="18" y2="18"></line>
+                            </svg>
+                        </button>
+                    </div>
                 </div>
             `;
             
@@ -949,7 +961,8 @@ function renderHistory() {
         });
         
         const newsPanel = document.createElement('div');
-        newsPanel.className = 'group-news-panel';
+        newsPanel.className = 'group-news-panel animate-stagger-row';
+        newsPanel.style.animationDelay = `${(baseDelay + 1 * 0.1).toFixed(2)}s`;
         newsPanel.id = `news-panel-${group.symbol}`;
         
         if (NEWS_CACHE[group.symbol]) {
@@ -991,7 +1004,8 @@ function renderHistory() {
         }, 0);
 
         const memoArea = document.createElement('div');
-        memoArea.className = 'group-memo-area';
+        memoArea.className = 'group-memo-area animate-stagger-row';
+        memoArea.style.animationDelay = `${(baseDelay + 2 * 0.1).toFixed(2)}s`;
         
         memoArea.innerHTML = `
             <div class="memo-timeframes">
@@ -1018,6 +1032,15 @@ function renderHistory() {
         const tfInputs = memoArea.querySelectorAll('.tf-input');
         let memoSaveTimeout;
         const noteEl = memoArea.querySelector('textarea');
+        
+        // Auto-resize textarea
+        const autoResizeNote = () => {
+            noteEl.style.height = 'auto';
+            noteEl.style.height = (noteEl.scrollHeight) + 'px';
+        };
+        noteEl.addEventListener('input', autoResizeNote);
+        setTimeout(autoResizeNote, 0);
+
         const debouncedSave = () => {
             clearTimeout(memoSaveTimeout);
             memoSaveTimeout = setTimeout(() => {
@@ -2254,13 +2277,13 @@ const mql = window.matchMedia('(min-width: 1400px)');
 
 function handleMediaQuery(e) {
     if (e.matches) {
-        let savedMiddle = localStorage.getItem('calcMiddlePanelWidth');
-        if (!savedMiddle) {
-            savedMiddle = '600px'; 
+        let savedResearch = localStorage.getItem('calcResearchPanelWidth');
+        if (!savedResearch) {
+            savedResearch = '450px'; 
         } else {
-            savedMiddle = savedMiddle + 'px';
+            savedResearch = savedResearch + 'px';
         }
-        ledgerPanel.style.setProperty('--middle-width', savedMiddle);
+        document.querySelector('.split-view').style.setProperty('--research-width', savedResearch);
     }
 }
 mql.addListener(handleMediaQuery);
@@ -2288,26 +2311,18 @@ if (researchResizer && researchPanel) {
     window.addEventListener('mousemove', (e) => {
         if (!isResearchDragging) return;
         const dx = researchStartX - e.clientX; // drag left increases width of right panel
-        let newWidth = researchStartWidth + dx;
         
-        if (newWidth < 300) newWidth = 300; // Enforce min width
-
         const splitView = document.querySelector('.split-view');
+        const currentResearchWidth = parseFloat(getComputedStyle(splitView).getPropertyValue('--research-width')) || 450;
+        let newResearchWidth = currentResearchWidth + dx;
+        
+        if (newResearchWidth < 300) newResearchWidth = 300;
+        
         const splitViewWidth = splitView.getBoundingClientRect().width;
-        // prevent it from squishing left panels too much
-        if (newWidth > splitViewWidth - 550) newWidth = splitViewWidth - 550;
-
-        // Dragging the right resizer should change the MIDDLE panel's width, 
-        // since the RIGHT panel is now flex: 1.
-        // dx is negative if dragging left.
-        // If we drag left, we are shrinking the middle panel.
-        const currentMiddleWidth = parseFloat(getComputedStyle(ledgerPanel).getPropertyValue('--middle-width')) || 800;
-        let newMiddleWidth = currentMiddleWidth - dx; // dx is researchStartX - e.clientX
+        if (newResearchWidth > splitViewWidth - 550) newResearchWidth = splitViewWidth - 550;
         
-        if (newMiddleWidth < 281) newMiddleWidth = 281;
-        
-        ledgerPanel.style.setProperty('--middle-width', `${newMiddleWidth}px`);
-        localStorage.setItem('calcMiddlePanelWidth', newMiddleWidth);
+        splitView.style.setProperty('--research-width', `${newResearchWidth}px`);
+        localStorage.setItem('calcResearchPanelWidth', newResearchWidth);
         
         researchStartX = e.clientX; // reset startX for continuous dragging
     });
@@ -2340,6 +2355,46 @@ researchTabs.forEach(tab => {
         if (targetContent) {
             targetContent.classList.remove('hidden');
             targetContent.classList.add('active');
+            
+            targetContent.classList.add('disable-animations');
+            targetContent.offsetHeight; // trigger reflow
+            targetContent.classList.remove('disable-animations');
+            
+            if (targetId === 'domestic-view') {
+                fetchDomesticMacroNews();
+            } else if (targetId === 'watchlist-view') {
+                // Re-trigger animation on watchlist items when switching to tab
+                const items = document.querySelectorAll('#watchlist-feed .animate-stagger-row');
+                items.forEach((el, i) => {
+                    el.style.animation = 'none';
+                    el.offsetHeight;
+                    el.style.animation = '';
+                    el.style.animationDelay = `${(0.1 + i * 0.08).toFixed(2)}s`;
+                });
+            } else if (targetId === 'gemini-view') {
+                // Animate the main layout blocks of the Chat/Notebook view slowly
+                const mainBlocks = [
+                    document.getElementById('notebook-section'),
+                    document.getElementById('notebook-v-resizer'),
+                    document.getElementById('gemini-chat-history'),
+                    document.querySelector('.gemini-input-area')
+                ].filter(Boolean);
+
+                mainBlocks.forEach(el => {
+                    el.classList.remove('animate-slide-up-slow');
+                    el.style.animation = 'none';
+                    el.style.opacity = '0'; // prevent flash
+                });
+                
+                setTimeout(() => {
+                    mainBlocks.forEach((el, i) => {
+                        el.style.opacity = ''; // remove inline opacity so animation takes over
+                        el.style.animation = '';
+                        el.classList.add('animate-slide-up-slow');
+                        el.style.animationDelay = `${(i * 0.08).toFixed(2)}s`;
+                    });
+                }, 10);
+            }
         }
         
         if (targetId === 'pdf-view') {
@@ -2351,6 +2406,10 @@ researchTabs.forEach(tab => {
         const zoteroControls = document.getElementById('zotero-header-controls');
         if (zoteroControls) {
             zoteroControls.style.display = targetId === 'zotero-view' ? 'flex' : 'none';
+        }
+        const domesticStatus = document.getElementById('domestic-status');
+        if (domesticStatus) {
+            domesticStatus.style.display = targetId === 'domestic-view' ? 'block' : 'none';
         }
     });
 });
@@ -2406,10 +2465,13 @@ async function fetchZoteroData() {
             zoteroList.innerHTML = '<div style="color: var(--fg-dim); font-size: 0.8rem;">No items found.</div>';
             return;
         }
-        items.forEach(item => {
+        let visibleIdx = 0;
+        items.forEach((item) => {
             if (isApi && item.data && item.data.itemType === 'note') return;
             const el = document.createElement('div');
-            el.className = 'zotero-item';
+            el.className = 'zotero-item animate-stagger-row';
+            el.style.animationDelay = `${(0.3 + visibleIdx * 0.1).toFixed(2)}s`;
+            visibleIdx++;
             
             const title = isApi ? (item.data.title || 'Untitled') : (item.title || 'Untitled');
             const date = isApi ? (item.data.dateAdded ? item.data.dateAdded.substring(0, 10) : '') : (item.dateAdded ? item.dateAdded.substring(0, 10) : '');
@@ -2497,7 +2559,8 @@ async function fetchZoteroData() {
             }
             
             itemEl.addEventListener('click', async () => {
-                document.querySelectorAll('.zotero-collection-item').forEach(el => el.classList.remove('active'));
+                const sidebar = document.getElementById('zotero-sidebar');
+                if (sidebar) sidebar.querySelectorAll('.zotero-collection-item').forEach(el => el.classList.remove('active'));
                 itemEl.classList.add('active');
                 
                 zoteroList.innerHTML = '<div style="color: var(--fg-dim); font-size: 0.8rem;">Loading items...</div>';
@@ -2592,6 +2655,27 @@ const geminiChatHistory = document.getElementById('gemini-chat-history');
 
 let chatContext = [];
 
+try {
+    const savedChat = localStorage.getItem('geminiChatHistoryContext');
+    if (savedChat) {
+        chatContext = JSON.parse(savedChat);
+        // Defer rendering to allow DOM to be ready
+        setTimeout(() => {
+            if (chatContext.length > 0 && geminiChatHistory) {
+                geminiChatHistory.innerHTML = ''; // clear welcome message
+                chatContext.forEach(msg => {
+                    const role = msg.role === 'model' ? 'assistant' : msg.role;
+                    appendGeminiMessage(role, msg.parts[0].text, true);
+                });
+            }
+        }, 100);
+    }
+} catch (e) {
+    console.error('Failed to load chat history', e);
+}
+
+// Notebook initialized by notebook_tree.js
+
 async function sendGeminiMessage() {
     const text = geminiInput.value.trim();
     if (!text) return;
@@ -2605,23 +2689,65 @@ async function sendGeminiMessage() {
     appendGeminiMessage('user', text);
     geminiInput.value = '';
     
-    chatContext.push({ role: 'user', parts: [{ text: text }] });
+    let finalPrompt = text;
+    if (window.chatAttachments && window.chatAttachments.length > 0) {
+        const attachedText = window.chatAttachments.map(a => `[News at ${a.time}]\n${a.content}`).join('\n\n');
+        finalPrompt = `Attached News Context:\n${attachedText}\n\nMy Question:\n${text}`;
+        
+        // Clear attachments
+        window.chatAttachments = [];
+        window.renderChatAttachments();
+    }
     
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=${apiKey}`;
+    chatContext.push({ role: 'user', parts: [{ text: finalPrompt }] });
+    localStorage.setItem('geminiChatHistoryContext', JSON.stringify(chatContext));
+    
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-lite-latest:generateContent?key=${apiKey}`;
     
     try {
         const loadingId = 'loading-' + Date.now();
         const loadingEl = document.createElement('div');
-        loadingEl.className = 'gemini-message system';
+        loadingEl.className = 'gemini-message system animate-slide-up';
         loadingEl.id = loadingId;
         loadingEl.innerText = 'Thinking...';
         geminiChatHistory.appendChild(loadingEl);
         geminiChatHistory.scrollTop = geminiChatHistory.scrollHeight;
         
+        let systemContext = "You are an intelligent financial AI assistant embedded inside a professional stock analysis application. Provide concise, insightful, and professional answers.";
+        
+        const notebookEl = document.getElementById('chat-notebook');
+        if (notebookEl && notebookEl.value.trim()) {
+            systemContext += "\n\n[USER NOTEBOOK CONTENT]\n" + notebookEl.value.trim();
+        }
+        
+        if (document.body.classList.contains('domestic-active')) {
+            const feedMain = document.getElementById('domestic-feed-main');
+            const feedSide = document.getElementById('domestic-feed');
+            const visibleText = (feedMain ? feedMain.innerText : "") + "\n" + (feedSide ? feedSide.innerText : "");
+            if (visibleText.trim()) {
+                systemContext += "\n\n[VISIBLE UI CONTEXT: DOMESTIC MACRO NEWS]\nThe user is currently looking at the following domestic macro news on their screen:\n" + visibleText.substring(0, 10000);
+            }
+        } else if (document.body.classList.contains('screener-active')) {
+            const screenerResults = document.getElementById('screener-results');
+            if (screenerResults && screenerResults.innerText.trim()) {
+                systemContext += "\n\n[VISIBLE UI CONTEXT: STOCK SCREENER RESULTS]\nThe user is currently looking at the following stock screener results on their screen:\n" + screenerResults.innerText.substring(0, 10000);
+            }
+        } else if (document.body.classList.contains('reverse-active')) {
+            const reverseResults = document.getElementById('reverse-results-side');
+            if (reverseResults && reverseResults.innerText.trim()) {
+                systemContext += "\n\n[VISIBLE UI CONTEXT: REVERSE LIST]\nThe user is currently looking at the following reverse-lookup list on their screen:\n" + reverseResults.innerText.substring(0, 10000);
+            }
+        }
+        
+        const requestBody = {
+            systemInstruction: { parts: [{ text: systemContext }] },
+            contents: chatContext
+        };
+        
         const response = await fetch(url, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ contents: chatContext })
+            body: JSON.stringify(requestBody)
         });
         
         document.getElementById(loadingId)?.remove();
@@ -2636,6 +2762,7 @@ async function sendGeminiMessage() {
         
         if (reply) {
             chatContext.push({ role: 'model', parts: [{ text: reply }] });
+            localStorage.setItem('geminiChatHistoryContext', JSON.stringify(chatContext));
             appendGeminiMessage('assistant', reply);
         } else {
             appendGeminiMessage('system', 'Received empty response.');
@@ -2645,11 +2772,84 @@ async function sendGeminiMessage() {
     }
 }
 
-function appendGeminiMessage(role, text) {
+function appendGeminiMessage(role, text, isRestore = false) {
     const el = document.createElement('div');
-    el.className = `gemini-message ${role}`;
+    el.className = `gemini-message ${role}${isRestore ? '' : ' animate-slide-up'}`;
+    
     // Replace newlines with <br> for simple formatting
     el.innerHTML = text.replace(/\n/g, '<br>');
+    
+    if (role === 'assistant') {
+        const btnContainer = document.createElement('div');
+        btnContainer.style.textAlign = 'right';
+        btnContainer.style.marginTop = '0.8rem';
+        btnContainer.style.display = 'flex';
+        btnContainer.style.justifyContent = 'flex-end';
+        btnContainer.style.gap = '10px';
+        
+        const clearBtn = document.createElement('button');
+        clearBtn.innerText = 'CLEAR CHAT';
+        clearBtn.className = 'btn-minimal';
+        clearBtn.style.fontSize = '0.55rem';
+        clearBtn.style.padding = '3px 8px';
+        clearBtn.style.opacity = '0.4';
+        clearBtn.style.cursor = 'pointer';
+        clearBtn.style.letterSpacing = '0.1em';
+        clearBtn.style.color = '#ff6b6b'; // subtle red tint
+        
+        clearBtn.addEventListener('mouseenter', () => clearBtn.style.opacity = '1');
+        clearBtn.addEventListener('mouseleave', () => clearBtn.style.opacity = '0.4');
+        
+        clearBtn.addEventListener('click', () => {
+            chatContext = [];
+            localStorage.removeItem('geminiChatHistoryContext');
+            const chatHistory = document.getElementById('gemini-chat-history');
+            if (chatHistory) {
+                chatHistory.innerHTML = '<div class="gemini-message system">Chat history cleared.</div>';
+            }
+        });
+
+        const btn = document.createElement('button');
+        btn.innerText = 'CLIP TO NOTEBOOK';
+        btn.className = 'btn-minimal';
+        btn.style.fontSize = '0.55rem';
+        btn.style.padding = '3px 8px';
+        btn.style.opacity = '0.5';
+        btn.style.cursor = 'pointer';
+        btn.style.letterSpacing = '0.1em';
+        
+        btn.addEventListener('mouseenter', () => btn.style.opacity = '1');
+        btn.addEventListener('mouseleave', () => btn.style.opacity = '0.5');
+        
+        btn.addEventListener('click', () => {
+            const notebook = document.getElementById('chat-notebook');
+            if (notebook) {
+                if (notebook.value.trim().length > 0) {
+                    notebook.value += '\n\n----------------------------------------\n\n';
+                }
+                notebook.value += text;
+                notebook.scrollTop = notebook.scrollHeight;
+                
+                // Save using the global function from notebook_tree.js
+                if (typeof saveNotebookData === 'function' && typeof activeNoteId !== 'undefined' && activeNoteId) {
+                    const info = typeof findNodeInfo === 'function' ? findNodeInfo(notebookData, activeNoteId) : null;
+                    if (info && info.node.type === 'note') {
+                        info.node.content = notebook.value;
+                        saveNotebookData();
+                    }
+                }
+                
+                const origText = btn.innerText;
+                btn.innerText = 'SAVED ✓';
+                setTimeout(() => btn.innerText = origText, 1500);
+            }
+        });
+        
+        btnContainer.appendChild(clearBtn);
+        btnContainer.appendChild(btn);
+        el.appendChild(btnContainer);
+    }
+    
     geminiChatHistory.appendChild(el);
     geminiChatHistory.scrollTop = geminiChatHistory.scrollHeight;
 }
@@ -2712,3 +2912,678 @@ if (zoteroResizer) {
         }
     });
 }
+
+
+// ==========================================
+// Screener Logic
+// ==========================================
+{
+const navItemsScreener = document.querySelectorAll('.nav-item');
+const screenerBtn = document.getElementById('screener-execute-btn');
+const screenerMin = document.getElementById('screener-min');
+const screenerMax = document.getElementById('screener-max');
+const screenerResults = document.getElementById('screener-results');
+
+navItemsScreener.forEach(item => {
+    item.addEventListener('click', (e) => {
+        const text = e.target.innerText.trim().toUpperCase();
+        const researchPanel = document.getElementById('research-panel');
+        if (text === 'SCREENER') {
+            if (researchPanel) {
+                const rect = researchPanel.getBoundingClientRect();
+                researchPanel.style.flex = `0 0 ${rect.width}px`;
+                const sideBtn = document.querySelector('.research-tab[data-target="screener-view"]');
+                if (sideBtn && sideBtn.classList.contains('active')) {
+                    const geminiBtn = document.querySelector('.research-tab[data-target="gemini-view"]');
+                    if (geminiBtn) geminiBtn.click();
+                }
+            }
+            document.body.classList.add('screener-active');
+            document.body.classList.remove('reverse-active', 'domestic-active');
+            navItemsScreener.forEach(n => n.classList.remove('active'));
+            e.target.classList.add('active');
+            replayAllAnimations();
+        } else if (text === 'REVERSE') {
+            if (researchPanel) {
+                const rect = researchPanel.getBoundingClientRect();
+                researchPanel.style.flex = `0 0 ${rect.width}px`;
+                const sideBtn = document.querySelector('.research-tab[data-target="reverse-view"]');
+                if (sideBtn && sideBtn.classList.contains('active')) {
+                    const geminiBtn = document.querySelector('.research-tab[data-target="gemini-view"]');
+                    if (geminiBtn) geminiBtn.click();
+                }
+            }
+            document.body.classList.add('reverse-active');
+            document.body.classList.remove('screener-active', 'domestic-active');
+            navItemsScreener.forEach(n => n.classList.remove('active'));
+            e.target.classList.add('active');
+            replayAllAnimations();
+        } else if (text === 'DOMESTIC') {
+            if (researchPanel) {
+                const rect = researchPanel.getBoundingClientRect();
+                researchPanel.style.flex = `0 0 ${rect.width}px`;
+                
+                // Always switch to Gemini when entering Global Domestic mode
+                const geminiBtn = document.querySelector('.research-tab[data-target="gemini-view"]');
+                if (geminiBtn) geminiBtn.click();
+            }
+            document.body.classList.add('domestic-active');
+            document.body.classList.remove('screener-active', 'reverse-active');
+            navItemsScreener.forEach(n => n.classList.remove('active'));
+            e.target.classList.add('active');
+            replayAllAnimations();
+            
+            // Trigger fetch for domestic news if not already loaded
+            fetchDomesticMacroNews();
+        } else if (text === 'INSIGHTS') {
+            if (researchPanel) {
+                researchPanel.style.flex = ''; // Restore original flex
+            }
+            document.body.classList.remove('screener-active', 'reverse-active', 'domestic-active');
+            navItemsScreener.forEach(n => n.classList.remove('active'));
+            e.target.classList.add('active');
+            replayAllAnimations();
+        }
+    });
+});
+
+async function executeScreenerLogic(btn, minInput, maxInput, resultsContainer) {
+    if (btn.disabled) return;
+    btn.disabled = true;
+    const originalText = btn.innerText;
+    btn.innerText = 'Processing...';
+    resultsContainer.innerHTML = '';
+    
+    const minP = parseFloat(minInput.value) || 0;
+    const maxP = parseFloat(maxInput.value) || 99999;
+    
+    try {
+        const url = "http://82.push2.eastmoney.com/api/qt/clist/get?pn=1&pz=5000&po=1&np=1&ut=bd1d9ddb04089700cf9c27f6f7426281&fltt=2&invt=2&fid=f3&fs=m:0+t:6,m:0+t:80,m:1+t:2,m:1+t:23,m:0+t:81+s:2048&fields=f12,f14,f2,f3,f9,f23";
+        let res;
+        if (window.electronAPI && window.electronAPI.fetchFinancialData) {
+            res = await window.electronAPI.fetchFinancialData(url);
+        } else {
+            const resp = await fetch(url);
+            res = await resp.json();
+        }
+        
+        let data = typeof res === 'string' ? JSON.parse(res) : res;
+        let diff = data?.data?.diff || [];
+        
+        // Filter by price
+        const filtered = diff.filter(row => {
+            const price = parseFloat(row.f2);
+            if (isNaN(price)) return false;
+            return price >= minP && price <= maxP;
+        }).slice(0, 100);
+        
+        // Render
+        filtered.forEach((row, idx) => {
+            const div = document.createElement('div');
+            div.className = 'list-row animate-screener-row';
+            // Stagger animation exactly like TrackPort: delayChildren=0.5, staggerChildren=0.1
+            div.style.animationDelay = `${(0.5 + idx * 0.1).toFixed(2)}s`;
+            
+            const change = parseFloat(row.f3) || 0;
+            const changeClass = change >= 0 ? 'positive' : 'negative';
+            const changeSign = change > 0 ? '+' : '';
+            
+            div.innerHTML = `
+                <div class="row-col col-code">${row.f12 || '-'}</div>
+                <div class="row-col col-name">${row.f14 || '-'}</div>
+                <div class="row-col col-price">${row.f2 === '-' ? '-' : row.f2}</div>
+                <div class="row-col mono ${changeClass}">${changeSign}${row.f3 === '-' ? '0' : row.f3}%</div>
+                <div class="row-col mono">${row.f9 === '-' ? '-' : row.f9}</div>
+                <div class="row-col mono">${row.f23 === '-' ? '-' : row.f23}</div>
+            `;
+            resultsContainer.appendChild(div);
+        });
+        
+    } catch(e) {
+        console.error("Screener Error:", e);
+        resultsContainer.innerHTML = `<div class="mono negative" style="padding: 2rem;">Error fetching data: ${e.message}</div>`;
+    }
+    
+    btn.disabled = false;
+    btn.innerText = originalText;
+}
+
+if (screenerBtn) {
+    screenerBtn.addEventListener('click', () => executeScreenerLogic(screenerBtn, screenerMin, screenerMax, screenerResults));
+}
+const screenerBtnSide = document.getElementById('screener-execute-btn-side');
+const screenerMinSide = document.getElementById('screener-min-side');
+const screenerMaxSide = document.getElementById('screener-max-side');
+const screenerResultsSide = document.getElementById('screener-results-side');
+if (screenerBtnSide) {
+    screenerBtnSide.addEventListener('click', () => executeScreenerLogic(screenerBtnSide, screenerMinSide, screenerMaxSide, screenerResultsSide));
+}
+}
+
+const reverseBtn = document.getElementById('reverse-execute-btn');
+const reverseSymbols = document.getElementById('reverse-symbols');
+const reverseResults = document.getElementById('reverse-results');
+// (Original executeReverse listener was removed and moved below executeReverseLogic)
+
+async function executeReverseLogic(btn, symbolsInputEl, resultsContainer) {
+    if (btn.disabled) return;
+    const symbolsInput = symbolsInputEl.value.trim();
+    if (!symbolsInput) return;
+    
+    const symbols = symbolsInput.split(',').map(s => s.trim()).filter(Boolean);
+    if (symbols.length === 0) return;
+
+    btn.disabled = true;
+    const originalText = btn.innerText;
+    btn.innerText = 'Analyzing...';
+    resultsContainer.innerHTML = '';
+    
+    try {
+        const url = "http://82.push2.eastmoney.com/api/qt/clist/get?pn=1&pz=5000&po=1&np=1&ut=bd1d9ddb04089700cf9c27f6f7426281&fltt=2&invt=2&fid=f3&fs=m:0+t:6,m:0+t:80,m:1+t:2,m:1+t:23,m:0+t:81+s:2048&fields=f12,f14,f2,f3,f9,f23";
+        let res;
+        if (window.electronAPI && window.electronAPI.fetchFinancialData) {
+            res = await window.electronAPI.fetchFinancialData(url);
+        } else {
+            const resp = await fetch(url);
+            res = await resp.json();
+        }
+        
+        let data = typeof res === 'string' ? JSON.parse(res) : res;
+        let diff = data?.data?.diff || [];
+        
+        let validPE = [];
+        let validPB = [];
+        
+        for (const item of diff) {
+            if (symbols.includes(item.f12)) {
+                if (item.f9 !== '-' && item.f9 != null) validPE.push(parseFloat(item.f9));
+                if (item.f23 !== '-' && item.f23 != null) validPB.push(parseFloat(item.f23));
+            }
+        }
+        
+        if (validPE.length === 0 && validPB.length === 0) {
+            resultsContainer.innerHTML = '<div class="negative mono animate-fade" style="margin-top: 2rem; font-size: 1.5rem; opacity: 0; animation-delay: 0.1s; animation-fill-mode: forwards;">未能在市场中找到指定的股票数据或无可用的估值数据</div>';
+        } else {
+            const avgPE = validPE.length > 0 ? (validPE.reduce((a,b) => a+b, 0) / validPE.length).toFixed(2) : 'N/A';
+            const avgPB = validPB.length > 0 ? (validPB.reduce((a,b) => a+b, 0) / validPB.length).toFixed(2) : 'N/A';
+            
+            resultsContainer.innerHTML = `
+                <div class="analysis-grid animate-slide-up" style="animation-delay: 0.1s; opacity: 0; animation-fill-mode: forwards;">
+                  <div class="metric-card"><div class="metric-label">Average P/E Dynamic</div><div class="metric-value">${avgPE}</div></div>
+                  <div class="metric-card"><div class="metric-label">Average P/B Ratio</div><div class="metric-value">${avgPB}</div></div>
+                </div>
+            `;
+        }
+    } catch (e) {
+        console.error(e);
+        resultsContainer.innerHTML = `<div class="negative mono animate-fade" style="margin-top: 2rem; font-size: 1.5rem; opacity: 0; animation-delay: 0.1s; animation-fill-mode: forwards;">请求失败: ${e.message}</div>`;
+    } finally {
+        btn.disabled = false;
+        btn.innerText = originalText;
+    }
+}
+
+if (reverseBtn) {
+    reverseBtn.addEventListener('click', () => executeReverseLogic(reverseBtn, reverseSymbols, reverseResults));
+}
+const reverseBtnSide = document.getElementById('reverse-execute-btn-side');
+const reverseSymbolsSide = document.getElementById('reverse-symbols-side');
+const reverseResultsSide = document.getElementById('reverse-results-side');
+if (reverseBtnSide) {
+    reverseBtnSide.addEventListener('click', () => executeReverseLogic(reverseBtnSide, reverseSymbolsSide, reverseResultsSide));
+}
+
+// === New Tab Logic (Domestic & Watchlist) ===
+const watchlistSymbolsInput = document.getElementById('watchlist-symbols-input');
+const watchlistLoadBtn = document.getElementById('watchlist-load-btn');
+const watchlistFeed = document.getElementById('watchlist-feed');
+const domesticFeed = document.getElementById('domestic-feed');
+let domesticLoaded = false;
+let domesticRefreshInterval = null;
+
+if (watchlistLoadBtn) {
+    watchlistLoadBtn.addEventListener('click', loadWatchlistNews);
+}
+
+// Track the newest seen timestamp to detect new items on refresh
+let domesticNewestTime = 0;
+
+let savedDomesticNews = new Set(JSON.parse(localStorage.getItem('savedDomesticNews') || '[]'));
+let currentDomesticFilter = 'all';
+
+function getNewsCategories(text) {
+    const categories = [];
+    if (/(科技|芯片|半导体|苹果|微软|英伟达|AI|人工智能|互联网|算法|模型|大厂)/i.test(text)) categories.push('tech');
+    if (/(能源|石油|原油|天然气|太阳能|电池|新能源|油价|电力|煤炭|风电)/i.test(text)) categories.push('energy');
+    if (/(政治|大选|拜登|特朗普|总统|议会|政府|选举|法案|政策|外交|官员|地缘)/i.test(text)) categories.push('politics');
+    if (/(投资|基金|股市|资本|投行|证券|融资|股票|财报|收益|分红|回购|A股|美股|外汇)/i.test(text)) categories.push('invest');
+    if (/(贸易|关税|出口|进口|进出口|顺差|逆差|WTO|制裁|海关|电商)/i.test(text)) categories.push('trade');
+    if (/(国内|中国|央行|沪指|深成指|人民币|国家|国务院|经济数据|统计局|发改委|内需|市场)/i.test(text)) categories.push('domestic');
+    if (/(全球|美国|美联储|欧洲|海外|道指|纳指|标普|国际|日元|欧元|美元)/i.test(text)) categories.push('global');
+    return categories;
+}
+
+document.addEventListener('dblclick', (e) => {
+    const itemEl = e.target.closest('.macro-news-item');
+    if (itemEl && itemEl.dataset.id) {
+        const itemId = itemEl.dataset.id;
+        if (savedDomesticNews.has(itemId)) {
+            savedDomesticNews.delete(itemId);
+            document.querySelectorAll(`.macro-news-item[data-id="${CSS.escape(itemId)}"]`).forEach(el => el.classList.remove('saved'));
+        } else {
+            savedDomesticNews.add(itemId);
+            document.querySelectorAll(`.macro-news-item[data-id="${CSS.escape(itemId)}"]`).forEach(el => el.classList.add('saved'));
+        }
+        localStorage.setItem('savedDomesticNews', JSON.stringify([...savedDomesticNews]));
+        applyDomesticFilter();
+    }
+});
+
+// --- News Chat Attachments Logic ---
+window.chatAttachments = [];
+
+document.addEventListener('click', (e) => {
+    if (e.target.classList.contains('attach-news-btn')) {
+        e.stopPropagation();
+        const itemEl = e.target.closest('.macro-news-item');
+        const content = itemEl.querySelector('.news-content').innerText;
+        const time = e.target.dataset.time;
+        
+        if (!window.chatAttachments.find(a => a.time === time && a.content === content)) {
+            window.chatAttachments.push({ time, content });
+            window.renderChatAttachments();
+        }
+    }
+});
+
+window.renderChatAttachments = function() {
+    const container = document.getElementById('chat-attachments-container');
+    if (!container) return;
+    
+    container.innerHTML = '';
+    window.chatAttachments.forEach((att, index) => {
+        const pill = document.createElement('div');
+        pill.style.display = 'flex';
+        pill.style.alignItems = 'center';
+        pill.style.gap = '0.5rem';
+        pill.style.background = 'rgba(255,255,255,0.05)';
+        pill.style.padding = '4px 8px';
+        pill.style.borderRadius = '4px';
+        pill.style.fontSize = '0.7rem';
+        pill.style.color = 'var(--fg-dim)';
+        
+        const textSpan = document.createElement('span');
+        textSpan.style.flex = '1';
+        textSpan.style.whiteSpace = 'nowrap';
+        textSpan.style.overflow = 'hidden';
+        textSpan.style.textOverflow = 'ellipsis';
+        textSpan.textContent = `[${att.time}] ${att.content}`;
+        
+        const rmBtn = document.createElement('button');
+        rmBtn.textContent = '✕';
+        rmBtn.style.background = 'transparent';
+        rmBtn.style.border = 'none';
+        rmBtn.style.color = 'var(--fg-dim)';
+        rmBtn.style.cursor = 'pointer';
+        rmBtn.onclick = () => {
+            window.chatAttachments.splice(index, 1);
+            window.renderChatAttachments();
+        };
+        
+        pill.appendChild(textSpan);
+        pill.appendChild(rmBtn);
+        container.appendChild(pill);
+    });
+};
+
+document.addEventListener('click', (e) => {
+    if (e.target.classList.contains('filter-tab')) {
+        document.querySelectorAll('#domestic-panel .filter-tab').forEach(btn => btn.classList.remove('active'));
+        e.target.classList.add('active');
+        currentDomesticFilter = e.target.dataset.filter;
+        applyDomesticFilter();
+    }
+});
+
+function applyDomesticFilter() {
+    document.querySelectorAll('.macro-news-item').forEach(el => {
+        if (!el.dataset.id) return;
+        
+        // Let's implement what the user asked: "把我点亮的news归档合适的tab"
+        // This implies that clicking 'Tech' should ONLY show *saved* tech news.
+        // Wait, what if they want to just browse all tech news? 
+        // A middle ground: show all news that matches the filter, but if it is saved, it's easier to find.
+        // Actually, if they strictly mean "classify my saved news into tabs", then a tab other than 'all' might only show saved news.
+        // Let's just filter ALL news by category, and saved ones will naturally appear there with highlights.
+        
+        if (currentDomesticFilter === 'all') {
+            el.style.display = '';
+        } else if (currentDomesticFilter === 'saved') {
+            el.style.display = el.classList.contains('saved') ? '' : 'none';
+        } else {
+            const cats = el.dataset.categories ? el.dataset.categories.split(' ') : [];
+            // To ensure the user sees their "saved" news in the appropriate tab,
+            // we filter by category matching. (Saved items that match will also show up).
+            el.style.display = cats.includes(currentDomesticFilter) ? '' : 'none';
+        }
+    });
+}
+
+function updateDomesticStatusLabel(count) {
+    const el = document.getElementById('domestic-status');
+    const elMain = document.getElementById('domestic-status-main');
+    const now = new Date();
+    const h = String(now.getHours()).padStart(2,'0');
+    const m = String(now.getMinutes()).padStart(2,'0');
+    const txt = `LAST 24H  ${count} ITEMS  ${h}:${m}`;
+    if (el) el.textContent = txt;
+    if (elMain) elMain.textContent = txt;
+}
+
+async function fetchDomesticMacroNews(force = false) {
+    if (domesticLoaded && !force) {
+        // Tab switched back: re-trigger animations on existing items
+        const items = domesticFeed.querySelectorAll('.macro-news-item');
+        items.forEach((el, i) => {
+            el.style.animation = 'none';
+            el.offsetHeight;
+            el.style.animation = '';
+            el.style.animationDelay = `${(0.05 + i * 0.05).toFixed(2)}s`;
+        });
+        return;
+    }
+    try {
+        const now = Date.now();
+        const cutoff = now - 24 * 60 * 60 * 1000;
+        let list = [];
+        let page = 1;
+        
+        while (true) {
+            const url = `https://zhibo.sina.com.cn/api/zhibo/feed?page=${page}&page_size=100&zhibo_id=152`;
+            let res;
+            if (window.electronAPI && window.electronAPI.fetchFinancialData) {
+                res = await window.electronAPI.fetchFinancialData(url);
+            } else {
+                const resp = await fetch(url);
+                res = await resp.json();
+            }
+            const data = typeof res === 'string' ? JSON.parse(res) : res;
+            const rawList = data?.result?.data?.feed?.list || [];
+            
+            if (rawList.length === 0) break;
+            
+            let reachedCutoff = false;
+            for (const item of rawList) {
+                const t = new Date(item.create_time.replace(' ', 'T')).getTime();
+                if (!isNaN(t)) {
+                    if (t >= cutoff) {
+                        list.push(item);
+                    } else {
+                        reachedCutoff = true;
+                    }
+                }
+            }
+            if (reachedCutoff || page >= 10) break; // Fetch up to 10 pages (~1000 items)
+            page++;
+        }
+
+        if (!domesticLoaded) {
+            // === First Load: render everything with stagger animation ===
+            const domesticFeedMain = document.getElementById('domestic-feed-main');
+            domesticFeed.innerHTML = '';
+            if (domesticFeedMain) domesticFeedMain.innerHTML = '';
+            
+            if (list.length === 0) {
+                const emptyStr = `<div class="mono" style="color: var(--fg-dim);">No news in the last 24 hours.</div>`;
+                domesticFeed.innerHTML = emptyStr;
+                if (domesticFeedMain) domesticFeedMain.innerHTML = emptyStr;
+            } else {
+                const domesticFeedMain = document.getElementById('domestic-feed-main');
+                list.forEach((item, i) => {
+                    const delay = `${(0.05 + i * 0.05).toFixed(2)}s`;
+                    const innerStr = `
+                        <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.4rem;">
+                            <div class="news-time mono" style="margin-bottom: 0;">${item.create_time}</div>
+                            <button class="attach-news-btn" data-time="${item.create_time}" title="Attach to Chat" style="background: transparent; border: 1px solid var(--border); color: var(--fg-dim); font-size: 0.6rem; padding: 2px 6px; border-radius: 4px; cursor: pointer; opacity: 0; transition: opacity 0.2s, background 0.2s;">+ CHAT</button>
+                        </div>
+                        <div class="news-content">${item.rich_text}</div>
+                    `;
+                    const itemId = btoa(unescape(encodeURIComponent(item.create_time + item.rich_text.substring(0, 20)))).replace(/[^a-zA-Z0-9]/g, '');
+                    const isSaved = savedDomesticNews.has(itemId);
+                    const savedClass = isSaved ? ' saved' : '';
+                    const itemCategories = getNewsCategories(item.rich_text).join(' ');
+                    
+                    const el1 = document.createElement('div');
+                    el1.className = 'macro-news-item animate-stagger-row' + savedClass;
+                    el1.style.animationDelay = delay;
+                    el1.dataset.time = item.create_time;
+                    el1.dataset.id = itemId;
+                    el1.dataset.categories = itemCategories;
+                    
+                    if (currentDomesticFilter === 'saved' && !isSaved) el1.style.display = 'none';
+                    else if (currentDomesticFilter !== 'all' && currentDomesticFilter !== 'saved' && !itemCategories.includes(currentDomesticFilter)) el1.style.display = 'none';
+                    
+                    el1.innerHTML = innerStr;
+                    domesticFeed.appendChild(el1);
+                    
+                    if (domesticFeedMain) {
+                        const el2 = document.createElement('div');
+                        el2.className = 'macro-news-item animate-stagger-row' + savedClass;
+                        el2.style.animationDelay = delay;
+                        el2.dataset.time = item.create_time;
+                        el2.dataset.id = itemId;
+                        el2.dataset.categories = itemCategories;
+                        
+                        if (currentDomesticFilter === 'saved' && !isSaved) el2.style.display = 'none';
+                        else if (currentDomesticFilter !== 'all' && currentDomesticFilter !== 'saved' && !itemCategories.includes(currentDomesticFilter)) el2.style.display = 'none';
+                        
+                        el2.innerHTML = innerStr;
+                        domesticFeedMain.appendChild(el2);
+                    }
+                });
+                // Track newest time
+                const times = list.map(it => new Date(it.create_time.replace(' ', 'T')).getTime()).filter(t => !isNaN(t));
+                if (times.length) domesticNewestTime = Math.max(...times);
+            }
+            domesticLoaded = true;
+            updateDomesticStatusLabel(list.length);
+
+            // Start auto-refresh every 2 minutes (only once)
+            if (!domesticRefreshInterval) {
+                domesticRefreshInterval = setInterval(() => {
+                    fetchDomesticMacroNews(true);
+                }, 2 * 60 * 1000);
+            }
+        } else {
+            // === Refresh: only prepend genuinely new items ===
+            const newItems = list.filter(item => {
+                const t = new Date(item.create_time.replace(' ', 'T')).getTime();
+                return !isNaN(t) && t > domesticNewestTime;
+            });
+
+            if (newItems.length > 0) {
+                // Prepend new items with slide-down animation
+                const firstExisting = domesticFeed.firstChild;
+                const domesticFeedMain = document.getElementById('domestic-feed-main');
+                const firstExistingMain = domesticFeedMain ? domesticFeedMain.firstChild : null;
+                
+                newItems.reverse().forEach((item, i) => {
+                    const delay = `${(i * 0.12).toFixed(2)}s`;
+                    const innerStr = `
+                        <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.4rem;">
+                            <div class="news-time mono" style="margin-bottom: 0;">${item.create_time}</div>
+                            <button class="attach-news-btn" data-time="${item.create_time}" title="Attach to Chat" style="background: transparent; border: 1px solid var(--border); color: var(--fg-dim); font-size: 0.6rem; padding: 2px 6px; border-radius: 4px; cursor: pointer; opacity: 0; transition: opacity 0.2s, background 0.2s;">+ CHAT</button>
+                        </div>
+                        <div class="news-content">${item.rich_text}</div>
+                    `;
+                    
+                    const itemId = btoa(unescape(encodeURIComponent(item.create_time + item.rich_text.substring(0, 20)))).replace(/[^a-zA-Z0-9]/g, '');
+                    const isSaved = savedDomesticNews.has(itemId);
+                    const savedClass = isSaved ? ' saved' : '';
+                    const itemCategories = getNewsCategories(item.rich_text).join(' ');
+                    
+                    const el1 = document.createElement('div');
+                    el1.className = 'macro-news-item animate-slide-down-new' + savedClass;
+                    el1.style.animationDelay = delay;
+                    el1.dataset.time = item.create_time;
+                    el1.dataset.id = itemId;
+                    el1.dataset.categories = itemCategories;
+                    
+                    if (currentDomesticFilter === 'saved' && !isSaved) el1.style.display = 'none';
+                    else if (currentDomesticFilter !== 'all' && currentDomesticFilter !== 'saved' && !itemCategories.includes(currentDomesticFilter)) el1.style.display = 'none';
+                    
+                    el1.innerHTML = innerStr;
+                    domesticFeed.insertBefore(el1, firstExisting);
+                    
+                    if (domesticFeedMain) {
+                        const el2 = document.createElement('div');
+                        el2.className = 'macro-news-item animate-slide-down-new' + savedClass;
+                        el2.style.animationDelay = delay;
+                        el2.dataset.time = item.create_time;
+                        el2.dataset.id = itemId;
+                        el2.dataset.categories = itemCategories;
+                        
+                        if (currentDomesticFilter === 'saved' && !isSaved) el2.style.display = 'none';
+                        else if (currentDomesticFilter !== 'all' && currentDomesticFilter !== 'saved' && !itemCategories.includes(currentDomesticFilter)) el2.style.display = 'none';
+                        
+                        el2.innerHTML = innerStr;
+                        domesticFeedMain.insertBefore(el2, firstExistingMain);
+                    }
+                });
+                // Update newest tracker
+                const times = newItems.map(it => new Date(it.create_time.replace(' ', 'T')).getTime()).filter(t => !isNaN(t));
+                if (times.length) domesticNewestTime = Math.max(domesticNewestTime, ...times);
+            }
+            // Always silently update the label
+            updateDomesticStatusLabel(list.length);
+        }
+    } catch (e) {
+        console.error(e);
+        if (domesticFeed) {
+            domesticFeed.innerHTML = `<div class="mono negative">Error loading macro news: ${e.message}</div>`;
+        }
+    }
+}
+
+async function loadWatchlistNews() {
+    if (!watchlistLoadBtn) return;
+    const input = watchlistSymbolsInput.value.trim();
+    if (!input) return;
+    const symbols = input.split(',').map(s => s.trim()).filter(Boolean);
+    if (symbols.length === 0) return;
+    
+    watchlistLoadBtn.disabled = true;
+    watchlistLoadBtn.innerText = 'LOADING...';
+    watchlistFeed.innerHTML = '';
+    
+    let globalIdx = 0;
+    try {
+        for (const sym of symbols) {
+            const url = `https://np-anotice-stock.eastmoney.com/api/security/ann?sr=-1&page_size=10&page_index=1&ann_type=A&client_source=web&stock_list=${sym}`;
+            let res;
+            if (window.electronAPI && window.electronAPI.fetchFinancialData) {
+                res = await window.electronAPI.fetchFinancialData(url);
+            } else {
+                const resp = await fetch(url);
+                res = await resp.json();
+            }
+            const data = typeof res === 'string' ? JSON.parse(res) : res;
+            const list = data?.data?.list || [];
+            
+            const groupEl = document.createElement('div');
+            groupEl.className = 'animate-stagger-row';
+            groupEl.style.animationDelay = `${(0.05 + globalIdx * 0.08).toFixed(2)}s`;
+            globalIdx++;
+            
+            groupEl.innerHTML = `<h3 class="mono" style="color: var(--fg-dim); border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; margin-bottom: 1rem;">${sym}</h3>`;
+            
+            if (list.length === 0) {
+                groupEl.innerHTML += `<div class="mono" style="margin-bottom: 1rem;">No recent news.</div>`;
+            } else {
+                list.forEach(item => {
+                    const itemEl = document.createElement('div');
+                    itemEl.className = 'animate-stagger-row';
+                    itemEl.style.cssText = `margin-bottom: 1rem; animation-delay: ${(0.05 + globalIdx * 0.08).toFixed(2)}s;`;
+                    globalIdx++;
+                    itemEl.innerHTML = `
+                        <div class="mono" style="font-size: 0.75rem; color: var(--fg-dim);">${item.display_time}</div>
+                        <div style="font-size: 1rem; font-weight: 300;">${item.title}</div>
+                    `;
+                    groupEl.appendChild(itemEl);
+                });
+            }
+            watchlistFeed.appendChild(groupEl);
+        }
+    } catch (e) {
+        console.error(e);
+        watchlistFeed.innerHTML = `<div class="mono negative">Error loading watchlist news: ${e.message}</div>`;
+    } finally {
+        watchlistLoadBtn.disabled = false;
+        watchlistLoadBtn.innerText = 'LOAD';
+    }
+}
+
+// === Drag and Drop Tabs ===
+const tabsContainer = document.querySelector('.research-tabs');
+let draggedTab = null;
+
+// Restore saved tab order
+const savedTabOrder = JSON.parse(localStorage.getItem('researchTabOrder') || 'null');
+if (savedTabOrder && Array.isArray(savedTabOrder) && tabsContainer) {
+    savedTabOrder.forEach(id => {
+        const tab = document.getElementById(id);
+        if (tab) tabsContainer.appendChild(tab);
+    });
+}
+
+function setupDragAndDrop() {
+    const tabs = document.querySelectorAll('.research-tab');
+    tabs.forEach(tab => {
+        tab.setAttribute('draggable', true);
+        
+        // Remove old listeners if any by cloning (not really needed if we only run once, but safe)
+        
+        tab.addEventListener('dragstart', function(e) {
+            draggedTab = this;
+            setTimeout(() => this.style.opacity = '0.5', 0);
+        });
+        
+        tab.addEventListener('dragend', function() {
+            draggedTab = null;
+            this.style.opacity = '1';
+        });
+        
+        tab.addEventListener('dragover', function(e) {
+            e.preventDefault();
+        });
+        
+        tab.addEventListener('dragenter', function(e) {
+            e.preventDefault();
+            this.style.transform = 'scale(1.05)';
+        });
+        
+        tab.addEventListener('dragleave', function() {
+            this.style.transform = '';
+        });
+        
+        tab.addEventListener('drop', function(e) {
+            this.style.transform = '';
+            if (draggedTab && draggedTab !== this) {
+                const allTabs = [...tabsContainer.querySelectorAll('.research-tab')];
+                const draggedIdx = allTabs.indexOf(draggedTab);
+                const droppedIdx = allTabs.indexOf(this);
+                
+                if (draggedIdx < droppedIdx) {
+                    this.parentNode.insertBefore(draggedTab, this.nextSibling);
+                } else {
+                    this.parentNode.insertBefore(draggedTab, this);
+                }
+                
+                // Save new order
+                const newOrder = [...tabsContainer.querySelectorAll('.research-tab')].map(t => t.id);
+                localStorage.setItem('researchTabOrder', JSON.stringify(newOrder));
+            }
+        });
+    });
+}
+setupDragAndDrop();

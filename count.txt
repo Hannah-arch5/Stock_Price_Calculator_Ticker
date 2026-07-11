@@ -1,0 +1,3237 @@
+   1 |  0 | 
+   2 |  1 | function replayAllAnimations() {
+   3 |  1 |     document.body.classList.add('disable-animations');
+   4 |  1 |     document.body.offsetHeight; // trigger reflow
+   5 |  1 |     document.body.classList.remove('disable-animations');
+   6 |  0 | }
+   7 |  0 | // Global state
+   8 |  0 | let currentCurrency = '¥';
+   9 |  0 | let historyRecords = [];
+  10 |  0 | let historyVersion = null;
+  11 |  0 | let customLabels = [];
+  12 |  0 | const NEWS_CACHE = {};
+  13 |  1 | const INDUSTRY_MAPPING = {
+  14 |  1 |   "元件": "459", "动物保健Ⅱ": "1254", "航空机场": "420", "银行Ⅱ": "475", "电池": "1033",
+  15 |  1 |   "煤炭开采": "1250", "软件开发": "737", "一般零售": "482", "半导体": "1036", "旅游零售Ⅱ": "1269",
+  16 |  1 |   "酒店餐饮": "1271", "专业服务": "1043", "旅游及景区": "1272", "化学制品": "538", "食品加工": "1280",
+  17 |  1 |   "专用设备": "910", "汽车零部件": "481", "商用车": "1264", "计算机设备": "735", "消费电子": "1037",
+  18 |  1 |   "房地产服务": "1045", "医疗器械": "1041", "广告营销": "1220", "证券Ⅱ": "473", "电网设备": "457",
+  19 |  1 |   "家居用品": "440", "通用设备": "545", "服装家纺": "1225", "休闲食品": "1281", "工业金属": "1287",
+  20 |  1 |   "普钢": "1226", "IT服务Ⅱ": "1238", "黑色家电": "1241", "航天装备Ⅱ": "1232", "其他家电Ⅱ": "1243",
+  21 |  1 |   "医药商业": "1042", "中药Ⅱ": "1040", "保险Ⅱ": "474", "基础建设": "1247", "其他电源设备Ⅱ": "1034",
+  22 |  1 |   "光伏设备": "1031", "通信设备": "448", "房地产开发": "451", "房屋建设Ⅱ": "1246", "生物制品": "1044",
+  23 |  1 |   "环境治理": "1235", "多元金融": "738", "养殖业": "1259", "农产品加工": "1256", "光学光电子": "1038",
+  24 |  1 |   "白酒Ⅱ": "1277", "教育": "740", "化妆品": "1252", "互联网电商": "1268", "电力": "428", "游戏Ⅱ": "1046",
+  25 |  1 |   "能源金属": "1015", "物流": "422", "造纸": "1267", "数字媒体": "1221", "非金属材料Ⅱ": "1020",
+  26 |  1 |   "工程机械": "739", "小金属": "1027", "环保设备Ⅱ": "1234", "医疗美容": "1253", "其他电子Ⅱ": "1223",
+  27 |  1 |   "水泥": "424", "风电设备": "1032", "化学制药": "465", "农业综合Ⅱ": "1257", "汽车服务": "1016",
+  28 |  1 |   "油气开采Ⅱ": "1276", "乘用车": "1262", "装修建材": "476", "贵金属": "732", "贸易Ⅱ": "484",
+  29 |  1 |   "小家电": "1244", "通信服务": "736", "化学原料": "1019", "航运港口": "450", "农化制品": "731",
+  30 |  1 |   "航空装备Ⅱ": "1231", "化学纤维": "471", "医疗服务": "727", "冶钢原料": "1228", "饮料乳品": "1282",
+  31 |  1 |   "橡胶": "1018", "燃气Ⅱ": "1028", "非白酒": "1279", "炼化及贸易": "1274", "综合Ⅱ": "539",
+  32 |  1 |   "种植业": "1261", "个护用品": "1251", "体育Ⅱ": "1273", "饲料": "1258", "纺织制造": "1224",
+  33 |  1 |   "白色家电": "1239", "金属新材料": "1288", "包装印刷": "1265", "铁路公路": "421", "油服工程": "1275",
+  34 |  1 |   "装修装饰Ⅱ": "725", "自动化设备": "1237", "厨卫电器": "1240", "航海装备Ⅱ": "1230", "摩托车及其他": "1263",
+  35 |  1 |   "饰品": "734", "文娱用品": "1266"
+  36 |  0 | };
+  37 |  0 | const historyListEl = document.getElementById('history-list');
+  38 |  0 | const currencyRadios = document.getElementsByName('currency');
+  39 |  0 | const currencySymbols = document.querySelectorAll('.currency-symbol');
+  40 |  0 | 
+  41 |  0 | // Persistence Logic
+  42 |  1 | function saveState() {
+  43 |  1 |     // Strip runtime-only fields that should not persist between sessions
+  44 |  2 |     const cleanRecords = historyRecords.map(group => {
+  45 |  2 |         const { newsLoaded, newsTimeout, klineMetrics, ...cleanGroup } = group;
+  46 |  2 |         return cleanGroup;
+  47 |  1 |     });
+  48 |  2 |     const stateObj = {
+  49 |  2 |         historyRecords: cleanRecords,
+  50 |  2 |         historyVersion: '2',
+  51 |  2 |         customLabels: customLabels,
+  52 |  3 |         calcInputs: {
+  53 |  3 |             currency: currentCurrency,
+  54 |  3 |             stock1: stockSymbol1Input.value,
+  55 |  3 |             basePrice: basePriceInput.value,
+  56 |  3 |             moveDown: document.getElementById('move-down').checked,
+  57 |  3 |             percentChange: percentageChangeInput.value,
+  58 |  3 |             stock2: stockSymbol2Input.value,
+  59 |  3 |             initialPrice: initialPriceInput.value,
+  60 |  3 |             finalPrice: finalPriceInput.value
+  61 |  2 |         }
+  62 |  1 |     };
+  63 |  2 |     if (window.electronAPI && window.electronAPI.saveData) {
+  64 |  2 |         window.electronAPI.saveData(JSON.stringify(stateObj));
+  65 |  2 |     } else {
+  66 |  2 |         localStorage.setItem('calcHistory', JSON.stringify(cleanRecords));
+  67 |  2 |         localStorage.setItem('calcHistoryVersion', '2');
+  68 |  2 |         localStorage.setItem('calcInputs', JSON.stringify(stateObj.calcInputs));
+  69 |  1 |     }
+  70 |  0 | }
+  71 |  0 | 
+  72 |  0 | // Currency Switcher Logic
+  73 |  1 | function updateCurrency() {
+  74 |  1 |     let selected = 'CNY';
+  75 |  2 |     for (const radio of currencyRadios) {
+  76 |  3 |         if (radio.checked) {
+  77 |  3 |             selected = radio.value;
+  78 |  3 |             break;
+  79 |  2 |         }
+  80 |  1 |     }
+  81 |  1 |     const navToggle = document.getElementById('nav-currency-toggle');
+  82 |  2 |     if (navToggle) {
+  83 |  2 |         navToggle.textContent = selected;
+  84 |  1 |     }
+  85 |  1 | 
+  86 |  1 |     currentCurrency = selected === 'CNY' ? '¥' : '$';
+  87 |  1 |     
+  88 |  2 |     if (currentCurrency === '¥') {
+  89 |  2 |         document.documentElement.style.setProperty('--up-color', '#ff453a');
+  90 |  2 |         document.documentElement.style.setProperty('--down-color', '#32d74b');
+  91 |  2 |     } else {
+  92 |  2 |         document.documentElement.style.setProperty('--up-color', '#32d74b');
+  93 |  2 |         document.documentElement.style.setProperty('--down-color', '#ff453a');
+  94 |  1 |     }
+  95 |  1 | 
+  96 |  2 |     currencySymbols.forEach(symbol => {
+  97 |  2 |         symbol.textContent = currentCurrency;
+  98 |  1 |     });
+  99 |  1 | 
+ 100 |  1 |     calculateTargetPrice();
+ 101 |  1 |     calculatePercentage();
+ 102 |  1 |     saveState();
+ 103 |  0 | }
+ 104 |  0 | 
+ 105 |  0 | currencyRadios.forEach(radio => radio.addEventListener('change', updateCurrency));
+ 106 |  0 | 
+ 107 |  0 | const navCurrencyToggle = document.getElementById('nav-currency-toggle');
+ 108 |  1 | if (navCurrencyToggle) {
+ 109 |  2 |     navCurrencyToggle.addEventListener('click', () => {
+ 110 |  2 |         const isCNY = navCurrencyToggle.textContent === 'CNY';
+ 111 |  2 |         navCurrencyToggle.textContent = isCNY ? 'USD' : 'CNY';
+ 112 |  2 |         const targetRadio = document.getElementById(isCNY ? 'currency-usd' : 'currency-cny');
+ 113 |  3 |         if (targetRadio) {
+ 114 |  3 |             targetRadio.checked = true;
+ 115 |  3 |             updateCurrency();
+ 116 |  2 |         }
+ 117 |  1 |     });
+ 118 |  0 | }
+ 119 |  0 | 
+ 120 |  0 | const navItems = document.querySelectorAll('.nav-links .nav-item:not(.currency-nav-item)');
+ 121 |  1 | navItems.forEach(item => {
+ 122 |  2 |     item.addEventListener('click', () => {
+ 123 |  2 |         navItems.forEach(n => n.classList.remove('active'));
+ 124 |  2 |         item.classList.add('active');
+ 125 |  1 |     });
+ 126 |  0 | });
+ 127 |  0 | 
+ 128 |  0 | 
+ 129 |  1 | function formatCurrency(value) {
+ 130 |  1 |     return value.toFixed(4).replace(/\.?0+$/, ''); 
+ 131 |  0 | }
+ 132 |  0 | 
+ 133 |  0 | // Removed tab switching logic as requested
+ 134 |  0 | 
+ 135 |  0 | // Mode 1: Target Price Logic
+ 136 |  0 | const stockSymbol1Input = document.getElementById('stock-symbol-1');
+ 137 |  0 | const basePriceInput = document.getElementById('base-price');
+ 138 |  0 | const movementRadios = document.getElementsByName('movement');
+ 139 |  0 | const percentageChangeInput = document.getElementById('percentage-change');
+ 140 |  0 | const targetResultEl = document.getElementById('target-result');
+ 141 |  0 | const saveTargetBtn = document.getElementById('save-target-btn');
+ 142 |  0 | const clearTargetBtn = document.getElementById('clear-target-btn');
+ 143 |  0 | const reuseTargetBtn = document.getElementById('reuse-target-btn');
+ 144 |  0 | const reuseBaseBtn = document.getElementById('reuse-base-btn');
+ 145 |  0 | 
+ 146 |  1 | reuseBaseBtn.addEventListener('click', () => {
+ 147 |  1 |     const currentBase = parseFloat(basePriceInput.value);
+ 148 |  1 |     const percentage = parseFloat(percentageChangeInput.value);
+ 149 |  1 |     
+ 150 |  2 |     if (!isNaN(currentBase) && currentBase > 0) {
+ 151 |  3 |         if (!isNaN(percentage)) {
+ 152 |  3 |             let isUp = true;
+ 153 |  4 |             for (const radio of movementRadios) {
+ 154 |  5 |                 if (radio.checked && radio.value === 'down') {
+ 155 |  5 |                     isUp = false;
+ 156 |  5 |                     break;
+ 157 |  4 |                 }
+ 158 |  3 |             }
+ 159 |  3 | 
+ 160 |  3 |             let newBase = currentBase;
+ 161 |  4 |             if (isUp) {
+ 162 |  4 |                 newBase = currentBase / (1 + percentage / 100);
+ 163 |  4 |             } else {
+ 164 |  5 |                 if (percentage !== 100) {
+ 165 |  5 |                     newBase = currentBase / (1 - percentage / 100);
+ 166 |  4 |                 }
+ 167 |  3 |             }
+ 168 |  3 |             basePriceInput.value = formatCurrency(newBase);
+ 169 |  2 |         }
+ 170 |  2 |         handleInput();
+ 171 |  1 |     }
+ 172 |  0 | });
+ 173 |  0 | 
+ 174 |  1 | reuseTargetBtn.addEventListener('click', () => {
+ 175 |  2 |     if (currentTargetPrice > 0) {
+ 176 |  2 |         basePriceInput.value = formatCurrency(currentTargetPrice);
+ 177 |  2 |         handleInput();
+ 178 |  1 |     }
+ 179 |  0 | });
+ 180 |  0 | 
+ 181 |  0 | let currentTargetPrice = 0;
+ 182 |  0 | let currentTargetIsUp = true;
+ 183 |  0 | 
+ 184 |  1 | function calculateTargetPrice() {
+ 185 |  1 |     const basePrice = parseFloat(basePriceInput.value);
+ 186 |  1 |     const percentage = parseFloat(percentageChangeInput.value);
+ 187 |  1 |     
+ 188 |  1 |     let isUp = true;
+ 189 |  2 |     for (const radio of movementRadios) {
+ 190 |  3 |         if (radio.checked && radio.value === 'down') {
+ 191 |  3 |             isUp = false;
+ 192 |  3 |             break;
+ 193 |  2 |         }
+ 194 |  1 |     }
+ 195 |  1 | 
+ 196 |  1 |     currentTargetIsUp = isUp;
+ 197 |  1 | 
+ 198 |  2 |     if (isNaN(basePrice) || isNaN(percentage)) {
+ 199 |  2 |         targetResultEl.innerHTML = `<span class="currency-symbol">${currentCurrency}</span>0.00`;
+ 200 |  2 |         targetResultEl.className = 'result-value mono';
+ 201 |  2 |         currentTargetPrice = 0;
+ 202 |  2 |         return;
+ 203 |  1 |     }
+ 204 |  1 | 
+ 205 |  1 |     const multiplier = isUp ? (1 + percentage / 100) : (1 - percentage / 100);
+ 206 |  1 |     currentTargetPrice = basePrice * multiplier;
+ 207 |  1 | 
+ 208 |  1 |     targetResultEl.innerHTML = `<span class="currency-symbol">${currentCurrency}</span>${formatCurrency(currentTargetPrice)}`;
+ 209 |  1 |     
+ 210 |  2 |     if (isUp) {
+ 211 |  2 |         targetResultEl.className = 'result-value mono text-up';
+ 212 |  2 |     } else {
+ 213 |  2 |         targetResultEl.className = 'result-value mono text-down';
+ 214 |  1 |     }
+ 215 |  0 | }
+ 216 |  0 | 
+ 217 |  0 | // Mode 2: Percentage Logic
+ 218 |  0 | const stockSymbol2Input = document.getElementById('stock-symbol-2');
+ 219 |  0 | const initialPriceInput = document.getElementById('initial-price');
+ 220 |  0 | const finalPriceInput = document.getElementById('final-price');
+ 221 |  0 | const percentageResultEl = document.getElementById('percentage-result');
+ 222 |  0 | const percentageMovementTypeEl = document.getElementById('percentage-movement-type');
+ 223 |  0 | const savePercentageBtn = document.getElementById('save-percentage-btn');
+ 224 |  0 | const clearPercentageBtn = document.getElementById('clear-percentage-btn');
+ 225 |  0 | const reuseInitialBtn = document.getElementById('reuse-initial-btn');
+ 226 |  0 | const reuseFinalBtn = document.getElementById('reuse-final-btn');
+ 227 |  0 | const reuseCalcPercBtn = document.getElementById('reuse-calc-perc-btn');
+ 228 |  0 | 
+ 229 |  1 | reuseCalcPercBtn.addEventListener('click', () => {
+ 230 |  2 |     if (!isNaN(currentPercentage)) {
+ 231 |  2 |         percentageChangeInput.value = Math.abs(currentPercentage).toFixed(2);
+ 232 |  3 |         if (currentPercentage >= 0) {
+ 233 |  3 |             document.getElementById('move-up').checked = true;
+ 234 |  3 |         } else {
+ 235 |  3 |             document.getElementById('move-down').checked = true;
+ 236 |  2 |         }
+ 237 |  2 |         handleInput();
+ 238 |  1 |     }
+ 239 |  0 | });
+ 240 |  0 | 
+ 241 |  1 | reuseInitialBtn.addEventListener('click', () => {
+ 242 |  1 |     const initialVal = parseFloat(initialPriceInput.value);
+ 243 |  1 |     const finalVal = parseFloat(finalPriceInput.value);
+ 244 |  2 |     if (!isNaN(initialVal) && initialVal > 0 && !isNaN(finalVal)) {
+ 245 |  2 |         const pctDecimal = (finalVal - initialVal) / initialVal;
+ 246 |  2 |         if (pctDecimal === -1) return;
+ 247 |  2 |         
+ 248 |  2 |         const newFinal = initialVal;
+ 249 |  2 |         const newInitial = newFinal / (1 + pctDecimal);
+ 250 |  2 |         
+ 251 |  2 |         initialPriceInput.value = formatCurrency(newInitial);
+ 252 |  2 |         finalPriceInput.value = formatCurrency(newFinal);
+ 253 |  2 |         handleInput();
+ 254 |  1 |     }
+ 255 |  0 | });
+ 256 |  0 | 
+ 257 |  1 | reuseFinalBtn.addEventListener('click', () => {
+ 258 |  1 |     const initialVal = parseFloat(initialPriceInput.value);
+ 259 |  1 |     const finalVal = parseFloat(finalPriceInput.value);
+ 260 |  2 |     if (!isNaN(initialVal) && initialVal > 0 && !isNaN(finalVal) && finalVal > 0) {
+ 261 |  2 |         const pctDecimal = (finalVal - initialVal) / initialVal;
+ 262 |  2 |         
+ 263 |  2 |         const newInitial = finalVal;
+ 264 |  2 |         const newFinal = newInitial * (1 + pctDecimal);
+ 265 |  2 |         
+ 266 |  2 |         initialPriceInput.value = formatCurrency(newInitial);
+ 267 |  2 |         finalPriceInput.value = formatCurrency(newFinal);
+ 268 |  2 |         handleInput();
+ 269 |  1 |     }
+ 270 |  0 | });
+ 271 |  0 | 
+ 272 |  0 | let currentPercentage = 0;
+ 273 |  0 | 
+ 274 |  1 | function calculatePercentage() {
+ 275 |  1 |     const initialPrice = parseFloat(initialPriceInput.value);
+ 276 |  1 |     const finalPrice = parseFloat(finalPriceInput.value);
+ 277 |  1 | 
+ 278 |  2 |     if (isNaN(initialPrice) || isNaN(finalPrice) || initialPrice === 0) {
+ 279 |  2 |         percentageResultEl.textContent = '0.00%';
+ 280 |  2 |         percentageResultEl.className = 'result-value mono';
+ 281 |  2 |         percentageMovementTypeEl.textContent = '-';
+ 282 |  2 |         percentageMovementTypeEl.className = 'result-movement mono';
+ 283 |  2 |         currentPercentage = 0;
+ 284 |  2 |         return;
+ 285 |  1 |     }
+ 286 |  1 | 
+ 287 |  1 |     const difference = finalPrice - initialPrice;
+ 288 |  1 |     currentPercentage = (difference / initialPrice) * 100;
+ 289 |  1 |     
+ 290 |  1 |     const formattedPercentage = Math.abs(currentPercentage).toFixed(2) + '%';
+ 291 |  1 |     percentageResultEl.textContent = formattedPercentage;
+ 292 |  1 | 
+ 293 |  2 |     if (currentPercentage > 0) {
+ 294 |  2 |         percentageResultEl.className = 'result-value mono text-up';
+ 295 |  2 |         percentageMovementTypeEl.textContent = 'Up Rise';
+ 296 |  2 |         percentageMovementTypeEl.className = 'result-movement mono text-up';
+ 297 |  2 |     } else if (currentPercentage < 0) {
+ 298 |  2 |         percentageResultEl.className = 'result-value mono text-down';
+ 299 |  2 |         percentageMovementTypeEl.textContent = 'Down Fall';
+ 300 |  2 |         percentageMovementTypeEl.className = 'result-movement mono text-down';
+ 301 |  2 |     } else {
+ 302 |  2 |         percentageResultEl.className = 'result-value mono';
+ 303 |  2 |         percentageMovementTypeEl.textContent = 'No Change';
+ 304 |  2 |         percentageMovementTypeEl.className = 'result-movement mono';
+ 305 |  1 |     }
+ 306 |  0 | }
+ 307 |  0 | 
+ 308 |  0 | // Input Listeners
+ 309 |  1 | function handleInput() {
+ 310 |  1 |     calculateTargetPrice();
+ 311 |  1 |     calculatePercentage();
+ 312 |  1 |     saveState();
+ 313 |  0 | }
+ 314 |  0 | 
+ 315 |  0 | [
+ 316 |  0 |     stockSymbol1Input, basePriceInput, percentageChangeInput,
+ 317 |  0 |     stockSymbol2Input, initialPriceInput, finalPriceInput
+ 318 |  0 | ].forEach(input => input.addEventListener('input', handleInput));
+ 319 |  0 | 
+ 320 |  0 | movementRadios.forEach(radio => radio.addEventListener('change', handleInput));
+ 321 |  0 | 
+ 322 |  0 | // Clear Buttons
+ 323 |  1 | clearTargetBtn.addEventListener('click', () => {
+ 324 |  1 |     stockSymbol1Input.value = '';
+ 325 |  1 |     basePriceInput.value = '';
+ 326 |  1 |     percentageChangeInput.value = '';
+ 327 |  1 |     document.getElementById('move-up').checked = true;
+ 328 |  1 |     handleInput();
+ 329 |  0 | });
+ 330 |  0 | 
+ 331 |  1 | clearPercentageBtn.addEventListener('click', () => {
+ 332 |  1 |     stockSymbol2Input.value = '';
+ 333 |  1 |     initialPriceInput.value = '';
+ 334 |  1 |     finalPriceInput.value = '';
+ 335 |  1 |     handleInput();
+ 336 |  0 | });
+ 337 |  0 | let isRenderingHistory = false;
+ 338 |  0 | 
+ 339 |  0 | // History Logic
+ 340 |  1 | function renderHistory() {
+ 341 |  1 |     if (isRenderingHistory) return;
+ 342 |  1 |     isRenderingHistory = true;
+ 343 |  1 |     
+ 344 |  1 |     const prevScrollTop = historyListEl.scrollTop;
+ 345 |  1 | 
+ 346 |  2 |     try {
+ 347 |  2 |         const tagsEl = document.getElementById('quick-tags');
+ 348 |  2 |         if (tagsEl) tagsEl.innerHTML = '';
+ 349 |  2 | 
+ 350 |  3 |         if (historyRecords.length === 0) {
+ 351 |  3 |             historyListEl.innerHTML = '<p class="empty-history">No history yet.</p>';
+ 352 |  3 |             return;
+ 353 |  2 |         }
+ 354 |  2 | 
+ 355 |  2 |         historyListEl.innerHTML = '';
+ 356 |  2 |         
+ 357 |  3 |         historyRecords.forEach((group, groupIndex) => {
+ 358 |  4 |         if (tagsEl) {
+ 359 |  4 |             const tag = document.createElement('button');
+ 360 |  4 |             tag.className = 'quick-tag mono';
+ 361 |  4 |             
+ 362 |  4 |             let tagText = group.symbol;
+ 363 |  5 |             if (group.name) {
+ 364 |  5 |                 const cleanName = group.name.replace(/\s+/g, '');
+ 365 |  5 |                 tagText = cleanName.length <= 3 ? cleanName : cleanName.substring(0, 2);
+ 366 |  4 |             }
+ 367 |  4 |             tag.textContent = tagText;
+ 368 |  4 |             
+ 369 |  4 |             // Re-apply the priority dot color to the tag border/text if we want, or just leave it gray
+ 370 |  5 |             if (group.records[0] && group.records[0].urgency) {
+ 371 |  6 |                 const colors = {
+ 372 |  6 |                     'green': '#32d74b',
+ 373 |  6 |                     'orange': '#ff9f0a',
+ 374 |  6 |                     'red': '#ff453a'
+ 375 |  5 |                 };
+ 376 |  5 |                 tag.style.color = colors[group.records[0].urgency];
+ 377 |  5 |                 tag.style.borderColor = colors[group.records[0].urgency];
+ 378 |  4 |             }
+ 379 |  4 |             
+ 380 |  4 |             tag.draggable = true;
+ 381 |  4 |             tag.dataset.symbol = group.symbol;
+ 382 |  4 |             
+ 383 |  5 |             tag.addEventListener('dragstart', (e) => {
+ 384 |  5 |                 if (e.target !== tag) return;
+ 385 |  5 |                 tag.classList.add('dragging-tag');
+ 386 |  5 |                 e.dataTransfer.effectAllowed = 'move';
+ 387 |  4 |             });
+ 388 |  4 | 
+ 389 |  5 |             tag.addEventListener('dragend', (e) => {
+ 390 |  5 |                 if (e.target !== tag) return;
+ 391 |  5 |                 tag.classList.remove('dragging-tag');
+ 392 |  5 |                 updateArrayFromDOMTags();
+ 393 |  6 |                 historyRecords.forEach(g => {
+ 394 |  6 |                     const groupNode = historyListEl.querySelector(`[data-symbol="${g.symbol}"]`);
+ 395 |  6 |                     if (groupNode) historyListEl.appendChild(groupNode);
+ 396 |  5 |                 });
+ 397 |  5 |                 saveState();
+ 398 |  4 |             });
+ 399 |  4 | 
+ 400 |  5 |             tag.onclick = () => {
+ 401 |  5 |                 const targetGroup = historyListEl.querySelector(`[data-symbol="${group.symbol}"]`);
+ 402 |  6 |                 if (targetGroup) {
+ 403 |  6 |                     targetGroup.scrollIntoView({ behavior: 'smooth', block: 'start' });
+ 404 |  5 |                 }
+ 405 |  4 |             };
+ 406 |  4 |             tagsEl.appendChild(tag);
+ 407 |  3 |         }
+ 408 |  3 | 
+ 409 |  3 |         const groupEl = document.createElement('div');
+ 410 |  3 |         groupEl.className = 'history-group';
+ 411 |  3 |         groupEl.dataset.symbol = group.symbol;
+ 412 |  3 |         
+ 413 |  3 |         const baseDelay = 0.3 + groupIndex * 0.15;
+ 414 |  3 |         groupEl.draggable = true;
+ 415 |  3 |         
+ 416 |  4 |         groupEl.addEventListener('dragstart', (e) => {
+ 417 |  4 |             if (e.target !== groupEl) return;
+ 418 |  4 |             groupEl.classList.add('dragging-group');
+ 419 |  4 |             e.dataTransfer.effectAllowed = 'move';
+ 420 |  3 |         });
+ 421 |  3 | 
+ 422 |  4 |         groupEl.addEventListener('dragend', (e) => {
+ 423 |  4 |             if (e.target !== groupEl) return;
+ 424 |  4 |             groupEl.classList.remove('dragging-group');
+ 425 |  4 |             updateArrayFromDOM();
+ 426 |  4 |             const tagsEl = document.getElementById('quick-tags');
+ 427 |  5 |             if (tagsEl) {
+ 428 |  6 |                 historyRecords.forEach(g => {
+ 429 |  6 |                     const tagNode = tagsEl.querySelector(`[data-symbol="${g.symbol}"]`);
+ 430 |  6 |                     if (tagNode) tagsEl.appendChild(tagNode);
+ 431 |  5 |                 });
+ 432 |  4 |             }
+ 433 |  4 |             saveState();
+ 434 |  3 |         });
+ 435 |  3 |         
+ 436 |  3 |         const headerEl = document.createElement('div');
+ 437 |  3 |         headerEl.className = 'group-header animate-stagger-row';
+ 438 |  3 |         headerEl.style.animationDelay = `${(baseDelay + 0 * 0.1).toFixed(2)}s`;
+ 439 |  3 |         const titleEl = document.createElement('div');
+ 440 |  3 |         titleEl.className = 'group-title-container';
+ 441 |  3 |         
+ 442 |  4 |         if (group.symbol !== 'Uncategorized') {
+ 443 |  4 |             const chartUrl = `https://www.tradingview.com/chart/?symbol=${encodeURIComponent(group.symbol)}`;
+ 444 |  4 |             
+ 445 |  4 |             const codeSpan = document.createElement('span');
+ 446 |  4 |             codeSpan.className = 'stock-code stock-link';
+ 447 |  4 |             codeSpan.textContent = group.symbol;
+ 448 |  4 |             codeSpan.title = "Click to edit code";
+ 449 |  4 |             codeSpan.style.cursor = "pointer";
+ 450 |  4 |             
+ 451 |  4 |             const nameSpan = document.createElement('span');
+ 452 |  4 |             nameSpan.className = 'stock-name stock-link';
+ 453 |  4 |             nameSpan.textContent = group.name ? group.name : '';
+ 454 |  4 |             nameSpan.style.marginLeft = '8px';
+ 455 |  4 |             nameSpan.title = "Click to edit, Double-click to open chart";
+ 456 |  4 |             nameSpan.style.cursor = "pointer";
+ 457 |  4 |             
+ 458 |  4 |             titleEl.appendChild(codeSpan);
+ 459 |  4 |             titleEl.appendChild(nameSpan);
+ 460 |  4 |             
+ 461 |  5 |             const makeEditable = (spanEl, initialValue, onSave) => {
+ 462 |  5 |                 const input = document.createElement('input');
+ 463 |  5 |                 input.type = 'text';
+ 464 |  5 |                 input.className = 'edit-symbol-input mono';
+ 465 |  5 |                 input.value = initialValue;
+ 466 |  5 |                 input.style.fontSize = 'inherit';
+ 467 |  5 |                 input.style.fontWeight = 'inherit';
+ 468 |  5 |                 input.style.color = 'inherit';
+ 469 |  5 |                 input.style.background = 'transparent';
+ 470 |  5 |                 input.style.border = '1px solid var(--border-color)';
+ 471 |  5 |                 input.style.borderRadius = '4px';
+ 472 |  5 |                 input.style.outline = 'none';
+ 473 |  5 |                 input.style.width = '100px';
+ 474 |  5 |                 input.style.padding = '0 4px';
+ 475 |  5 |                 input.style.margin = '0';
+ 476 |  5 |                 
+ 477 |  5 |                 spanEl.textContent = '';
+ 478 |  5 |                 spanEl.appendChild(input);
+ 479 |  5 |                 input.focus();
+ 480 |  5 |                 input.select();
+ 481 |  5 |                 
+ 482 |  5 |                 let saved = false;
+ 483 |  6 |                 const finishEdit = () => {
+ 484 |  6 |                     if (saved) return;
+ 485 |  6 |                     saved = true;
+ 486 |  6 |                     onSave(input.value);
+ 487 |  5 |                 };
+ 488 |  5 |                 
+ 489 |  5 |                 input.addEventListener('blur', finishEdit);
+ 490 |  6 |                 input.addEventListener('keydown', (e) => {
+ 491 |  6 |                     if (e.key === 'Enter') finishEdit();
+ 492 |  7 |                     if (e.key === 'Escape') {
+ 493 |  7 |                         saved = true;
+ 494 |  7 |                         onSave(initialValue); // cancel
+ 495 |  6 |                     }
+ 496 |  5 |                 });
+ 497 |  4 |             };
+ 498 |  4 | 
+ 499 |  5 |             codeSpan.addEventListener('click', (e) => {
+ 500 |  5 |                 e.stopPropagation();
+ 501 |  5 |                 if (codeSpan.querySelector('input')) return;
+ 502 |  6 |                 makeEditable(codeSpan, group.symbol, (newVal) => {
+ 503 |  6 |                     newVal = newVal.trim().toUpperCase();
+ 504 |  7 |                     if (newVal && newVal !== group.symbol) {
+ 505 |  7 |                         group.symbol = newVal;
+ 506 |  7 |                         group.records.forEach(r => r.symbol = newVal);
+ 507 |  7 |                         group.name = '';
+ 508 |  7 |                         group.nameFetched = false;
+ 509 |  7 |                         
+ 510 |  7 |                         const existingGroupIndex = historyRecords.findIndex(g => g !== group && g.symbol === newVal);
+ 511 |  8 |                         if (existingGroupIndex !== -1) {
+ 512 |  8 |                             historyRecords[existingGroupIndex].records.unshift(...group.records);
+ 513 |  8 |                             historyRecords = historyRecords.filter(g => g !== group);
+ 514 |  7 |                         }
+ 515 |  7 |                         saveState();
+ 516 |  7 |                         renderHistory();
+ 517 |  7 |                     } else {
+ 518 |  7 |                         codeSpan.textContent = group.symbol;
+ 519 |  6 |                     }
+ 520 |  5 |                 });
+ 521 |  4 |             });
+ 522 |  4 |             
+ 523 |  4 |             let nameClickTimeout = null;
+ 524 |  5 |             nameSpan.addEventListener('click', (e) => {
+ 525 |  5 |                 if (e.target.tagName === 'INPUT') return;
+ 526 |  5 |                 e.stopPropagation();
+ 527 |  5 |                 
+ 528 |  6 |                 if (nameClickTimeout) {
+ 529 |  6 |                     clearTimeout(nameClickTimeout);
+ 530 |  6 |                     nameClickTimeout = null;
+ 531 |  6 |                     window.open(chartUrl, '_blank');
+ 532 |  6 |                 } else {
+ 533 |  7 |                     nameClickTimeout = setTimeout(() => {
+ 534 |  7 |                         nameClickTimeout = null;
+ 535 |  7 |                         if (nameSpan.querySelector('input')) return;
+ 536 |  8 |                         makeEditable(nameSpan, group.name || '', (newVal) => {
+ 537 |  8 |                             newVal = newVal.trim();
+ 538 |  9 |                             if (newVal !== (group.name || '')) {
+ 539 |  9 |                                 group.name = newVal;
+ 540 |  9 |                                 saveState();
+ 541 |  9 |                                 nameSpan.textContent = newVal;
+ 542 |  9 |                             } else {
+ 543 |  9 |                                 nameSpan.textContent = group.name || '';
+ 544 |  8 |                             }
+ 545 |  7 |                         });
+ 546 |  6 |                     }, 250);
+ 547 |  5 |                 }
+ 548 |  4 |             });
+ 549 |  4 | 
+ 550 |  5 |             if (!group.name && !group.nameFetched) {
+ 551 |  5 |                 group.nameFetched = true;
+ 552 |  6 |                 fetchStockName(group.symbol).then(name => {
+ 553 |  7 |                     if (name) {
+ 554 |  7 |                         group.name = name;
+ 555 |  7 |                         saveState();
+ 556 |  7 |                         nameSpan.textContent = name;
+ 557 |  7 |                         
+ 558 |  7 |                         const tagEl = document.getElementById('quick-tags')?.querySelector(`[data-symbol="${group.symbol}"]`);
+ 559 |  8 |                         if (tagEl) {
+ 560 |  8 |                             const cleanName = name.replace(/\s+/g, '');
+ 561 |  8 |                             tagEl.textContent = cleanName.length <= 3 ? cleanName : cleanName.substring(0, 2);
+ 562 |  7 |                         }
+ 563 |  6 |                     }
+ 564 |  5 |                 });
+ 565 |  4 |             }
+ 566 |  4 |         } else {
+ 567 |  4 |             titleEl.textContent = group.symbol;
+ 568 |  3 |         }
+ 569 |  3 |             
+ 570 |  3 |         const deleteGroupBtn = document.createElement('button');
+ 571 |  3 |         deleteGroupBtn.className = 'delete-btn';
+ 572 |  3 |         deleteGroupBtn.title = 'Delete Group';
+ 573 |  3 |         deleteGroupBtn.innerHTML = `
+ 574 |  3 |             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+ 575 |  3 |                 <line x1="18" y1="6" x2="6" y2="18"></line>
+ 576 |  3 |                 <line x1="6" y1="6" x2="18" y2="18"></line>
+ 577 |  3 |             </svg>
+ 578 |  3 |         `;
+ 579 |  4 |         deleteGroupBtn.onclick = () => {
+ 580 |  4 |             const currentGroupIndex = historyRecords.indexOf(group);
+ 581 |  5 |             if (currentGroupIndex > -1) {
+ 582 |  5 |                 historyRecords.splice(currentGroupIndex, 1);
+ 583 |  4 |             }
+ 584 |  4 |             groupEl.remove();
+ 585 |  4 |             const tagEl = document.getElementById('quick-tags')?.querySelector(`[data-symbol="${group.symbol}"]`);
+ 586 |  4 |             if (tagEl) tagEl.remove();
+ 587 |  4 |             saveState();
+ 588 |  3 |         };
+ 589 |  3 |         
+ 590 |  3 |         const urgencyContainer = document.createElement('div');
+ 591 |  3 |         urgencyContainer.className = 'urgency-dots';
+ 592 |  3 |         
+ 593 |  3 |         const colors = ['green', 'orange', 'red'];
+ 594 |  4 |         colors.forEach((color) => {
+ 595 |  4 |             const dot = document.createElement('button');
+ 596 |  4 |             dot.className = `urgency-dot ${color}`;
+ 597 |  4 |             // If the first record has urgency, they all do, or group.records[0].urgency
+ 598 |  5 |             if (group.records[0].urgency === color) {
+ 599 |  5 |                 dot.classList.add('selected');
+ 600 |  4 |             }
+ 601 |  5 |             dot.onclick = (e) => {
+ 602 |  5 |                 e.stopPropagation();
+ 603 |  5 |                 const isSelected = dot.classList.contains('selected');
+ 604 |  5 |                 group.records.forEach(r => r.urgency = isSelected ? null : color);
+ 605 |  5 |                 
+ 606 |  5 |                 const allDots = urgencyContainer.querySelectorAll('.urgency-dot');
+ 607 |  5 |                 allDots.forEach(d => d.classList.remove('selected'));
+ 608 |  6 |                 if (!isSelected) {
+ 609 |  6 |                     dot.classList.add('selected');
+ 610 |  5 |                 }
+ 611 |  5 |                 
+ 612 |  5 |                 const tagEl = document.getElementById('quick-tags')?.querySelector(`[data-symbol="${group.symbol}"]`);
+ 613 |  6 |                 if (tagEl) {
+ 614 |  7 |                     if (isSelected) {
+ 615 |  7 |                         tagEl.style.color = '';
+ 616 |  7 |                         tagEl.style.borderColor = '';
+ 617 |  7 |                     } else {
+ 618 |  8 |                         const colors = {
+ 619 |  8 |                             'green': '#32d74b',
+ 620 |  8 |                             'orange': '#ff9f0a',
+ 621 |  8 |                             'red': '#ff453a'
+ 622 |  7 |                         };
+ 623 |  7 |                         tagEl.style.color = colors[color];
+ 624 |  7 |                         tagEl.style.borderColor = colors[color];
+ 625 |  6 |                     }
+ 626 |  5 |                 }
+ 627 |  5 |                 
+ 628 |  5 |                 saveState();
+ 629 |  4 |             };
+ 630 |  4 |             urgencyContainer.appendChild(dot);
+ 631 |  3 |         });
+ 632 |  3 | 
+ 633 |  3 |         const headerActions = document.createElement('div');
+ 634 |  3 |         headerActions.className = 'header-actions';
+ 635 |  3 |         headerActions.appendChild(urgencyContainer);
+ 636 |  3 |         headerActions.appendChild(deleteGroupBtn);
+ 637 |  3 |         
+ 638 |  3 |         headerEl.appendChild(titleEl);
+ 639 |  3 |         headerEl.appendChild(headerActions);
+ 640 |  3 |             
+ 641 |  3 |         const listEl = document.createElement('div');
+ 642 |  3 |         listEl.className = 'group-list';
+ 643 |  3 |         
+ 644 |  4 |         group.records.forEach((record, itemIndex) => {
+ 645 |  4 |             const item = document.createElement('div');
+ 646 |  4 |             item.className = 'list-row history-item animate-stagger-row';
+ 647 |  4 |             item.style.animationDelay = `${(baseDelay + (3 + itemIndex) * 0.1).toFixed(2)}s`;
+ 648 |  5 |             if (record.highlighted) {
+ 649 |  5 |                 item.classList.add('highlighted');
+ 650 |  4 |             }
+ 651 |  4 |             item.draggable = true;
+ 652 |  4 |             item.dataset.groupIndex = groupIndex;
+ 653 |  4 |             item.dataset.itemIndex = itemIndex;
+ 654 |  4 |             
+ 655 |  4 |             const recCurrency = record.currency || (record.result && record.result.includes('$') ? '$' : '¥');
+ 656 |  4 |             const upColor = recCurrency === '¥' ? '#ff453a' : '#32d74b';
+ 657 |  4 |             const downColor = recCurrency === '¥' ? '#32d74b' : '#ff453a';
+ 658 |  4 |             const resultColor = record.isUp ? upColor : downColor;
+ 659 |  4 | 
+ 660 |  5 |             if (applyDynamicBindings(group, record)) {
+ 661 |  5 |                 recalculateRecord(record);
+ 662 |  4 |             }
+ 663 |  4 |             
+ 664 |  4 |             let formattedDetails = record.details;
+ 665 |  4 |             
+ 666 |  5 |             if (!record.inputs) {
+ 667 |  6 |                 if (record.type === 'Target Price' || record.type === 'Target Projection' || (record.details && (record.details.includes('Up ') || record.details.includes('Down ')))) {
+ 668 |  6 |                     const baseMatch = record.details && record.details.match(/Base:\s*.\s*([\d.]+)/);
+ 669 |  6 |                     const percMatch = record.details && record.details.match(/(Up|Down)\s+([\d.]+)%/);
+ 670 |  7 |                     if (baseMatch && percMatch) {
+ 671 |  8 |                         record.inputs = {
+ 672 |  8 |                             base: parseFloat(baseMatch[1]),
+ 673 |  8 |                             perc: parseFloat(percMatch[2]),
+ 674 |  8 |                             isUp: percMatch[1] === 'Up'
+ 675 |  7 |                         };
+ 676 |  6 |                     }
+ 677 |  6 |                 } else {
+ 678 |  6 |                     const initialMatch = record.details && record.details.match(/Base:\s*.\s*([\d.]+)/);
+ 679 |  6 |                     const finalMatch = record.details && record.details.match(/Target:\s*.\s*([\d.]+)/);
+ 680 |  7 |                     if (initialMatch && finalMatch) {
+ 681 |  8 |                         record.inputs = {
+ 682 |  8 |                             initial: parseFloat(initialMatch[1]),
+ 683 |  8 |                             final: parseFloat(finalMatch[2])
+ 684 |  7 |                         };
+ 685 |  6 |                     }
+ 686 |  5 |                 }
+ 687 |  4 |             }
+ 688 |  4 | 
+ 689 |  5 |             if (record.inputs && record.inputs.base !== undefined) {
+ 690 |  5 |                 const upDownText = record.inputs.isUp ? 'Up' : 'Down';
+ 691 |  5 |                 formattedDetails = `<span>Base: ${recCurrency}<span class="edit-trigger-val" data-field="base"><span class="edit-container-val">${record.inputs.base}</span></span></span><span><span class="editable-toggle" data-field="isUp">${upDownText}</span> <span class="edit-trigger-val" data-field="perc"><span class="edit-container-val">${record.inputs.perc}</span>%</span></span>`;
+ 692 |  5 |             } else if (record.inputs && record.inputs.initial !== undefined) {
+ 693 |  5 |                 formattedDetails = `<span>Base: ${recCurrency}<span class="edit-trigger-val" data-field="initial"><span class="edit-container-val">${record.inputs.initial}</span></span></span><span>Target: ${recCurrency}<span class="edit-trigger-val" data-field="final"><span class="edit-container-val">${record.inputs.final}</span></span></span>`;
+ 694 |  5 |             } else {
+ 695 |  6 |                 if (formattedDetails && formattedDetails.includes(' | ')) {
+ 696 |  6 |                     const parts = formattedDetails.split(' | ');
+ 697 |  6 |                     formattedDetails = `<span>${parts[0]}</span><span>${parts[1]}</span>`;
+ 698 |  5 |                 }
+ 699 |  4 |             }
+ 700 |  4 | 
+ 701 |  4 |             item.innerHTML = `
+ 702 |  4 |                 <div class="row-content">
+ 703 |  4 |                     <div class="col-details">
+ 704 |  4 |                         <span class="type">${record.type}</span>
+ 705 |  4 |                         <span class="info">${formattedDetails}</span>
+ 706 |  4 |                     </div>
+ 707 |  4 |                     <div class="col-result-group">
+ 708 |  4 |                         <div class="col-result mono" style="color: ${resultColor};">
+ 709 |  4 |                             ${record.result}
+ 710 |  4 |                         </div>
+ 711 |  4 |                         <input type="number" class="shares-inline-input mono" placeholder="Shares" value="${record.shares || ''}">
+ 712 |  4 |                     </div>
+ 713 |  4 |                     <div class="row-delete">
+ 714 |  4 |                         <button class="delete-btn item-delete-btn" title="Delete">
+ 715 |  4 |                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+ 716 |  4 |                                 <line x1="18" y1="6" x2="6" y2="18"></line>
+ 717 |  4 |                                 <line x1="6" y1="6" x2="18" y2="18"></line>
+ 718 |  4 |                             </svg>
+ 719 |  4 |                         </button>
+ 720 |  4 |                     </div>
+ 721 |  4 |                 </div>
+ 722 |  4 |             `;
+ 723 |  4 |             
+ 724 |  5 |             item.addEventListener('dragstart', (e) => {
+ 725 |  5 |                 item.classList.add('dragging');
+ 726 |  5 |                 e.dataTransfer.effectAllowed = 'move';
+ 727 |  4 |             });
+ 728 |  4 |             
+ 729 |  5 |             item.addEventListener('dragover', (e) => {
+ 730 |  5 |                 const draggingLabel = document.querySelector('.dragging-label');
+ 731 |  6 |                 if (draggingLabel) {
+ 732 |  6 |                     e.preventDefault();
+ 733 |  6 |                     item.style.border = '2px dashed var(--accent-color)';
+ 734 |  5 |                 }
+ 735 |  4 |             });
+ 736 |  4 |             
+ 737 |  5 |             item.addEventListener('dragleave', (e) => {
+ 738 |  5 |                 item.style.border = '';
+ 739 |  4 |             });
+ 740 |  4 |             
+ 741 |  5 |             item.addEventListener('drop', (e) => {
+ 742 |  5 |                 item.style.border = '';
+ 743 |  5 |                 const draggingLabel = document.querySelector('.dragging-label');
+ 744 |  6 |                 if (draggingLabel) {
+ 745 |  6 |                     e.preventDefault();
+ 746 |  6 |                     e.stopPropagation();
+ 747 |  6 |                     const text = draggingLabel.textContent;
+ 748 |  7 |                     if (text) {
+ 749 |  7 |                         record.type = text;
+ 750 |  7 |                         saveState();
+ 751 |  7 |                         const titleEl = item.querySelector('.type');
+ 752 |  7 |                         if (titleEl) titleEl.textContent = text;
+ 753 |  6 |                     }
+ 754 |  5 |                 }
+ 755 |  4 |             });
+ 756 |  4 | 
+ 757 |  5 |             item.addEventListener('dragend', () => {
+ 758 |  5 |                 item.classList.remove('dragging');
+ 759 |  5 |                 updateArrayFromDOM();
+ 760 |  5 |                 saveState();
+ 761 |  4 |             });
+ 762 |  4 | 
+ 763 |  5 |             item.addEventListener('click', (e) => {
+ 764 |  5 |                 if (e.target.closest('.delete-btn') || e.target.closest('.row-delete')) return;
+ 765 |  5 |                 
+ 766 |  5 |                 const editableToggle = e.target.closest('.editable-toggle');
+ 767 |  6 |                 if (editableToggle && record.inputs) {
+ 768 |  6 |                     record.inputs.isUp = !record.inputs.isUp;
+ 769 |  6 |                     record.isUp = record.inputs.isUp;
+ 770 |  6 |                     recalculateRecord(record);
+ 771 |  6 |                     saveState();
+ 772 |  6 |                     
+ 773 |  6 |                     const infoSpan = item.querySelector('.info');
+ 774 |  6 |                     if (infoSpan) infoSpan.innerHTML = record.details;
+ 775 |  6 |                     const resultDiv = item.querySelector('.col-result');
+ 776 |  7 |                     if (resultDiv) {
+ 777 |  7 |                         const recCurrency = record.currency || (record.result && record.result.includes('$') ? '$' : '¥');
+ 778 |  7 |                         const upColor = recCurrency === '¥' ? '#ff453a' : '#32d74b';
+ 779 |  7 |                         const downColor = recCurrency === '¥' ? '#32d74b' : '#ff453a';
+ 780 |  7 |                         resultDiv.style.color = record.isUp ? upColor : downColor;
+ 781 |  7 |                         resultDiv.innerHTML = record.result;
+ 782 |  6 |                     }
+ 783 |  6 |                     return;
+ 784 |  5 |                 }
+ 785 |  5 | 
+ 786 |  5 |                 const editTrigger = e.target.closest('.edit-trigger-val');
+ 787 |  6 |                 if (editTrigger && record.inputs) {
+ 788 |  6 |                     const editContainer = editTrigger.querySelector('.edit-container-val');
+ 789 |  6 |                     if (!editContainer || editContainer.querySelector('.edit-val-input')) return;
+ 790 |  6 |                     
+ 791 |  6 |                     const field = editTrigger.dataset.field;
+ 792 |  6 |                     const originalVal = record.inputs[field];
+ 793 |  6 |                     const input = document.createElement('input');
+ 794 |  6 |                     input.type = 'number';
+ 795 |  6 |                     input.step = 'any';
+ 796 |  6 |                     input.className = 'edit-val-input mono';
+ 797 |  6 |                     input.value = originalVal;
+ 798 |  6 |                     input.style.fontSize = 'inherit';
+ 799 |  6 |                     input.style.fontWeight = 'inherit';
+ 800 |  6 |                     input.style.color = 'inherit';
+ 801 |  6 |                     input.style.background = 'transparent';
+ 802 |  6 |                     input.style.border = 'none';
+ 803 |  6 |                     input.style.outline = 'none';
+ 804 |  6 |                     input.style.width = Math.max(30, originalVal.toString().length * 8 + 10) + 'px';
+ 805 |  6 |                     input.style.padding = '0';
+ 806 |  6 |                     input.style.margin = '0';
+ 807 |  6 |                     
+ 808 |  6 |                     editContainer.innerHTML = '';
+ 809 |  6 |                     editContainer.appendChild(input);
+ 810 |  6 |                     input.focus();
+ 811 |  6 |                     input.select();
+ 812 |  6 |                     
+ 813 |  6 |                     let saved = false;
+ 814 |  7 |                     const saveNewVal = () => {
+ 815 |  7 |                         if (saved) return;
+ 816 |  7 |                         saved = true;
+ 817 |  7 |                         const newVal = parseFloat(input.value);
+ 818 |  8 |                         if (!isNaN(newVal) && newVal !== originalVal) {
+ 819 |  8 |                             record.inputs[field] = newVal;
+ 820 |  8 |                             recalculateRecord(record);
+ 821 |  8 |                             saveState();
+ 822 |  8 |                             
+ 823 |  8 |                             const infoSpan = item.querySelector('.info');
+ 824 |  8 |                             if (infoSpan) infoSpan.innerHTML = record.details;
+ 825 |  8 |                             const resultDiv = item.querySelector('.col-result');
+ 826 |  9 |                             if (resultDiv) {
+ 827 |  9 |                                 const recCurrency = record.currency || (record.result && record.result.includes('$') ? '$' : '¥');
+ 828 |  9 |                                 const upColor = recCurrency === '¥' ? '#ff453a' : '#32d74b';
+ 829 |  9 |                                 const downColor = recCurrency === '¥' ? '#32d74b' : '#ff453a';
+ 830 |  9 |                                 resultDiv.style.color = record.isUp ? upColor : downColor;
+ 831 |  9 |                                 resultDiv.innerHTML = record.result;
+ 832 |  8 |                             }
+ 833 |  8 |                         } else {
+ 834 |  8 |                             recalculateRecord(record);
+ 835 |  8 |                             const infoSpan = item.querySelector('.info');
+ 836 |  8 |                             if (infoSpan) infoSpan.innerHTML = record.details;
+ 837 |  7 |                         }
+ 838 |  6 |                     };
+ 839 |  6 |                     
+ 840 |  6 |                     input.addEventListener('blur', saveNewVal);
+ 841 |  7 |                     input.addEventListener('keydown', (ke) => {
+ 842 |  7 |                         if (ke.key === 'Enter') input.blur();
+ 843 |  8 |                         if (ke.key === 'Escape') {
+ 844 |  8 |                             input.value = originalVal;
+ 845 |  8 |                             input.blur();
+ 846 |  7 |                         }
+ 847 |  6 |                     });
+ 848 |  6 |                     return;
+ 849 |  5 |                 }
+ 850 |  5 |                 const typeSpan = e.target.closest('.type');
+ 851 |  6 |                 if (typeSpan) {
+ 852 |  6 |                     if (typeSpan.querySelector('.edit-type-input')) return;
+ 853 |  6 |                     
+ 854 |  6 |                     const originalText = record.type;
+ 855 |  6 |                     const input = document.createElement('input');
+ 856 |  6 |                     input.type = 'text';
+ 857 |  6 |                     input.className = 'edit-type-input mono';
+ 858 |  6 |                     input.value = originalText;
+ 859 |  6 |                     input.style.fontSize = 'inherit';
+ 860 |  6 |                     input.style.fontWeight = 'inherit';
+ 861 |  6 |                     input.style.color = 'inherit';
+ 862 |  6 |                     input.style.background = 'transparent';
+ 863 |  6 |                     input.style.border = 'none';
+ 864 |  6 |                     input.style.outline = 'none';
+ 865 |  6 |                     input.style.width = Math.max(80, originalText.length * 8 + 10) + 'px';
+ 866 |  6 |                     input.style.padding = '0';
+ 867 |  6 |                     input.style.margin = '0';
+ 868 |  6 |                     
+ 869 |  6 |                     typeSpan.innerHTML = '';
+ 870 |  6 |                     typeSpan.appendChild(input);
+ 871 |  6 |                     input.focus();
+ 872 |  6 |                     input.select();
+ 873 |  6 |                     
+ 874 |  6 |                     let saved = false;
+ 875 |  7 |                     const saveNewType = () => {
+ 876 |  7 |                         if (saved) return;
+ 877 |  7 |                         saved = true;
+ 878 |  7 |                         record.type = input.value;
+ 879 |  7 |                         saveState();
+ 880 |  7 |                         typeSpan.textContent = record.type;
+ 881 |  6 |                     };
+ 882 |  6 |                     
+ 883 |  6 |                     input.addEventListener('blur', saveNewType);
+ 884 |  7 |                     input.addEventListener('keydown', (ke) => {
+ 885 |  7 |                         if (ke.key === 'Enter') input.blur();
+ 886 |  8 |                         if (ke.key === 'Escape') {
+ 887 |  8 |                             input.value = originalText;
+ 888 |  8 |                             input.blur();
+ 889 |  7 |                         }
+ 890 |  6 |                     });
+ 891 |  6 |                     return;
+ 892 |  5 |                 }
+ 893 |  5 |                 
+ 894 |  6 |                 if (e.detail === 1) {
+ 895 |  7 |                     item.clickTimer = setTimeout(() => {
+ 896 |  7 |                         populateForm(record);
+ 897 |  6 |                     }, 200);
+ 898 |  5 |                 }
+ 899 |  4 |             });
+ 900 |  4 | 
+ 901 |  4 |             // Prevent drag from input
+ 902 |  4 |             const sharesInput = item.querySelector('.shares-inline-input');
+ 903 |  4 |             sharesInput.addEventListener('mousedown', e => e.stopPropagation());
+ 904 |  4 |             sharesInput.addEventListener('click', e => e.stopPropagation());
+ 905 |  4 |             
+ 906 |  4 |             // Save shares value on change/blur
+ 907 |  5 |             sharesInput.addEventListener('change', () => {
+ 908 |  5 |                 record.shares = sharesInput.value;
+ 909 |  5 |                 saveState();
+ 910 |  4 |             });
+ 911 |  4 | 
+ 912 |  5 |             item.addEventListener('dblclick', (e) => {
+ 913 |  5 |                 clearTimeout(item.clickTimer);
+ 914 |  5 |                 if (e.target.closest('.row-delete')) return;
+ 915 |  5 |                 if (e.target.closest('.edit-type-input')) return;
+ 916 |  5 |                 
+ 917 |  6 |                 if (e.target.closest('.editable-toggle') || e.target.closest('.edit-trigger-val')) {
+ 918 |  6 |                     return;
+ 919 |  5 |                 }
+ 920 |  5 |                 
+ 921 |  5 |                 record.highlighted = !record.highlighted;
+ 922 |  5 |                 item.classList.toggle('highlighted', record.highlighted);
+ 923 |  5 |                 saveState();
+ 924 |  4 |             });
+ 925 |  4 | 
+ 926 |  5 |             item.querySelector('.item-delete-btn').addEventListener('click', (e) => {
+ 927 |  5 |                 e.stopPropagation();
+ 928 |  5 |                 const currentRecordIndex = group.records.indexOf(record);
+ 929 |  6 |                 if (currentRecordIndex > -1) {
+ 930 |  6 |                     group.records.splice(currentRecordIndex, 1);
+ 931 |  5 |                 }
+ 932 |  5 |                 
+ 933 |  6 |                 if (group.records.length === 0) {
+ 934 |  6 |                     const currentGroupIndex = historyRecords.indexOf(group);
+ 935 |  7 |                     if (currentGroupIndex > -1) {
+ 936 |  7 |                         historyRecords.splice(currentGroupIndex, 1);
+ 937 |  6 |                     }
+ 938 |  6 |                     groupEl.remove();
+ 939 |  6 |                     const tagEl = document.getElementById('quick-tags')?.querySelector(`[data-symbol="${group.symbol}"]`);
+ 940 |  6 |                     if (tagEl) tagEl.remove();
+ 941 |  6 |                 } else {
+ 942 |  6 |                     item.remove();
+ 943 |  5 |                 }
+ 944 |  5 |                 saveState();
+ 945 |  4 |             });
+ 946 |  4 |             
+ 947 |  4 |             listEl.appendChild(item);
+ 948 |  3 |         });
+ 949 |  3 |         
+ 950 |  4 |         listEl.addEventListener('dragover', (e) => {
+ 951 |  4 |             e.preventDefault();
+ 952 |  4 |             const draggingItem = document.querySelector('.dragging');
+ 953 |  4 |             if (!draggingItem || draggingItem.closest('.group-list') !== listEl) return;
+ 954 |  4 |             
+ 955 |  4 |             const afterElement = getDragAfterElement(listEl, e.clientY);
+ 956 |  5 |             if (afterElement == null) {
+ 957 |  5 |                 listEl.appendChild(draggingItem);
+ 958 |  5 |             } else {
+ 959 |  5 |                 listEl.insertBefore(draggingItem, afterElement);
+ 960 |  4 |             }
+ 961 |  3 |         });
+ 962 |  3 |         
+ 963 |  3 |         const newsPanel = document.createElement('div');
+ 964 |  3 |         newsPanel.className = 'group-news-panel animate-stagger-row';
+ 965 |  3 |         newsPanel.style.animationDelay = `${(baseDelay + 1 * 0.1).toFixed(2)}s`;
+ 966 |  3 |         newsPanel.id = `news-panel-${group.symbol}`;
+ 967 |  3 |         
+ 968 |  4 |         if (NEWS_CACHE[group.symbol]) {
+ 969 |  4 |             newsPanel.innerHTML = NEWS_CACHE[group.symbol];
+ 970 |  4 |             const tabs = newsPanel.querySelectorAll('.news-tab');
+ 971 |  4 |             const contentAreas = newsPanel.querySelectorAll('.news-content-area');
+ 972 |  5 |             tabs.forEach(tab => {
+ 973 |  6 |                 tab.addEventListener('click', () => {
+ 974 |  6 |                     tabs.forEach(t => t.classList.remove('active'));
+ 975 |  7 |                     contentAreas.forEach(c => {
+ 976 |  7 |                         c.classList.remove('active');
+ 977 |  7 |                         c.classList.add('hidden');
+ 978 |  6 |                     });
+ 979 |  6 |                     tab.classList.add('active');
+ 980 |  6 |                     const targetId = tab.getAttribute('data-target');
+ 981 |  6 |                     const targetContent = newsPanel.querySelector(`#${targetId}`);
+ 982 |  7 |                     if (targetContent) {
+ 983 |  7 |                         targetContent.classList.remove('hidden');
+ 984 |  7 |                         targetContent.classList.add('active');
+ 985 |  6 |                     }
+ 986 |  5 |                 });
+ 987 |  4 |             });
+ 988 |  4 |         } else {
+ 989 |  4 |             newsPanel.innerHTML = '<div style="font-size: 0.7rem; color: var(--fg-dim);">Loading insights...</div>';
+ 990 |  4 |             clearTimeout(group.newsTimeout);
+ 991 |  4 |             group.newsLoaded = false;
+ 992 |  5 |             group.newsTimeout = setTimeout(() => {
+ 993 |  6 |                 if (!group.newsLoaded) {
+ 994 |  6 |                     loadStockNews(group.symbol, groupIndex);
+ 995 |  6 |                     group.newsLoaded = true;
+ 996 |  5 |                 }
+ 997 |  4 |             }, 0);
+ 998 |  3 |         }
+ 999 |  3 |         
+1000 |  4 |         setTimeout(() => {
+1001 |  5 |             if (!group.klineMetrics) {
+1002 |  5 |                 loadKlineMetrics(group, groupIndex);
+1003 |  4 |             }
+1004 |  3 |         }, 0);
+1005 |  3 | 
+1006 |  3 |         const memoArea = document.createElement('div');
+1007 |  3 |         memoArea.className = 'group-memo-area animate-stagger-row';
+1008 |  3 |         memoArea.style.animationDelay = `${(baseDelay + 2 * 0.1).toFixed(2)}s`;
+1009 |  3 |         
+1010 |  3 |         memoArea.innerHTML = `
+1011 |  3 |             <div class="memo-timeframes">
+1012 |  3 |                 <label><span class="tf-label"><span>W</span><span>:</span></span> <input type="text" class="tf-input mono" data-tf="tf_w" value="${group.tf_w || ''}"></label>
+1013 |  3 |                 <label><span class="tf-label"><span>D</span><span>:</span></span> <input type="text" class="tf-input mono" data-tf="tf_d" value="${group.tf_d || ''}"></label>
+1014 |  3 |                 <label><span class="tf-label"><span>30</span><span>:</span></span> <input type="text" class="tf-input mono" data-tf="tf_30" value="${group.tf_30 || ''}"></label>
+1015 |  3 |             </div>
+1016 |  3 |             <textarea class="group-note mono" placeholder="Add notes...">${group.note || ''}</textarea>
+1017 |  3 |         `;
+1018 |  3 |         
+1019 |  3 |         clearTimeout(group.newsTimeout);
+1020 |  3 |         // Reset newsLoaded so news is always fetched on app start/re-render
+1021 |  3 |         group.newsLoaded = false;
+1022 |  4 |         group.newsTimeout = setTimeout(() => {
+1023 |  5 |             if (!group.newsLoaded) {
+1024 |  5 |                 loadStockNews(group.symbol, groupIndex);
+1025 |  5 |                 group.newsLoaded = true;
+1026 |  4 |             }
+1027 |  5 |             if (!group.klineMetrics) {
+1028 |  5 |                 loadKlineMetrics(group, groupIndex);
+1029 |  4 |             }
+1030 |  3 |         }, 200);
+1031 |  3 |         
+1032 |  3 |         const tfInputs = memoArea.querySelectorAll('.tf-input');
+1033 |  3 |         let memoSaveTimeout;
+1034 |  3 |         const noteEl = memoArea.querySelector('textarea');
+1035 |  4 |         const debouncedSave = () => {
+1036 |  4 |             clearTimeout(memoSaveTimeout);
+1037 |  5 |             memoSaveTimeout = setTimeout(() => {
+1038 |  5 |                 let changed = false;
+1039 |  6 |                 tfInputs.forEach(input => {
+1040 |  6 |                     const tfKey = input.getAttribute('data-tf');
+1041 |  6 |                     const newVal = input.value.trim();
+1042 |  7 |                     if (newVal !== (group[tfKey] || '')) {
+1043 |  7 |                         group[tfKey] = newVal;
+1044 |  7 |                         changed = true;
+1045 |  6 |                     }
+1046 |  5 |                 });
+1047 |  5 |                 const newNote = noteEl.value.trim();
+1048 |  6 |                 if (newNote !== (group.note || '')) {
+1049 |  6 |                     group.note = newNote;
+1050 |  6 |                     changed = true;
+1051 |  5 |                 }
+1052 |  5 |                 if (changed) saveState();
+1053 |  4 |             }, 500);
+1054 |  3 |         };
+1055 |  3 | 
+1056 |  4 |         tfInputs.forEach(input => {
+1057 |  4 |             input.addEventListener('blur', debouncedSave);
+1058 |  4 |             input.addEventListener('input', debouncedSave);
+1059 |  3 |         });
+1060 |  3 |         
+1061 |  3 |         noteEl.spellcheck = false;
+1062 |  3 |         
+1063 |  3 |         noteEl.addEventListener('blur', debouncedSave);
+1064 |  3 |         
+1065 |  4 |         noteEl.addEventListener('input', () => {
+1066 |  4 |             noteEl.style.height = 'auto';
+1067 |  4 |             noteEl.style.height = (noteEl.scrollHeight) + 'px';
+1068 |  4 |             debouncedSave();
+1069 |  3 |         });
+1070 |  3 |         
+1071 |  4 |         setTimeout(() => {
+1072 |  5 |             if (noteEl.scrollHeight > 0) {
+1073 |  5 |                 noteEl.style.height = 'auto';
+1074 |  5 |                 noteEl.style.height = (noteEl.scrollHeight) + 'px';
+1075 |  4 |             }
+1076 |  3 |         }, 0);
+1077 |  3 | 
+1078 |  3 |         groupEl.appendChild(headerEl);
+1079 |  3 |         groupEl.appendChild(newsPanel);
+1080 |  3 |         groupEl.appendChild(memoArea);
+1081 |  3 |         groupEl.appendChild(listEl);
+1082 |  3 |         historyListEl.appendChild(groupEl);
+1083 |  2 |     });
+1084 |  3 |         if (historyRecords.length > 0 && prevScrollTop > 0) {
+1085 |  3 |             historyListEl.scrollTop = prevScrollTop;
+1086 |  2 |         }
+1087 |  2 |     } catch (error) {
+1088 |  2 |         console.error('Error rendering history:', error);
+1089 |  2 |     } finally {
+1090 |  2 |         isRenderingHistory = false;
+1091 |  1 |     }
+1092 |  0 | }
+1093 |  0 | 
+1094 |  1 | function recalculateRecord(record) {
+1095 |  2 |     if (record.inputs && record.inputs.base !== undefined) {
+1096 |  2 |         const base = record.inputs.base;
+1097 |  2 |         const perc = record.inputs.perc;
+1098 |  2 |         const multiplier = record.inputs.isUp ? (1 + perc / 100) : (1 - perc / 100);
+1099 |  2 |         const result = base * multiplier;
+1100 |  2 |         record.result = `${record.currency || ''}${formatCurrency(result)}`;
+1101 |  2 |         const recCurrency = record.currency || (record.result && record.result.includes('$') ? '$' : '¥');
+1102 |  2 |         const upDownText = record.inputs.isUp ? 'Up' : 'Down';
+1103 |  2 |         record.details = `<span>Base: ${recCurrency}<span class="edit-trigger-val" data-field="base"><span class="edit-container-val">${base}</span></span></span><span><span class="editable-toggle" data-field="isUp">${upDownText}</span> <span class="edit-trigger-val" data-field="perc"><span class="edit-container-val">${perc}</span>%</span></span>`;
+1104 |  2 |     } else if (record.inputs && record.inputs.initial !== undefined) {
+1105 |  2 |         const initial = record.inputs.initial;
+1106 |  2 |         const final = record.inputs.final;
+1107 |  2 |         const pctDecimal = (final - initial) / initial;
+1108 |  2 |         record.result = `${Math.abs(pctDecimal * 100).toFixed(2)}%`;
+1109 |  2 |         record.isUp = pctDecimal > 0;
+1110 |  2 |         const recCurrency = record.currency || (record.result && record.result.includes('$') ? '$' : '¥');
+1111 |  2 |         record.details = `<span>Base: ${recCurrency}<span class="edit-trigger-val" data-field="initial"><span class="edit-container-val">${initial}</span></span></span><span>Target: ${recCurrency}<span class="edit-trigger-val" data-field="final"><span class="edit-container-val">${final}</span></span></span>`;
+1112 |  1 |     }
+1113 |  0 | }
+1114 |  0 | 
+1115 |  1 | function getDragAfterElement(container, y) {
+1116 |  1 |     const draggableElements = [...container.querySelectorAll('.history-item:not(.dragging)')];
+1117 |  2 |     return draggableElements.reduce((closest, child) => {
+1118 |  2 |         const box = child.getBoundingClientRect();
+1119 |  2 |         const offset = y - box.top - box.height / 2;
+1120 |  3 |         if (offset < 0 && offset > closest.offset) {
+1121 |  3 |             return { offset: offset, element: child };
+1122 |  3 |         } else {
+1123 |  3 |             return closest;
+1124 |  2 |         }
+1125 |  1 |     }, { offset: Number.NEGATIVE_INFINITY }).element;
+1126 |  0 | }
+1127 |  0 | 
+1128 |  1 | historyListEl.addEventListener('dragover', (e) => {
+1129 |  1 |     const draggingGroup = document.querySelector('.dragging-group');
+1130 |  1 |     if (!draggingGroup) return;
+1131 |  1 |     
+1132 |  1 |     e.preventDefault();
+1133 |  1 |     const afterElement = getDragAfterGroup(historyListEl, e.clientY);
+1134 |  2 |     if (afterElement == null) {
+1135 |  2 |         historyListEl.appendChild(draggingGroup);
+1136 |  2 |     } else {
+1137 |  2 |         historyListEl.insertBefore(draggingGroup, afterElement);
+1138 |  1 |     }
+1139 |  0 | });
+1140 |  0 | 
+1141 |  1 | function getDragAfterGroup(container, y) {
+1142 |  1 |     const draggableElements = [...container.querySelectorAll('.history-group:not(.dragging-group)')];
+1143 |  2 |     return draggableElements.reduce((closest, child) => {
+1144 |  2 |         const box = child.getBoundingClientRect();
+1145 |  2 |         const offset = y - box.top - box.height / 2;
+1146 |  3 |         if (offset < 0 && offset > closest.offset) {
+1147 |  3 |             return { offset: offset, element: child };
+1148 |  3 |         } else {
+1149 |  3 |             return closest;
+1150 |  2 |         }
+1151 |  1 |     }, { offset: Number.NEGATIVE_INFINITY }).element;
+1152 |  0 | }
+1153 |  0 | 
+1154 |  0 | const quickTagsContainer = document.getElementById('quick-tags');
+1155 |  1 | if (quickTagsContainer) {
+1156 |  2 |     quickTagsContainer.addEventListener('dragover', (e) => {
+1157 |  2 |         const draggingTag = document.querySelector('.dragging-tag');
+1158 |  2 |         if (!draggingTag) return;
+1159 |  2 |         
+1160 |  2 |         e.preventDefault();
+1161 |  2 |         const afterElement = getDragAfterTag(quickTagsContainer, e.clientX, e.clientY);
+1162 |  3 |         if (afterElement == null) {
+1163 |  3 |             quickTagsContainer.appendChild(draggingTag);
+1164 |  3 |         } else {
+1165 |  3 |             quickTagsContainer.insertBefore(draggingTag, afterElement);
+1166 |  2 |         }
+1167 |  1 |     });
+1168 |  0 | }
+1169 |  0 | 
+1170 |  1 | function getDragAfterTag(container, x, y) {
+1171 |  1 |     const draggableElements = [...container.querySelectorAll('.quick-tag:not(.dragging-tag)')];
+1172 |  1 |     
+1173 |  2 |     for (const child of draggableElements) {
+1174 |  2 |         const box = child.getBoundingClientRect();
+1175 |  3 |         if (y >= box.top && y <= box.bottom) {
+1176 |  4 |             if (x < box.left + box.width / 2) {
+1177 |  4 |                 return child;
+1178 |  3 |             }
+1179 |  3 |         } else if (y < box.top) {
+1180 |  3 |             return child;
+1181 |  2 |         }
+1182 |  1 |     }
+1183 |  1 |     return null;
+1184 |  0 | }
+1185 |  0 | 
+1186 |  1 | async function fetchStockName(symbol) {
+1187 |  1 |     if (!symbol || symbol === 'Uncategorized') return '';
+1188 |  2 |     try {
+1189 |  2 |         const url = `https://smartbox.gtimg.cn/s3/?v=2&q=${symbol}&t=all`;
+1190 |  2 |         let text;
+1191 |  3 |         if (window.electronAPI && window.electronAPI.fetchFinancialData) {
+1192 |  3 |             text = await window.electronAPI.fetchFinancialData(url);
+1193 |  3 |         } else {
+1194 |  3 |             const res = await fetch(url);
+1195 |  3 |             text = await res.text();
+1196 |  2 |         }
+1197 |  2 |         
+1198 |  2 |         const match = text.match(/v_hint="(.*?)"/);
+1199 |  3 |         if (match && match[1]) {
+1200 |  3 |             const parts = match[1].split('^')[0].split('~');
+1201 |  4 |             if (parts.length >= 3) {
+1202 |  4 |                 return JSON.parse('"' + parts[2] + '"');
+1203 |  3 |             }
+1204 |  2 |         }
+1205 |  2 |     } catch (e) {
+1206 |  2 |         console.error('Failed to fetch stock name', e);
+1207 |  1 |     }
+1208 |  1 |     return '';
+1209 |  0 | }
+1210 |  0 | 
+1211 |  1 | function updateArrayFromDOMTags() {
+1212 |  1 |     const tags = [...document.querySelectorAll('.quick-tag')];
+1213 |  1 |     const newHistory = [];
+1214 |  1 |     
+1215 |  2 |     tags.forEach(tagEl => {
+1216 |  2 |         const symbol = tagEl.dataset.symbol;
+1217 |  2 |         const group = historyRecords.find(g => g.symbol === symbol);
+1218 |  3 |         if (group) {
+1219 |  3 |             newHistory.push(group);
+1220 |  2 |         }
+1221 |  1 |     });
+1222 |  1 |     
+1223 |  2 |     historyRecords.forEach(group => {
+1224 |  3 |         if (!newHistory.find(g => g.symbol === group.symbol)) {
+1225 |  3 |             newHistory.push(group);
+1226 |  2 |         }
+1227 |  1 |     });
+1228 |  1 |     
+1229 |  1 |     historyRecords = newHistory;
+1230 |  0 | }
+1231 |  0 | 
+1232 |  1 | function updateArrayFromDOM() {
+1233 |  1 |     const groups = [...historyListEl.querySelectorAll('.history-group')];
+1234 |  1 |     const newHistory = [];
+1235 |  1 |     
+1236 |  2 |     groups.forEach((groupEl, groupIndex) => {
+1237 |  2 |         const symbol = groupEl.dataset.symbol;
+1238 |  2 |         const originalGroup = historyRecords.find(g => g.symbol === symbol) || {};
+1239 |  2 |         
+1240 |  2 |         const memoArea = groupEl.querySelector('.group-memo-area');
+1241 |  2 |         const note = memoArea ? memoArea.querySelector('textarea').value : originalGroup.note || '';
+1242 |  2 |         const tf_w = memoArea ? memoArea.querySelector('[data-tf="tf_w"]').value : originalGroup.tf_w || '';
+1243 |  2 |         const tf_d = memoArea ? memoArea.querySelector('[data-tf="tf_d"]').value : originalGroup.tf_d || '';
+1244 |  2 |         const tf_30 = memoArea ? memoArea.querySelector('[data-tf="tf_30"]').value : originalGroup.tf_30 || '';
+1245 |  2 | 
+1246 |  2 |         const items = [...groupEl.querySelectorAll('.history-item')];
+1247 |  3 |         const records = items.map((item, itemIndex) => {
+1248 |  3 |             const originalGroupIndex = parseInt(item.dataset.groupIndex, 10);
+1249 |  3 |             const originalItemIndex = parseInt(item.dataset.itemIndex, 10);
+1250 |  3 |             const record = historyRecords[originalGroupIndex].records[originalItemIndex];
+1251 |  3 |             
+1252 |  3 |             const sharesInput = item.querySelector('.shares-inline-input');
+1253 |  4 |             if (sharesInput) {
+1254 |  4 |                 record.shares = sharesInput.value;
+1255 |  3 |             }
+1256 |  3 |             
+1257 |  3 |             item.dataset.groupIndex = groupIndex;
+1258 |  3 |             item.dataset.itemIndex = itemIndex;
+1259 |  3 |             
+1260 |  3 |             return record;
+1261 |  2 |         });
+1262 |  3 |         if (records.length > 0) {
+1263 |  3 |             originalGroup.symbol = symbol;
+1264 |  3 |             originalGroup.records = records;
+1265 |  3 |             originalGroup.note = note;
+1266 |  3 |             originalGroup.tf_w = tf_w;
+1267 |  3 |             originalGroup.tf_d = tf_d;
+1268 |  3 |             originalGroup.tf_30 = tf_30;
+1269 |  3 |             newHistory.push(originalGroup);
+1270 |  2 |         }
+1271 |  1 |     });
+1272 |  1 |     
+1273 |  1 |     historyRecords = newHistory;
+1274 |  0 | }
+1275 |  0 | 
+1276 |  0 | 
+1277 |  0 | 
+1278 |  0 | const clearAllHistoryBtn = document.getElementById('clear-all-history-btn');
+1279 |  1 | if (clearAllHistoryBtn) {
+1280 |  2 |     clearAllHistoryBtn.addEventListener('click', () => {
+1281 |  2 |         historyRecords = [];
+1282 |  2 |         saveState();
+1283 |  2 |         renderHistory();
+1284 |  1 |     });
+1285 |  0 | }
+1286 |  0 | 
+1287 |  0 | const exportHistoryBtn = document.getElementById('export-history-btn');
+1288 |  1 | if (exportHistoryBtn) {
+1289 |  2 |     exportHistoryBtn.addEventListener('click', () => {
+1290 |  2 |         if (historyRecords.length === 0) return;
+1291 |  2 |         
+1292 |  2 |         let htmlContent = `
+1293 |  2 |         <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+1294 |  2 |         <head>
+1295 |  2 |             <meta charset="utf-8">
+1296 |  2 |             <title>Ticker History Export</title>
+1297 |  2 |             <style>
+1298 |  2 |                 body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #333; line-height: 1.6; }
+1299 |  2 |                 h1 { border-bottom: 2px solid #333; padding-bottom: 5px; }
+1300 |  2 |                 .group { margin-bottom: 30px; }
+1301 |  2 |                 .group-title { font-size: 20px; font-weight: bold; margin-bottom: 5px; color: #000; }
+1302 |  2 |                 .group-note { font-style: italic; color: #666; margin-bottom: 10px; white-space: pre-wrap; }
+1303 |  2 |                 .record-item { margin-bottom: 5px; }
+1304 |  2 |                 .record-type { font-weight: bold; margin-right: 10px; }
+1305 |  2 |             </style>
+1306 |  2 |         </head>
+1307 |  2 |         <body>
+1308 |  2 |             <h1>Ticker History Export</h1>
+1309 |  2 |             <p>Generated on: ${new Date().toLocaleString()}</p>
+1310 |  2 |             <hr>
+1311 |  2 |         `;
+1312 |  2 |         
+1313 |  3 |         historyRecords.forEach(group => {
+1314 |  3 |             htmlContent += `<div class="group">`;
+1315 |  3 |             htmlContent += `<div class="group-title">${group.symbol}</div>`;
+1316 |  4 |             if (group.tf_w || group.tf_d || group.tf_30) {
+1317 |  4 |                 htmlContent += `<div class="group-note" style="margin-bottom: 5px; font-weight: bold;">`;
+1318 |  4 |                 if (group.tf_w) htmlContent += `W: ${group.tf_w} &nbsp;&nbsp;`;
+1319 |  4 |                 if (group.tf_d) htmlContent += `D: ${group.tf_d} &nbsp;&nbsp;`;
+1320 |  4 |                 if (group.tf_30) htmlContent += `30: ${group.tf_30}`;
+1321 |  4 |                 htmlContent += `</div>`;
+1322 |  3 |             }
+1323 |  4 |             if (group.note) {
+1324 |  4 |                 htmlContent += `<div class="group-note">${group.note.replace(/\n/g, '<br>')}</div>`;
+1325 |  3 |             }
+1326 |  3 |             htmlContent += `<ul>`;
+1327 |  4 |             group.records.forEach(record => {
+1328 |  4 |                 let detailsText = record.details.replace(/<\/span><span>/g, ' | ').replace(/<[^>]+>/g, '');
+1329 |  4 |                 let typeText = record.type;
+1330 |  4 |                 
+1331 |  4 |                 const recCurrency = record.currency || (record.result && record.result.includes('$') ? '$' : '¥');
+1332 |  4 |                 const upColor = recCurrency === '¥' ? '#ff453a' : '#32d74b';
+1333 |  4 |                 const downColor = recCurrency === '¥' ? '#32d74b' : '#ff453a';
+1334 |  4 |                 const resultColor = record.isUp ? upColor : downColor;
+1335 |  4 |                 
+1336 |  4 |                 htmlContent += `<li class="record-item">
+1337 |  4 |                     <span class="record-type">[${typeText}]</span> 
+1338 |  4 |                     <span>${detailsText}</span> 
+1339 |  4 |                     <strong>&rarr; <span style="color: ${resultColor};">${record.result}</span></strong>
+1340 |  4 |                 </li>`;
+1341 |  3 |             });
+1342 |  3 |             htmlContent += `</ul></div>`;
+1343 |  2 |         });
+1344 |  2 |         
+1345 |  2 |         htmlContent += `</body></html>`;
+1346 |  2 |         
+1347 |  3 |         const blob = new Blob(['\ufeff', htmlContent], {
+1348 |  3 |             type: 'application/msword'
+1349 |  2 |         });
+1350 |  2 |         const url = URL.createObjectURL(blob);
+1351 |  2 |         const link = document.createElement('a');
+1352 |  2 |         link.href = url;
+1353 |  2 |         link.download = `Ticker_Export_${new Date().toISOString().slice(0,10)}.doc`;
+1354 |  2 |         document.body.appendChild(link);
+1355 |  2 |         link.click();
+1356 |  2 |         document.body.removeChild(link);
+1357 |  1 |     });
+1358 |  0 | }
+1359 |  0 | 
+1360 |  1 | function addRecordToHistory(record) {
+1361 |  1 |     const sym = record.symbol || 'Uncategorized';
+1362 |  1 |     let group = historyRecords.find(g => g.symbol === sym);
+1363 |  2 |     if (!group) {
+1364 |  2 |         historyRecords.unshift({ symbol: sym, records: [record] });
+1365 |  2 |     } else {
+1366 |  3 |         if (group.records.length > 0 && group.records[0].urgency) {
+1367 |  3 |             record.urgency = group.records[0].urgency;
+1368 |  2 |         }
+1369 |  2 |         group.records.unshift(record);
+1370 |  2 |         historyRecords = historyRecords.filter(g => g !== group);
+1371 |  2 |         historyRecords.unshift(group);
+1372 |  1 |     }
+1373 |  1 |     saveState();
+1374 |  1 |     renderHistory();
+1375 |  0 | }
+1376 |  0 | 
+1377 |  1 | saveTargetBtn.addEventListener('click', () => {
+1378 |  1 |     const base = parseFloat(basePriceInput.value);
+1379 |  1 |     const perc = parseFloat(percentageChangeInput.value);
+1380 |  1 |     if (isNaN(base) || isNaN(perc)) return;
+1381 |  1 | 
+1382 |  2 |     addRecordToHistory({
+1383 |  2 |         type: 'Target Projection',
+1384 |  2 |         mode: 'target',
+1385 |  2 |         symbol: stockSymbol1Input.value.trim().toUpperCase(),
+1386 |  2 |         details: `<span>Base: ${currentCurrency}${base}</span><span>${currentTargetIsUp ? 'Up' : 'Down'} ${perc}%</span>`,
+1387 |  2 |         result: `${currentCurrency}${formatCurrency(currentTargetPrice)}`,
+1388 |  2 |         isUp: currentTargetIsUp,
+1389 |  2 |         inputs: { base, perc, isUp: currentTargetIsUp },
+1390 |  2 |         currency: currentCurrency
+1391 |  1 |     });
+1392 |  0 | });
+1393 |  0 | 
+1394 |  1 | savePercentageBtn.addEventListener('click', () => {
+1395 |  1 |     const initial = parseFloat(initialPriceInput.value);
+1396 |  1 |     const final = parseFloat(finalPriceInput.value);
+1397 |  1 |     if (isNaN(initial) || isNaN(final) || initial === 0) return;
+1398 |  1 | 
+1399 |  2 |     addRecordToHistory({
+1400 |  2 |         type: 'Percentage Delta',
+1401 |  2 |         mode: 'percentage',
+1402 |  2 |         symbol: stockSymbol2Input.value.trim().toUpperCase(),
+1403 |  2 |         details: `<span>Base: ${currentCurrency}${initial}</span><span>Target: ${currentCurrency}${final}</span>`,
+1404 |  2 |         result: `${Math.abs(currentPercentage).toFixed(2)}%`,
+1405 |  2 |         isUp: currentPercentage > 0,
+1406 |  2 |         inputs: { initial, final },
+1407 |  2 |         currency: currentCurrency
+1408 |  1 |     });
+1409 |  0 | });
+1410 |  0 | 
+1411 |  1 | function populateForm(record) {
+1412 |  1 |     let isPercentage = false;
+1413 |  2 |     if (record.mode === 'percentage') {
+1414 |  2 |         isPercentage = true;
+1415 |  2 |     } else if (record.inputs && record.inputs.initial !== undefined) {
+1416 |  2 |         isPercentage = true;
+1417 |  2 |     } else if (record.result && record.result.includes('%')) {
+1418 |  2 |         isPercentage = true;
+1419 |  2 |     } else if (record.type === 'Percentage Delta' || record.type === 'Percentage Change') {
+1420 |  2 |         isPercentage = true;
+1421 |  1 |     }
+1422 |  1 | 
+1423 |  2 |     if (!isPercentage) {
+1424 |  2 |         stockSymbol1Input.value = record.symbol || '';
+1425 |  3 |         if (record.inputs) {
+1426 |  3 |             basePriceInput.value = record.inputs.base;
+1427 |  3 |             percentageChangeInput.value = record.inputs.perc;
+1428 |  3 |             document.getElementById(record.inputs.isUp ? 'move-up' : 'move-down').checked = true;
+1429 |  3 |         } else {
+1430 |  3 |             const baseMatch = record.details.match(/Base:\s*.\s*([\d.]+)/);
+1431 |  3 |             const percMatch = record.details.match(/(Up|Down)\s+([\d.]+)%/);
+1432 |  3 |             if (baseMatch) basePriceInput.value = baseMatch[1];
+1433 |  4 |             if (percMatch) {
+1434 |  4 |                 document.getElementById(percMatch[1] === 'Up' ? 'move-up' : 'move-down').checked = true;
+1435 |  4 |                 percentageChangeInput.value = percMatch[2];
+1436 |  3 |             }
+1437 |  2 |         }
+1438 |  2 |         handleInput();
+1439 |  2 |     } else {
+1440 |  2 |         stockSymbol2Input.value = record.symbol || '';
+1441 |  3 |         if (record.inputs) {
+1442 |  3 |             initialPriceInput.value = record.inputs.initial;
+1443 |  3 |             finalPriceInput.value = record.inputs.final;
+1444 |  3 |         } else {
+1445 |  3 |             const initialMatch = record.details.match(/Base:\s*.\s*([\d.]+)/);
+1446 |  3 |             const finalMatch = record.details.match(/Target:\s*.\s*([\d.]+)/);
+1447 |  3 |             if (initialMatch) initialPriceInput.value = initialMatch[1];
+1448 |  3 |             if (finalMatch) finalPriceInput.value = finalMatch[1];
+1449 |  2 |         }
+1450 |  2 |         handleInput();
+1451 |  1 |     }
+1452 |  0 | }
+1453 |  0 | 
+1454 |  0 | // Initial Setup
+1455 |  1 | async function initializeData() {
+1456 |  1 |     let stateObj = null;
+1457 |  1 |     
+1458 |  1 |     // 1. Try to load from IPC file storage
+1459 |  2 |     if (window.electronAPI && window.electronAPI.loadData) {
+1460 |  3 |         try {
+1461 |  3 |             const dataStr = await window.electronAPI.loadData();
+1462 |  4 |             if (dataStr) {
+1463 |  4 |                 stateObj = JSON.parse(dataStr);
+1464 |  3 |             }
+1465 |  3 |         } catch (e) {
+1466 |  3 |             console.error('[DATA] Failed to load/parse IPC data:', e);
+1467 |  2 |         }
+1468 |  1 |     }
+1469 |  1 |     
+1470 |  1 |     // 2. Fallback to localStorage for initial migration
+1471 |  2 |     if (!stateObj) {
+1472 |  2 |         historyRecords = JSON.parse(localStorage.getItem('calcHistory')) || [];
+1473 |  2 |         historyVersion = localStorage.getItem('calcHistoryVersion');
+1474 |  2 |         
+1475 |  3 |         if (!historyVersion) {
+1476 |  3 |             historyRecords.reverse();
+1477 |  3 |             historyVersion = '2';
+1478 |  2 |         }
+1479 |  2 |         
+1480 |  3 |         if (historyRecords.length > 0 && !historyRecords[0].records) {
+1481 |  3 |             const grouped = {};
+1482 |  4 |             historyRecords.forEach(record => {
+1483 |  4 |                 const sym = record.symbol || 'Uncategorized';
+1484 |  4 |                 if (!grouped[sym]) grouped[sym] = [];
+1485 |  4 |                 grouped[sym].push(record);
+1486 |  3 |             });
+1487 |  4 |             historyRecords = Object.keys(grouped).map(sym => ({
+1488 |  4 |                 symbol: sym,
+1489 |  4 |                 records: grouped[sym]
+1490 |  3 |             }));
+1491 |  2 |         }
+1492 |  2 |         
+1493 |  2 |         const savedInputs = JSON.parse(localStorage.getItem('calcInputs'));
+1494 |  2 |         customLabels = JSON.parse(localStorage.getItem('customLabels')) || [];
+1495 |  3 |         stateObj = {
+1496 |  3 |             historyRecords: historyRecords,
+1497 |  3 |             historyVersion: historyVersion,
+1498 |  3 |             customLabels: customLabels,
+1499 |  3 |             calcInputs: savedInputs
+1500 |  2 |         };
+1501 |  2 |         
+1502 |  2 |         // Save immediately to migrate to file storage
+1503 |  3 |         if (historyRecords.length > 0) {
+1504 |  3 |             setTimeout(saveState, 500); 
+1505 |  2 |         }
+1506 |  2 |     } else {
+1507 |  2 |         historyRecords = stateObj.historyRecords || [];
+1508 |  2 |         historyVersion = stateObj.historyVersion;
+1509 |  2 |         customLabels = stateObj.customLabels || [];
+1510 |  1 |     }
+1511 |  1 |     
+1512 |  1 |     // Populate UI from calcInputs
+1513 |  1 |     const saved = stateObj.calcInputs;
+1514 |  2 |     if (saved) {
+1515 |  3 |         if (saved.currency === '$') {
+1516 |  3 |             document.getElementById('currency-usd').checked = true;
+1517 |  3 |         } else {
+1518 |  3 |             document.getElementById('currency-cny').checked = true;
+1519 |  2 |         }
+1520 |  2 |         
+1521 |  2 |         stockSymbol1Input.value = saved.stock1 || '';
+1522 |  2 |         basePriceInput.value = saved.basePrice || '';
+1523 |  3 |         if (saved.moveDown) {
+1524 |  3 |             document.getElementById('move-down').checked = true;
+1525 |  3 |         } else {
+1526 |  3 |             document.getElementById('move-up').checked = true;
+1527 |  2 |         }
+1528 |  2 |         percentageChangeInput.value = saved.percentChange || '';
+1529 |  2 |         
+1530 |  2 |         stockSymbol2Input.value = saved.stock2 || '';
+1531 |  2 |         initialPriceInput.value = saved.initialPrice || '';
+1532 |  2 |         finalPriceInput.value = saved.finalPrice || '';
+1533 |  1 |     }
+1534 |  1 | 
+1535 |  1 |     updateCurrency();
+1536 |  1 |     renderCustomLabels();
+1537 |  1 |     renderHistory();
+1538 |  0 | }
+1539 |  0 | 
+1540 |  0 | initializeData();
+1541 |  0 | 
+1542 |  0 | // Auto-select text in input fields on focus
+1543 |  1 | document.querySelectorAll('input[type="number"], input[type="text"]').forEach(input => {
+1544 |  2 |     input.addEventListener('focus', function() {
+1545 |  2 |         this.select();
+1546 |  1 |     });
+1547 |  0 | });
+1548 |  0 | 
+1549 |  0 | // Theme Toggle Logic
+1550 |  0 | const themeToggleBtn = document.getElementById('theme-toggle-btn');
+1551 |  1 | if (themeToggleBtn) {
+1552 |  1 |     const savedTheme = localStorage.getItem('ticker-theme');
+1553 |  2 |     if (savedTheme === 'light') {
+1554 |  2 |         document.body.classList.add('light-theme');
+1555 |  1 |     }
+1556 |  1 |     
+1557 |  2 |     themeToggleBtn.addEventListener('click', () => {
+1558 |  2 |         document.body.classList.toggle('light-theme');
+1559 |  3 |         if (document.body.classList.contains('light-theme')) {
+1560 |  3 |             localStorage.setItem('ticker-theme', 'light');
+1561 |  3 |         } else {
+1562 |  3 |             localStorage.setItem('ticker-theme', 'dark');
+1563 |  2 |         }
+1564 |  1 |     });
+1565 |  0 | }
+1566 |  0 | 
+1567 |  0 | // Split View Drag Logic
+1568 |  0 | const resizer = document.getElementById('split-resizer');
+1569 |  0 | const controlPanel = document.querySelector('.control-panel');
+1570 |  0 | 
+1571 |  1 | if (resizer && controlPanel) {
+1572 |  1 |     let isDragging = false;
+1573 |  1 |     let startX = 0;
+1574 |  1 |     let startWidth = 0;
+1575 |  1 | 
+1576 |  1 |     // Load saved width
+1577 |  1 |     const savedLeftWidth = localStorage.getItem('calcLeftPanelWidth');
+1578 |  2 |     if (savedLeftWidth) {
+1579 |  2 |         controlPanel.style.setProperty('--left-flex', `0 0 ${savedLeftWidth}px`);
+1580 |  2 |     } else {
+1581 |  2 |         // Emulate 1fr / 1.2fr ratio
+1582 |  2 |         controlPanel.style.setProperty('--left-flex', `0 0 45.45%`);
+1583 |  1 |     }
+1584 |  1 | 
+1585 |  2 |     resizer.addEventListener('mousedown', (e) => {
+1586 |  2 |         isDragging = true;
+1587 |  2 |         startX = e.clientX;
+1588 |  2 |         startWidth = controlPanel.getBoundingClientRect().width;
+1589 |  2 |         document.body.style.cursor = 'col-resize';
+1590 |  2 |         document.body.style.userSelect = 'none';
+1591 |  1 |     });
+1592 |  1 | 
+1593 |  2 |     window.addEventListener('mousemove', (e) => {
+1594 |  2 |         if (!isDragging) return;
+1595 |  2 |         const dx = e.clientX - startX;
+1596 |  2 |         let newWidth = startWidth + dx;
+1597 |  2 |         
+1598 |  2 |         // Enforce left panel min width
+1599 |  2 |         if (newWidth < 235) newWidth = 235;
+1600 |  2 | 
+1601 |  2 |         // Enforce right panel min width (281px)
+1602 |  2 |         const splitView = document.querySelector('.split-view');
+1603 |  2 |         const splitViewWidth = splitView.getBoundingClientRect().width;
+1604 |  2 |         const resizerWidth = resizer.getBoundingClientRect().width;
+1605 |  2 |         
+1606 |  2 |         const maxLeftWidth = splitViewWidth - resizerWidth - 281;
+1607 |  2 |         if (newWidth > maxLeftWidth) newWidth = maxLeftWidth;
+1608 |  2 | 
+1609 |  2 |         controlPanel.style.setProperty('--left-flex', `0 0 ${newWidth}px`);
+1610 |  1 |     });
+1611 |  1 | 
+1612 |  2 |     window.addEventListener('mouseup', () => {
+1613 |  3 |         if (isDragging) {
+1614 |  3 |             isDragging = false;
+1615 |  3 |             document.body.style.cursor = '';
+1616 |  3 |             document.body.style.userSelect = '';
+1617 |  3 |             
+1618 |  3 |             // Save width
+1619 |  3 |             const finalWidth = controlPanel.getBoundingClientRect().width;
+1620 |  3 |             localStorage.setItem('calcLeftPanelWidth', finalWidth);
+1621 |  2 |         }
+1622 |  1 |     });
+1623 |  0 | }
+1624 |  0 | 
+1625 |  0 | // Window Size Toggle Button
+1626 |  0 | const sizeToggleBtn = document.getElementById('size-toggle-btn');
+1627 |  1 | if (sizeToggleBtn && window.electronAPI) {
+1628 |  2 |     sizeToggleBtn.addEventListener('click', (e) => {
+1629 |  3 |         if (e.metaKey || e.ctrlKey || e.altKey) {
+1630 |  3 |             window.electronAPI.recordSize(1);
+1631 |  3 |             alert("Current size saved as 'Size 1'!");
+1632 |  3 |         } else if (e.shiftKey) {
+1633 |  3 |             window.electronAPI.recordSize(2);
+1634 |  3 |             alert("Current size saved as 'Size 2'!");
+1635 |  3 |         } else {
+1636 |  3 |             window.electronAPI.toggleWindowSize();
+1637 |  2 |         }
+1638 |  1 |     });
+1639 |  0 | }
+1640 |  0 | 
+1641 |  0 | // Fetch and render stock news
+1642 |  1 | async function loadStockNews(symbol, groupIndex) {
+1643 |  1 |     const panel = document.getElementById(`news-panel-${symbol}`);
+1644 |  1 |     if (!panel) return;
+1645 |  1 |     
+1646 |  2 |     const attachTabs = () => {
+1647 |  2 |         const tabs = panel.querySelectorAll('.news-tab');
+1648 |  2 |         const contentAreas = panel.querySelectorAll('.news-content-area');
+1649 |  3 |         tabs.forEach(tab => {
+1650 |  4 |             tab.addEventListener('click', () => {
+1651 |  4 |                 tabs.forEach(t => t.classList.remove('active'));
+1652 |  5 |                 contentAreas.forEach(c => {
+1653 |  5 |                     c.classList.remove('active');
+1654 |  5 |                     c.classList.add('hidden');
+1655 |  4 |                 });
+1656 |  4 |                 tab.classList.add('active');
+1657 |  4 |                 const targetId = tab.getAttribute('data-target');
+1658 |  4 |                 const targetContent = panel.querySelector(`#${targetId}`);
+1659 |  5 |                 if (targetContent) {
+1660 |  5 |                     targetContent.classList.remove('hidden');
+1661 |  5 |                     targetContent.classList.add('active');
+1662 |  4 |                 }
+1663 |  3 |             });
+1664 |  2 |         });
+1665 |  1 |     };
+1666 |  1 |     
+1667 |  2 |     if (NEWS_CACHE[symbol]) {
+1668 |  2 |         panel.innerHTML = NEWS_CACHE[symbol];
+1669 |  2 |         attachTabs();
+1670 |  2 |         return;
+1671 |  1 |     }
+1672 |  1 |     
+1673 |  1 |     panel.innerHTML = '<div style="font-size: 0.7rem; color: var(--fg-dim); padding: 1rem 0;">Loading...</div>';
+1674 |  1 |     
+1675 |  1 |     const match = symbol.match(/\d{4,6}/);
+1676 |  2 |     if (!match) {
+1677 |  2 |         panel.innerHTML = '<div style="font-size: 0.7rem; color: var(--fg-dim);">No news available.</div>';
+1678 |  2 |         return;
+1679 |  1 |     }
+1680 |  1 |     const code = match[0];
+1681 |  1 |     
+1682 |  1 |     // Determine EastMoney specific code format (e.g. SH603618 or SZ300775)
+1683 |  1 |     let emCode = code;
+1684 |  2 |     if (symbol.includes('SH') || code.startsWith('6')) {
+1685 |  2 |         emCode = `SH${code}`;
+1686 |  2 |     } else if (symbol.includes('SZ') || code.startsWith('0') || code.startsWith('3')) {
+1687 |  2 |         emCode = `SZ${code}`;
+1688 |  1 |     }
+1689 |  1 |     
+1690 |  2 |     try {
+1691 |  2 |         const noticesUrl = `https://np-anotice-stock.eastmoney.com/api/security/ann?sr=-1&page_size=5&page_index=1&ann_type=A&client_source=WEB&stock_list=${code}&f_node=1`;
+1692 |  2 |         const f10Url = `https://emweb.securities.eastmoney.com/PC_HSF10/NewFinanceAnalysis/ZYZBAjaxNew?type=0&code=${emCode}`;
+1693 |  2 |         const forecastUrl = `https://datacenter-web.eastmoney.com/api/data/v1/get?sortColumns=NOTICE_DATE&sortTypes=-1&pageSize=5&pageNumber=1&reportName=RPT_PUBLIC_OP_NEWPREDICT&columns=SECURITY_NAME_ABBR,NOTICE_DATE,PREDICT_CONTENT,PREDICT_TYPE,PREDICT_FINANCE_CODE,ADD_AMP_LOWER,ADD_AMP_UPPER&filter=(SECURITY_CODE%3D%22${code}%22)`;
+1694 |  2 |         const researchUrl = `https://reportapi.eastmoney.com/report/list?pageSize=3&pageNo=1&qType=0&code=${code}&beginTime=2026-01-01&endTime=2026-12-31`;
+1695 |  2 |         
+1696 |  2 |         const secid = emCode.startsWith('SH') ? '1.' + code : '0.' + code;
+1697 |  2 |         const push2Url = `https://push2.eastmoney.com/api/qt/stock/get?secid=${secid}&fields=f127`;
+1698 |  2 |         
+1699 |  2 |         let [noticesJsonStr, f10JsonStr, forecastJsonStr, researchJsonStr, push2JsonStr] = await Promise.all([
+1700 |  2 |             (window.electronAPI && window.electronAPI.fetchFinancialData) 
+1701 |  2 |                 ? window.electronAPI.fetchFinancialData(noticesUrl) : fetch(noticesUrl).then(r => r.text()),
+1702 |  2 |             (window.electronAPI && window.electronAPI.fetchFinancialData)
+1703 |  2 |                 ? window.electronAPI.fetchFinancialData(f10Url) : fetch(f10Url).then(r => r.text()),
+1704 |  2 |             (window.electronAPI && window.electronAPI.fetchFinancialData)
+1705 |  2 |                 ? window.electronAPI.fetchFinancialData(forecastUrl) : fetch(forecastUrl).then(r => r.text()),
+1706 |  2 |             (window.electronAPI && window.electronAPI.fetchFinancialData)
+1707 |  2 |                 ? window.electronAPI.fetchFinancialData(researchUrl) : fetch(researchUrl).then(r => r.text()),
+1708 |  2 |             (window.electronAPI && window.electronAPI.fetchFinancialData)
+1709 |  2 |                 ? window.electronAPI.fetchFinancialData(push2Url) : fetch(push2Url).then(r => r.text())
+1710 |  2 |         ]);
+1711 |  2 |         
+1712 |  2 |         const emData = JSON.parse(noticesJsonStr);
+1713 |  2 |         let noticesHtml = '';
+1714 |  3 |         if (emData && emData.data && emData.data.list && emData.data.list.length > 0) {
+1715 |  4 |             emData.data.list.forEach(item => {
+1716 |  4 |                 const tag = item.columns && item.columns[0] ? item.columns[0].column_name : '公告';
+1717 |  4 |                 const title = item.title;
+1718 |  4 |                 const link = `https://data.eastmoney.com/notices/detail/${code}/${item.art_code}.html`;
+1719 |  4 |                 const noticeDate = item.notice_date ? item.notice_date.substring(0, 10) : '';
+1720 |  4 |                 
+1721 |  4 |                 noticesHtml += `
+1722 |  4 |                     <a href="${link}" class="news-item" target="_blank">
+1723 |  4 |                         <span class="news-tag">【${tag}】</span>
+1724 |  4 |                         <span class="news-text event-text">${title}</span>
+1725 |  4 |                         <span class="news-date">${noticeDate}</span>
+1726 |  4 |                     </a>
+1727 |  4 |                 `;
+1728 |  3 |             });
+1729 |  3 |         } else {
+1730 |  3 |             noticesHtml = '<div style="font-size: 0.7rem; color: var(--fg-dim);">No recent announcements.</div>';
+1731 |  2 |         }
+1732 |  2 |         
+1733 |  2 |         let eventsHtml = '';
+1734 |  2 |         let eventsList = [];
+1735 |  2 |         
+1736 |  2 |         // 1. Get the latest earnings forecasts (业绩预告)
+1737 |  3 |         try {
+1738 |  3 |             const forecastData = JSON.parse(forecastJsonStr);
+1739 |  4 |             if (forecastData && forecastData.result && forecastData.result.data && forecastData.result.data.length > 0) {
+1740 |  4 |                 let seenDates = new Set();
+1741 |  4 |                 let addedCount = 0;
+1742 |  4 |                 
+1743 |  4 |                 // Group by date to avoid duplicates (e.g. net profit and deducted net profit on the same day)
+1744 |  5 |                 for (let forecast of forecastData.result.data) {
+1745 |  5 |                     const date = forecast.NOTICE_DATE ? forecast.NOTICE_DATE.substring(0, 10) : '';
+1746 |  5 |                     if (!date || seenDates.has(date)) continue;
+1747 |  5 |                     
+1748 |  5 |                     // Prefer 004 (net profit) if multiple exist for this date
+1749 |  5 |                     let bestForecast = forecastData.result.data.find(d => d.NOTICE_DATE === forecast.NOTICE_DATE && d.PREDICT_FINANCE_CODE === '004') || forecast;
+1750 |  5 |                     
+1751 |  5 |                     seenDates.add(date);
+1752 |  5 |                     
+1753 |  5 |                     let tag = bestForecast.PREDICT_TYPE || '预告';
+1754 |  5 |                     if (tag.length > 2) tag = tag.substring(0, 2);
+1755 |  5 |                     
+1756 |  5 |                     let text = bestForecast.PREDICT_CONTENT;
+1757 |  6 |                     if (bestForecast.ADD_AMP_LOWER !== null && bestForecast.ADD_AMP_UPPER !== null && bestForecast.ADD_AMP_LOWER !== undefined) {
+1758 |  6 |                         const lower = Math.round(bestForecast.ADD_AMP_LOWER);
+1759 |  6 |                         const upper = Math.round(bestForecast.ADD_AMP_UPPER);
+1760 |  6 |                         const name = bestForecast.SECURITY_NAME_ABBR || '该公司';
+1761 |  7 |                         if (lower === upper) {
+1762 |  7 |                             text = `${name}发布业绩预告。净利润同比${tag} ${lower}%。`;
+1763 |  7 |                         } else {
+1764 |  7 |                             text = `${name}发布业绩预告。净利润同比${tag} ${lower}% 到 ${upper}%。`;
+1765 |  6 |                         }
+1766 |  5 |                     }
+1767 |  5 |                     
+1768 |  5 |                     const link = `https://emweb.securities.eastmoney.com/PC_HSF10/NewFinanceAnalysis/Index?type=web&code=${emCode}`;
+1769 |  6 |                     if (date && date.startsWith('2026')) {
+1770 |  6 |                         eventsList.push({ link, tag, text, date });
+1771 |  5 |                     }
+1772 |  5 |                     
+1773 |  5 |                     addedCount++;
+1774 |  5 |                     if (addedCount >= 2) break; // Limit to 2 recent forecasts
+1775 |  4 |                 }
+1776 |  3 |             }
+1777 |  2 |         } catch(e) {}
+1778 |  2 |         
+1779 |  2 |         // 2. Get the latest financial report summary (财报)
+1780 |  3 |         try { 
+1781 |  3 |             const f10Data = JSON.parse(f10JsonStr); 
+1782 |  4 |             if (f10Data && f10Data.data && f10Data.data.length > 0) {
+1783 |  5 |                 f10Data.data.slice(0, 2).forEach(report => {
+1784 |  5 |                     const reportName = report.REPORT_DATE_NAME || '财报';
+1785 |  5 |                     const noticeDate = report.NOTICE_DATE ? report.NOTICE_DATE.substring(0, 10) : '';
+1786 |  5 |                     
+1787 |  5 |                     let summary = `${report.SECURITY_NAME_ABBR}发布${reportName}。`;
+1788 |  6 |                     if (report.PARENTNETPROFITTZ !== null && report.PARENTNETPROFITTZ !== undefined) {
+1789 |  6 |                         summary += `净利润同比${report.PARENTNETPROFITTZ >= 0 ? '增长' : '下降'}${Math.abs(report.PARENTNETPROFITTZ).toFixed(2)}%。`;
+1790 |  5 |                     }
+1791 |  6 |                     if (report.TOTALOPERATEREVETZ !== null && report.TOTALOPERATEREVETZ !== undefined) {
+1792 |  6 |                         summary += `营收同比${report.TOTALOPERATEREVETZ >= 0 ? '增长' : '下降'}${Math.abs(report.TOTALOPERATEREVETZ).toFixed(2)}%。`;
+1793 |  5 |                     }
+1794 |  5 |                     
+1795 |  5 |                     const f10Link = `https://emweb.securities.eastmoney.com/PC_HSF10/NewFinanceAnalysis/Index?type=web&code=${emCode}`;
+1796 |  6 |                     if (noticeDate && noticeDate.startsWith('2026')) {
+1797 |  6 |                         eventsList.push({ link: f10Link, tag: '财报', text: summary, date: noticeDate });
+1798 |  5 |                     }
+1799 |  4 |                 });
+1800 |  3 |             }
+1801 |  2 |         } catch(e) {}
+1802 |  2 |         
+1803 |  2 |         // 3. Get the latest research reports for industry/forecasts (研报)
+1804 |  3 |         try {
+1805 |  3 |             const researchData = JSON.parse(researchJsonStr);
+1806 |  4 |             if (researchData && researchData.data && researchData.data.length > 0) {
+1807 |  5 |                 researchData.data.slice(0, 3).forEach(report => {
+1808 |  5 |                     const date = report.publishDate ? report.publishDate.substring(0, 10) : '';
+1809 |  5 |                     const text = `${report.orgSName}: ${report.title}`;
+1810 |  5 |                     const link = `https://data.eastmoney.com/report/zw_stock.jshtml?infocode=${report.infoCode}`;
+1811 |  6 |                     if (date && date.startsWith('2026')) {
+1812 |  6 |                         eventsList.push({ link, tag: '研报', text, date });
+1813 |  5 |                     }
+1814 |  4 |                 });
+1815 |  3 |             }
+1816 |  2 |         } catch(e) {}
+1817 |  2 |         
+1818 |  2 |         // Sort events by date descending (newest first)
+1819 |  3 |         eventsList.sort((a, b) => {
+1820 |  3 |             const dateA = new Date(a.date).getTime() || 0;
+1821 |  3 |             const dateB = new Date(b.date).getTime() || 0;
+1822 |  3 |             return dateB - dateA;
+1823 |  2 |         });
+1824 |  2 |         
+1825 |  3 |         if (eventsList.length > 0) {
+1826 |  4 |             eventsList.forEach(event => {
+1827 |  4 |                 eventsHtml += `
+1828 |  4 |                     <a href="${event.link}" class="news-item" target="_blank">
+1829 |  4 |                         <span class="news-tag">【${event.tag}】</span>
+1830 |  4 |                         <span class="news-text event-text">${event.text}</span>
+1831 |  4 |                         <span class="news-date">${event.date}</span>
+1832 |  4 |                     </a>
+1833 |  4 |                 `;
+1834 |  3 |             });
+1835 |  3 |         } else {
+1836 |  3 |             eventsHtml = '<div style="font-size: 0.7rem; color: var(--fg-dim);">No recent events found.</div>';
+1837 |  2 |         }
+1838 |  2 | 
+1839 |  2 |         // 4. Get Industry Reports based on f127 industry name
+1840 |  2 |         let industryName = '行业研报';
+1841 |  2 |         let indReportsHtml = '';
+1842 |  3 |         try {
+1843 |  3 |             const push2Data = JSON.parse(push2JsonStr);
+1844 |  4 |             if (push2Data && push2Data.data && push2Data.data.f127) {
+1845 |  4 |                 industryName = push2Data.data.f127;
+1846 |  3 |             }
+1847 |  2 |         } catch (e) {}
+1848 |  2 |         
+1849 |  2 |         const indCode = INDUSTRY_MAPPING[industryName];
+1850 |  3 |         if (indCode) {
+1851 |  3 |             const indUrl = `https://reportapi.eastmoney.com/report/list?pageSize=5&pageNo=1&qType=1&industryCode=${indCode}&beginTime=2026-01-01&endTime=2026-12-31`;
+1852 |  4 |             try {
+1853 |  4 |                 const indStr = (window.electronAPI && window.electronAPI.fetchFinancialData)
+1854 |  4 |                      ? await window.electronAPI.fetchFinancialData(indUrl) : await fetch(indUrl).then(r => r.text());
+1855 |  4 |                 const indData = JSON.parse(indStr);
+1856 |  4 |                 let indList = [];
+1857 |  5 |                 if (indData && indData.data && indData.data.length > 0) {
+1858 |  6 |                      indData.data.forEach(report => {
+1859 |  6 |                          const date = report.publishDate ? report.publishDate.substring(0, 10) : '';
+1860 |  6 |                          const text = `${report.orgSName}: ${report.title}`;
+1861 |  6 |                          const link = `https://data.eastmoney.com/report/zw_industry.jshtml?infocode=${report.infoCode}`;
+1862 |  7 |                          if (date && date.startsWith('2026')) {
+1863 |  7 |                              indList.push({ link, tag: '研报', text, date });
+1864 |  6 |                          }
+1865 |  5 |                      });
+1866 |  4 |                 }
+1867 |  5 |                 if (indList.length > 0) {
+1868 |  6 |                     indList.forEach(event => {
+1869 |  6 |                         indReportsHtml += `
+1870 |  6 |                             <a href="${event.link}" class="news-item" target="_blank">
+1871 |  6 |                                 <span class="news-tag">【${event.tag}】</span>
+1872 |  6 |                                 <span class="news-text event-text">${event.text}</span>
+1873 |  6 |                                 <span class="news-date">${event.date}</span>
+1874 |  6 |                             </a>
+1875 |  6 |                         `;
+1876 |  5 |                     });
+1877 |  5 |                 } else {
+1878 |  5 |                     indReportsHtml = '<div style="font-size: 0.7rem; color: var(--fg-dim);">No recent industry reports found.</div>';
+1879 |  4 |                 }
+1880 |  4 |             } catch (e) {
+1881 |  4 |                 indReportsHtml = '<div style="font-size: 0.7rem; color: var(--fg-dim);">Failed to load industry reports.</div>';
+1882 |  3 |             }
+1883 |  3 |         } else {
+1884 |  3 |             indReportsHtml = '<div style="font-size: 0.7rem; color: var(--fg-dim);">Industry reports not available.</div>';
+1885 |  2 |         }
+1886 |  2 | 
+1887 |  2 |         let html = `
+1888 |  2 |             <div class="news-section">
+1889 |  2 |                 <div class="news-tabs">
+1890 |  2 |                     <div class="news-tab active" data-target="events-content-${symbol}">Events</div>
+1891 |  2 |                     <div class="news-tab" data-target="industry-content-${symbol}">${industryName}</div>
+1892 |  2 |                     <div class="news-tab" data-target="notices-content-${symbol}">最新公告</div>
+1893 |  2 |                 </div>
+1894 |  2 |                 
+1895 |  2 |                 <div class="news-content-area active" id="events-content-${symbol}">
+1896 |  2 |                     <div class="news-list">
+1897 |  2 |                         ${eventsHtml}
+1898 |  2 |                     </div>
+1899 |  2 |                 </div>
+1900 |  2 |                 
+1901 |  2 |                 <div class="news-content-area hidden" id="industry-content-${symbol}">
+1902 |  2 |                     <div class="news-list">
+1903 |  2 |                         ${indReportsHtml}
+1904 |  2 |                     </div>
+1905 |  2 |                 </div>
+1906 |  2 |                 
+1907 |  2 |                 <div class="news-content-area hidden" id="notices-content-${symbol}">
+1908 |  2 |                     <div class="news-list">
+1909 |  2 |                         ${noticesHtml}
+1910 |  2 |                     </div>
+1911 |  2 |                 </div>
+1912 |  2 |             </div>
+1913 |  2 |         `;
+1914 |  2 |         
+1915 |  2 |         NEWS_CACHE[symbol] = html;
+1916 |  2 |         panel.innerHTML = html;
+1917 |  2 |         
+1918 |  2 |         attachTabs();
+1919 |  2 |         
+1920 |  2 |     } catch (e) {
+1921 |  2 |         console.error('Error fetching news/events:', e);
+1922 |  2 |         panel.innerHTML = '<div style="font-size: 0.7rem; color: var(--fg-dim);">Failed to load news.</div>';
+1923 |  1 |     }
+1924 |  0 | }
+1925 |  0 | 
+1926 |  0 | 
+1927 |  0 | // ---------------------------------------------------------
+1928 |  0 | // Background K-Line Metrics Fetching
+1929 |  0 | // ---------------------------------------------------------
+1930 |  0 | 
+1931 |  1 | function getTencentSymbol(c) {
+1932 |  1 |     let codeMatch = c.match(/[A-Za-z0-9]+/);
+1933 |  1 |     if (!codeMatch) return null;
+1934 |  1 |     let code = codeMatch[0].toLowerCase();
+1935 |  1 |     if (/^\d{6}$/.test(code)) return (code.startsWith('6') || code.startsWith('9')) ? `sh${code}` : `sz${code}`;
+1936 |  1 |     if (/^\d{5}$/.test(code)) return `hk${code}`; 
+1937 |  1 |     return `us${code.toUpperCase()}`;
+1938 |  0 | }
+1939 |  0 | 
+1940 |  1 | async function loadKlineMetrics(group, groupIndex) {
+1941 |  1 |     const tsym = getTencentSymbol(group.symbol);
+1942 |  1 |     if (!tsym) return;
+1943 |  1 | 
+1944 |  2 |     if (!group.klineMetrics) {
+1945 |  3 |         group.klineMetrics = {
+1946 |  3 |             m5: { high: null, low: null },
+1947 |  3 |             m30: { high: null, low: null },
+1948 |  3 |             day: { high: null, low: null },
+1949 |  3 |             week: { high: null, low: null }
+1950 |  2 |         };
+1951 |  1 |     }
+1952 |  1 | 
+1953 |  2 |     const fetchKline = async (type, intervalParam) => {
+1954 |  2 |         const isAShare = tsym.startsWith('sh') || tsym.startsWith('sz');
+1955 |  2 |         
+1956 |  3 |         if (isAShare) {
+1957 |  3 |             let scale = 5;
+1958 |  3 |             let datalen = 320;
+1959 |  3 |             if (type === 'm5') { scale = 5; datalen = 320; }
+1960 |  3 |             else if (type === 'm30') { scale = 30; datalen = 320; }
+1961 |  3 |             else if (type === 'day') { scale = 240; datalen = 320; }
+1962 |  3 |             else if (type === 'week') { scale = 1200; datalen = 320; }
+1963 |  3 |             
+1964 |  3 |             const url = `https://quotes.sina.cn/cn/api/json_v2.php/CN_MarketData.getKLineData?symbol=${tsym}&scale=${scale}&ma=no&datalen=${datalen}`;
+1965 |  4 |             try {
+1966 |  4 |                 const res = await fetch(url);
+1967 |  4 |                 const data = await res.json();
+1968 |  5 |                 if (data && Array.isArray(data) && data.length > 0) {
+1969 |  5 |                     let maxHigh = -Infinity;
+1970 |  5 |                     let minLow = Infinity;
+1971 |  6 |                     for (let i = 0; i < data.length; i++) {
+1972 |  6 |                         const h = parseFloat(data[i].high);
+1973 |  6 |                         const l = parseFloat(data[i].low);
+1974 |  6 |                         if (h > maxHigh) maxHigh = h;
+1975 |  6 |                         if (l < minLow) minLow = l;
+1976 |  5 |                     }
+1977 |  5 |                     return { high: maxHigh, low: minLow };
+1978 |  4 |                 }
+1979 |  4 |             } catch (e) {
+1980 |  4 |                 console.error(`Failed to fetch Sina ${type} for ${tsym}`, e);
+1981 |  3 |             }
+1982 |  3 |         } else {
+1983 |  3 |             const endpoint = (type === 'm5' || type === 'm30') ? 'mkline' : 'kline';
+1984 |  3 |             const url = `https://ifzq.gtimg.cn/appstock/app/kline/${endpoint}?param=${tsym},${intervalParam},,,320,`;
+1985 |  4 |             try {
+1986 |  4 |                 const res = await fetch(url);
+1987 |  4 |                 const data = await res.json();
+1988 |  5 |                 if (data && data.code === 0 && data.data && data.data[tsym] && data.data[tsym][intervalParam]) {
+1989 |  5 |                     const arr = data.data[tsym][intervalParam];
+1990 |  6 |                     if (arr.length > 0) {
+1991 |  6 |                         let maxHigh = -Infinity;
+1992 |  6 |                         let minLow = Infinity;
+1993 |  7 |                         for (let i = 0; i < arr.length; i++) {
+1994 |  7 |                             const h = parseFloat(arr[i][3]);
+1995 |  7 |                             const l = parseFloat(arr[i][4]);
+1996 |  7 |                             if (h > maxHigh) maxHigh = h;
+1997 |  7 |                             if (l < minLow) minLow = l;
+1998 |  6 |                         }
+1999 |  6 |                         return { high: maxHigh, low: minLow };
+2000 |  5 |                     }
+2001 |  4 |                 }
+2002 |  4 |             } catch (e) {
+2003 |  4 |                 console.error(`Failed to fetch Tencent ${type} for ${tsym}`, e);
+2004 |  3 |             }
+2005 |  2 |         }
+2006 |  2 |         return { high: null, low: null };
+2007 |  1 |     };
+2008 |  1 | 
+2009 |  1 |     const [m5, m30, day, week] = await Promise.all([
+2010 |  1 |         fetchKline('m5', 'm5'),
+2011 |  1 |         fetchKline('m30', 'm30'),
+2012 |  1 |         fetchKline('day', 'day'),
+2013 |  1 |         fetchKline('week', 'week')
+2014 |  1 |     ]);
+2015 |  1 | 
+2016 |  1 |     group.klineMetrics = { m5, m30, day, week };
+2017 |  1 |     
+2018 |  1 |     // Update any dynamically bound records in the UI now that data is fresh
+2019 |  1 |     updateDynamicRecords(group, groupIndex);
+2020 |  0 | }
+2021 |  0 | 
+2022 |  0 | // ---------------------------------------------------------
+2023 |  0 | // Dynamic Record Bindings
+2024 |  0 | // ---------------------------------------------------------
+2025 |  0 | 
+2026 |  1 | function applyDynamicBindings(group, record) {
+2027 |  1 |     if (!group.klineMetrics) return false;
+2028 |  1 |     
+2029 |  1 |     // Rule 1: D线追踪 (D has fallen) -> Base = 30m High, Target = 5m Low
+2030 |  2 |     if (record.type.includes('目前D已经跌') && group.klineMetrics.m30.high !== null && group.klineMetrics.m5.low !== null) {
+2031 |  3 |         record.inputs = {
+2032 |  3 |             initial: group.klineMetrics.m30.high,
+2033 |  3 |             final: group.klineMetrics.m5.low
+2034 |  2 |         };
+2035 |  2 |         const diff = record.inputs.final - record.inputs.initial;
+2036 |  2 |         record.isUp = diff >= 0;
+2037 |  2 |         record.percentage = ((Math.abs(diff) / record.inputs.initial) * 100).toFixed(2) + '%';
+2038 |  2 |         record.result = record.percentage;
+2039 |  2 |         const recCurrency = record.currency || (record.result && record.result.includes('$') ? '$' : '¥');
+2040 |  2 |         record.details = `Base: ${recCurrency}${record.inputs.initial.toFixed(2)} | Target: ${recCurrency}${record.inputs.final.toFixed(2)}`;
+2041 |  2 |         return true;
+2042 |  1 |     }
+2043 |  1 |     
+2044 |  1 |     return false;
+2045 |  0 | }
+2046 |  0 | 
+2047 |  1 | function updateDynamicRecords(group, groupIndex) {
+2048 |  1 |     if (!group.klineMetrics) return;
+2049 |  1 |     const groupEl = document.getElementById(`group-${groupIndex}`);
+2050 |  1 |     if (!groupEl) return;
+2051 |  1 |     
+2052 |  1 |     let hasUpdates = false;
+2053 |  1 |     const recordEls = groupEl.querySelectorAll('.editorial-list > .item');
+2054 |  2 |     recordEls.forEach((item, recIndex) => {
+2055 |  2 |         const record = group.records[recIndex];
+2056 |  2 |         const wasUpdated = applyDynamicBindings(group, record);
+2057 |  2 |         
+2058 |  3 |         if (wasUpdated) {
+2059 |  3 |             hasUpdates = true;
+2060 |  3 |             recalculateRecord(record);
+2061 |  3 |             
+2062 |  3 |             // Update the UI directly to avoid focus loss
+2063 |  3 |             const recCurrency = record.currency || (record.result && record.result.includes('$') ? '$' : '¥');
+2064 |  3 |             const infoSpan = item.querySelector('.info');
+2065 |  4 |             if (infoSpan) {
+2066 |  4 |                 infoSpan.innerHTML = record.details;
+2067 |  3 |             }
+2068 |  3 |             
+2069 |  3 |             const upColor = recCurrency === '¥' ? '#ff453a' : '#32d74b';
+2070 |  3 |             const downColor = recCurrency === '¥' ? '#32d74b' : '#ff453a';
+2071 |  3 |             
+2072 |  3 |             const resultDiv = item.querySelector('.col-result');
+2073 |  4 |             if (resultDiv) {
+2074 |  4 |                 resultDiv.style.color = record.isUp ? upColor : downColor;
+2075 |  4 |                 resultDiv.innerHTML = record.result;
+2076 |  3 |             }
+2077 |  3 |             
+2078 |  3 |             // Seamlessly update top calculator if this record is currently selected
+2079 |  4 |             if (typeof editingGroupIndex !== 'undefined' && editingGroupIndex === groupIndex && editingRecordIndex === recIndex) {
+2080 |  4 |                 const initialInput = document.getElementById('initial-input');
+2081 |  4 |                 const finalInput = document.getElementById('final-input');
+2082 |  4 |                 const resultEl = document.getElementById('result');
+2083 |  5 |                 if (initialInput && finalInput && resultEl) {
+2084 |  5 |                     if (document.activeElement !== initialInput) initialInput.value = record.inputs.initial;
+2085 |  5 |                     if (document.activeElement !== finalInput) finalInput.value = record.inputs.final;
+2086 |  5 |                     resultEl.textContent = record.result;
+2087 |  5 |                     resultEl.style.color = record.isUp ? upColor : downColor;
+2088 |  4 |                 }
+2089 |  3 |             }
+2090 |  2 |         }
+2091 |  1 |     });
+2092 |  1 |     
+2093 |  2 |     if (hasUpdates) {
+2094 |  2 |         saveState(); // Ensure the dynamically updated values are saved
+2095 |  1 |     }
+2096 |  0 | }
+2097 |  0 | 
+2098 |  0 | // Background polling for real-time updates
+2099 |  1 | setInterval(() => {
+2100 |  2 |     historyRecords.forEach((group, groupIndex) => {
+2101 |  2 |         // Find if this group has any dynamic records before fetching
+2102 |  2 |         const hasDynamic = group.records.some(r => r.type.includes('目前D已经跌') || r.type.includes('30卖点2') || r.type.includes('D卖点1'));
+2103 |  3 |         if (hasDynamic) {
+2104 |  3 |             loadKlineMetrics(group, groupIndex);
+2105 |  2 |         }
+2106 |  1 |     });
+2107 |  0 | }, 3000); // Check for updates every 3 seconds
+2108 |  0 | 
+2109 |  0 | 
+2110 |  0 | // ---------------------------------------------------------
+2111 |  0 | // Custom Labels Logic
+2112 |  0 | // ---------------------------------------------------------
+2113 |  0 | const customLabelsContainer = document.getElementById('custom-labels-container');
+2114 |  0 | const addCustomLabelBtn = document.getElementById('add-custom-label-btn');
+2115 |  0 | const customLabelsTrash = document.getElementById('custom-labels-trash');
+2116 |  0 | 
+2117 |  1 | function renderCustomLabels() {
+2118 |  1 |     if (!customLabelsContainer) return;
+2119 |  1 |     customLabelsContainer.innerHTML = '';
+2120 |  1 |     
+2121 |  2 |     customLabels.forEach((label, index) => {
+2122 |  2 |         const labelEl = document.createElement('div');
+2123 |  2 |         labelEl.className = 'custom-label';
+2124 |  2 |         labelEl.textContent = label;
+2125 |  2 |         labelEl.draggable = true;
+2126 |  2 |         labelEl.dataset.index = index;
+2127 |  2 |         
+2128 |  2 |         // Drag events for reordering and trash
+2129 |  3 |         labelEl.addEventListener('dragstart', (e) => {
+2130 |  3 |             labelEl.classList.add('dragging-label');
+2131 |  3 |             e.dataTransfer.effectAllowed = 'move';
+2132 |  3 |             e.dataTransfer.setData('text/plain', label);
+2133 |  3 |             if (customLabelsTrash) customLabelsTrash.style.display = 'flex';
+2134 |  2 |         });
+2135 |  2 |         
+2136 |  3 |         labelEl.addEventListener('dragend', (e) => {
+2137 |  3 |             labelEl.classList.remove('dragging-label');
+2138 |  4 |             if (customLabelsTrash) {
+2139 |  4 |                 customLabelsTrash.style.display = 'none';
+2140 |  4 |                 customLabelsTrash.classList.remove('active');
+2141 |  3 |             }
+2142 |  3 |             // Update array from DOM order
+2143 |  3 |             const currentDOM = [...customLabelsContainer.querySelectorAll('.custom-label')];
+2144 |  3 |             customLabels = currentDOM.map(el => el.textContent);
+2145 |  3 |             saveState();
+2146 |  2 |         });
+2147 |  2 |         
+2148 |  2 |         // Click to Edit
+2149 |  3 |         labelEl.addEventListener('click', () => {
+2150 |  3 |             if (labelEl.querySelector('input')) return;
+2151 |  3 |             
+2152 |  3 |             const input = document.createElement('input');
+2153 |  3 |             input.type = 'text';
+2154 |  3 |             input.className = 'custom-label-input';
+2155 |  3 |             input.value = label;
+2156 |  3 |             
+2157 |  3 |             labelEl.textContent = '';
+2158 |  3 |             labelEl.appendChild(input);
+2159 |  3 |             input.focus();
+2160 |  3 |             input.select();
+2161 |  3 |             
+2162 |  3 |             let saved = false;
+2163 |  4 |             const finishEdit = () => {
+2164 |  4 |                 if (saved) return;
+2165 |  4 |                 saved = true;
+2166 |  4 |                 const newVal = input.value.trim();
+2167 |  5 |                 if (newVal) {
+2168 |  5 |                     customLabels[index] = newVal;
+2169 |  5 |                 } else {
+2170 |  5 |                     // Remove if empty
+2171 |  5 |                     customLabels.splice(index, 1);
+2172 |  4 |                 }
+2173 |  4 |                 saveState();
+2174 |  4 |                 renderCustomLabels();
+2175 |  3 |             };
+2176 |  3 |             
+2177 |  3 |             input.addEventListener('blur', finishEdit);
+2178 |  4 |             input.addEventListener('keydown', (e) => {
+2179 |  4 |                 if (e.key === 'Enter') finishEdit();
+2180 |  5 |                 if (e.key === 'Escape') {
+2181 |  5 |                     saved = true;
+2182 |  5 |                     renderCustomLabels();
+2183 |  4 |                 }
+2184 |  3 |             });
+2185 |  2 |         });
+2186 |  2 |         
+2187 |  2 |         customLabelsContainer.appendChild(labelEl);
+2188 |  1 |     });
+2189 |  0 | }
+2190 |  0 | 
+2191 |  1 | if (addCustomLabelBtn) {
+2192 |  2 |     addCustomLabelBtn.addEventListener('click', () => {
+2193 |  2 |         customLabels.push('New Label');
+2194 |  2 |         saveState();
+2195 |  2 |         renderCustomLabels();
+2196 |  2 |         
+2197 |  2 |         // Auto-trigger edit mode on the last added element
+2198 |  3 |         setTimeout(() => {
+2199 |  3 |             const newEl = customLabelsContainer.lastElementChild;
+2200 |  3 |             if (newEl) newEl.click();
+2201 |  2 |         }, 0);
+2202 |  1 |     });
+2203 |  0 | }
+2204 |  0 | 
+2205 |  1 | if (customLabelsContainer) {
+2206 |  2 |     customLabelsContainer.addEventListener('dragover', (e) => {
+2207 |  2 |         const draggingLabel = document.querySelector('.dragging-label');
+2208 |  2 |         if (!draggingLabel) return;
+2209 |  2 |         
+2210 |  2 |         e.preventDefault();
+2211 |  2 |         const afterElement = getDragAfterCustomLabel(customLabelsContainer, e.clientX, e.clientY);
+2212 |  3 |         if (afterElement == null) {
+2213 |  3 |             customLabelsContainer.appendChild(draggingLabel);
+2214 |  3 |         } else {
+2215 |  3 |             customLabelsContainer.insertBefore(draggingLabel, afterElement);
+2216 |  2 |         }
+2217 |  1 |     });
+2218 |  0 | }
+2219 |  0 | 
+2220 |  1 | function getDragAfterCustomLabel(container, x, y) {
+2221 |  1 |     const draggableElements = [...container.querySelectorAll('.custom-label:not(.dragging-label)')];
+2222 |  1 |     
+2223 |  2 |     for (const child of draggableElements) {
+2224 |  2 |         const box = child.getBoundingClientRect();
+2225 |  3 |         if (y >= box.top && y <= box.bottom) {
+2226 |  4 |             if (x < box.left + box.width / 2) {
+2227 |  4 |                 return child;
+2228 |  3 |             }
+2229 |  2 |         }
+2230 |  1 |     }
+2231 |  1 |     return null;
+2232 |  0 | }
+2233 |  0 | 
+2234 |  1 | if (customLabelsTrash) {
+2235 |  2 |     customLabelsTrash.addEventListener('dragover', (e) => {
+2236 |  2 |         const draggingLabel = document.querySelector('.dragging-label');
+2237 |  3 |         if (draggingLabel) {
+2238 |  3 |             e.preventDefault();
+2239 |  3 |             customLabelsTrash.classList.add('active');
+2240 |  2 |         }
+2241 |  1 |     });
+2242 |  1 |     
+2243 |  2 |     customLabelsTrash.addEventListener('dragleave', (e) => {
+2244 |  2 |         customLabelsTrash.classList.remove('active');
+2245 |  1 |     });
+2246 |  1 |     
+2247 |  2 |     customLabelsTrash.addEventListener('drop', (e) => {
+2248 |  2 |         const draggingLabel = document.querySelector('.dragging-label');
+2249 |  3 |         if (draggingLabel) {
+2250 |  3 |             e.preventDefault();
+2251 |  3 |             const indexToRemove = parseInt(draggingLabel.dataset.index, 10);
+2252 |  4 |             if (!isNaN(indexToRemove)) {
+2253 |  4 |                 customLabels.splice(indexToRemove, 1);
+2254 |  4 |                 saveState();
+2255 |  4 |                 renderCustomLabels();
+2256 |  3 |             }
+2257 |  2 |         }
+2258 |  2 |         customLabelsTrash.classList.remove('active');
+2259 |  2 |         customLabelsTrash.style.display = 'none';
+2260 |  1 |     });
+2261 |  0 | }
+2262 |  0 | 
+2263 |  0 | 
+2264 |  0 | // Middle Panel freeze logic
+2265 |  0 | const splitView = document.querySelector('.split-view');
+2266 |  0 | const ledgerPanel = document.querySelector('.ledger-panel');
+2267 |  0 | const mql = window.matchMedia('(min-width: 1400px)');
+2268 |  0 | 
+2269 |  1 | function handleMediaQuery(e) {
+2270 |  2 |     if (e.matches) {
+2271 |  2 |         let savedMiddle = localStorage.getItem('calcMiddlePanelWidth');
+2272 |  3 |         if (!savedMiddle) {
+2273 |  3 |             savedMiddle = '600px'; 
+2274 |  3 |         } else {
+2275 |  3 |             savedMiddle = savedMiddle + 'px';
+2276 |  2 |         }
+2277 |  2 |         ledgerPanel.style.setProperty('--middle-width', savedMiddle);
+2278 |  1 |     }
+2279 |  0 | }
+2280 |  0 | mql.addListener(handleMediaQuery);
+2281 |  0 | handleMediaQuery(mql);
+2282 |  0 | 
+2283 |  0 | // Research Panel Resizer
+2284 |  0 | const researchResizer = document.getElementById('research-resizer');
+2285 |  0 | const researchPanel = document.querySelector('.research-panel');
+2286 |  0 | 
+2287 |  1 | if (researchResizer && researchPanel) {
+2288 |  1 |     let isResearchDragging = false;
+2289 |  1 |     let researchStartX = 0;
+2290 |  1 |     let researchStartWidth = 0;
+2291 |  1 | 
+2292 |  1 |     
+2293 |  1 | 
+2294 |  2 |     researchResizer.addEventListener('mousedown', (e) => {
+2295 |  2 |         isResearchDragging = true;
+2296 |  2 |         researchStartX = e.clientX;
+2297 |  2 |         researchStartWidth = researchPanel.getBoundingClientRect().width;
+2298 |  2 |         document.body.style.cursor = 'col-resize';
+2299 |  2 |         document.body.style.userSelect = 'none';
+2300 |  1 |     });
+2301 |  1 | 
+2302 |  2 |     window.addEventListener('mousemove', (e) => {
+2303 |  2 |         if (!isResearchDragging) return;
+2304 |  2 |         const dx = researchStartX - e.clientX; // drag left increases width of right panel
+2305 |  2 |         let newWidth = researchStartWidth + dx;
+2306 |  2 |         
+2307 |  2 |         if (newWidth < 300) newWidth = 300; // Enforce min width
+2308 |  2 | 
+2309 |  2 |         const splitView = document.querySelector('.split-view');
+2310 |  2 |         const splitViewWidth = splitView.getBoundingClientRect().width;
+2311 |  2 |         // prevent it from squishing left panels too much
+2312 |  2 |         if (newWidth > splitViewWidth - 550) newWidth = splitViewWidth - 550;
+2313 |  2 | 
+2314 |  2 |         // Dragging the right resizer should change the MIDDLE panel's width, 
+2315 |  2 |         // since the RIGHT panel is now flex: 1.
+2316 |  2 |         // dx is negative if dragging left.
+2317 |  2 |         // If we drag left, we are shrinking the middle panel.
+2318 |  2 |         const currentMiddleWidth = parseFloat(getComputedStyle(ledgerPanel).getPropertyValue('--middle-width')) || 800;
+2319 |  2 |         let newMiddleWidth = currentMiddleWidth - dx; // dx is researchStartX - e.clientX
+2320 |  2 |         
+2321 |  2 |         if (newMiddleWidth < 281) newMiddleWidth = 281;
+2322 |  2 |         
+2323 |  2 |         ledgerPanel.style.setProperty('--middle-width', `${newMiddleWidth}px`);
+2324 |  2 |         localStorage.setItem('calcMiddlePanelWidth', newMiddleWidth);
+2325 |  2 |         
+2326 |  2 |         researchStartX = e.clientX; // reset startX for continuous dragging
+2327 |  1 |     });
+2328 |  1 | 
+2329 |  2 |     window.addEventListener('mouseup', () => {
+2330 |  3 |         if (isResearchDragging) {
+2331 |  3 |             isResearchDragging = false;
+2332 |  3 |             document.body.style.cursor = 'default';
+2333 |  3 |             document.body.style.userSelect = '';
+2334 |  2 |         }
+2335 |  1 |     });
+2336 |  0 | }
+2337 |  0 | 
+2338 |  0 | // Research Tabs Logic
+2339 |  0 | const researchTabs = document.querySelectorAll('.research-tab');
+2340 |  0 | const researchContents = document.querySelectorAll('.research-content-area');
+2341 |  0 | const rightPanel = document.getElementById('research-panel');
+2342 |  0 | 
+2343 |  1 | researchTabs.forEach(tab => {
+2344 |  2 |     tab.addEventListener('click', () => {
+2345 |  2 |         researchTabs.forEach(t => t.classList.remove('active'));
+2346 |  3 |         researchContents.forEach(c => {
+2347 |  3 |             c.classList.remove('active');
+2348 |  3 |             c.classList.add('hidden');
+2349 |  2 |         });
+2350 |  2 |         
+2351 |  2 |         tab.classList.add('active');
+2352 |  2 |         const targetId = tab.getAttribute('data-target');
+2353 |  2 |         const targetContent = document.getElementById(targetId);
+2354 |  3 |         if (targetContent) {
+2355 |  3 |             targetContent.classList.remove('hidden');
+2356 |  3 |             targetContent.classList.add('active');
+2357 |  3 |             
+2358 |  3 |             targetContent.classList.add('disable-animations');
+2359 |  3 |             targetContent.offsetHeight; // trigger reflow
+2360 |  3 |             targetContent.classList.remove('disable-animations');
+2361 |  3 |             
+2362 |  4 |             if (targetId === 'domestic-view') {
+2363 |  4 |                 fetchDomesticMacroNews();
+2364 |  4 |             } else if (targetId === 'watchlist-view') {
+2365 |  4 |                 // Re-trigger animation on watchlist items when switching to tab
+2366 |  4 |                 const items = document.querySelectorAll('#watchlist-feed .animate-stagger-row');
+2367 |  5 |                 items.forEach((el, i) => {
+2368 |  5 |                     el.style.animation = 'none';
+2369 |  5 |                     el.offsetHeight;
+2370 |  5 |                     el.style.animation = '';
+2371 |  5 |                     el.style.animationDelay = `${(0.1 + i * 0.08).toFixed(2)}s`;
+2372 |  4 |                 });
+2373 |  3 |             }
+2374 |  2 |         }
+2375 |  2 |         
+2376 |  3 |         if (targetId === 'pdf-view') {
+2377 |  3 |             if (rightPanel) rightPanel.style.width = '800px';
+2378 |  3 |         } else {
+2379 |  3 |             if (rightPanel) rightPanel.style.width = '320px';
+2380 |  2 |         }
+2381 |  2 |         
+2382 |  2 |         const zoteroControls = document.getElementById('zotero-header-controls');
+2383 |  3 |         if (zoteroControls) {
+2384 |  3 |             zoteroControls.style.display = targetId === 'zotero-view' ? 'flex' : 'none';
+2385 |  2 |         }
+2386 |  2 |         const domesticStatus = document.getElementById('domestic-status');
+2387 |  3 |         if (domesticStatus) {
+2388 |  3 |             domesticStatus.style.display = targetId === 'domestic-view' ? 'block' : 'none';
+2389 |  2 |         }
+2390 |  1 |     });
+2391 |  0 | });
+2392 |  0 | 
+2393 |  0 | // Settings Logic
+2394 |  0 | const settingsZoteroPath = document.getElementById('settings-zotero-path');
+2395 |  0 | const settingsZoteroUserid = document.getElementById('settings-zotero-userid');
+2396 |  0 | const settingsZoteroKey = document.getElementById('settings-zotero-key');
+2397 |  0 | const settingsGeminiKey = document.getElementById('settings-gemini-key');
+2398 |  0 | const saveSettingsBtn = document.getElementById('save-settings-btn');
+2399 |  0 | 
+2400 |  1 | function loadSettings() {
+2401 |  1 |     if (settingsZoteroPath) settingsZoteroPath.value = localStorage.getItem('zoteroPath') || '';
+2402 |  1 |     if (settingsZoteroUserid) settingsZoteroUserid.value = localStorage.getItem('zoteroUserId') || '';
+2403 |  1 |     if (settingsZoteroKey) settingsZoteroKey.value = localStorage.getItem('zoteroApiKey') || '';
+2404 |  1 |     if (settingsGeminiKey) settingsGeminiKey.value = localStorage.getItem('geminiApiKey') || '';
+2405 |  0 | }
+2406 |  0 | 
+2407 |  1 | if (saveSettingsBtn) {
+2408 |  2 |     saveSettingsBtn.addEventListener('click', () => {
+2409 |  2 |         localStorage.setItem('zoteroPath', settingsZoteroPath.value.trim());
+2410 |  2 |         localStorage.setItem('zoteroUserId', settingsZoteroUserid.value.trim());
+2411 |  2 |         localStorage.setItem('zoteroApiKey', settingsZoteroKey.value.trim());
+2412 |  2 |         localStorage.setItem('geminiApiKey', settingsGeminiKey.value.trim());
+2413 |  2 |         
+2414 |  2 |         const originalText = saveSettingsBtn.innerText;
+2415 |  2 |         saveSettingsBtn.innerText = 'Saved!';
+2416 |  3 |         setTimeout(() => {
+2417 |  3 |             saveSettingsBtn.innerText = originalText;
+2418 |  2 |         }, 1500);
+2419 |  1 |     });
+2420 |  0 | }
+2421 |  0 | loadSettings();
+2422 |  0 | 
+2423 |  0 | // --- Zotero Integration Logic ---
+2424 |  0 | const zoteroSyncBtn = document.getElementById('zotero-sync-btn');
+2425 |  0 | const zoteroList = document.getElementById('zotero-list');
+2426 |  0 | 
+2427 |  1 | async function fetchZoteroData() {
+2428 |  1 |     const zoteroCollectionsList = document.getElementById('zotero-collections');
+2429 |  1 |     const zoteroList = document.getElementById('zotero-list');
+2430 |  1 |     
+2431 |  1 |     zoteroList.innerHTML = '<div style="color: var(--fg-dim); font-size: 0.8rem;">Loading Zotero...</div>';
+2432 |  1 |     if(zoteroCollectionsList) zoteroCollectionsList.innerHTML = '<div style="color: var(--fg-dim); font-size: 0.8rem;">Loading Folders...</div>';
+2433 |  1 |     
+2434 |  1 |     const localPath = localStorage.getItem('zoteroPath');
+2435 |  1 |     const userId = localStorage.getItem('zoteroUserId');
+2436 |  1 |     const apiKey = localStorage.getItem('zoteroApiKey');
+2437 |  1 |     
+2438 |  2 |     const renderItems = (items, isApi) => {
+2439 |  2 |         zoteroList.innerHTML = '';
+2440 |  3 |         if (!items || items.length === 0) {
+2441 |  3 |             zoteroList.innerHTML = '<div style="color: var(--fg-dim); font-size: 0.8rem;">No items found.</div>';
+2442 |  3 |             return;
+2443 |  2 |         }
+2444 |  2 |         let visibleIdx = 0;
+2445 |  3 |         items.forEach((item) => {
+2446 |  3 |             if (isApi && item.data && item.data.itemType === 'note') return;
+2447 |  3 |             const el = document.createElement('div');
+2448 |  3 |             el.className = 'zotero-item animate-stagger-row';
+2449 |  3 |             el.style.animationDelay = `${(0.3 + visibleIdx * 0.1).toFixed(2)}s`;
+2450 |  3 |             visibleIdx++;
+2451 |  3 |             
+2452 |  3 |             const title = isApi ? (item.data.title || 'Untitled') : (item.title || 'Untitled');
+2453 |  3 |             const date = isApi ? (item.data.dateAdded ? item.data.dateAdded.substring(0, 10) : '') : (item.dateAdded ? item.dateAdded.substring(0, 10) : '');
+2454 |  3 |             const typeStr = isApi ? ` - ${item.data.itemType}` : '';
+2455 |  3 |             const itemKey = isApi ? (item.data ? item.data.key : item.key) : item.key;
+2456 |  3 |             
+2457 |  3 |             el.innerHTML = `
+2458 |  3 |                 <div class="zotero-item-title">${(item.pdfPath || (isApi && item.data && item.data.contentType === 'application/pdf')) ? '<span style="color: var(--fg-dim);">[PDF]</span> ' : ''}${title}</div>
+2459 |  3 |                 <div class="zotero-item-meta">${date}${typeStr}</div>
+2460 |  3 |             `;
+2461 |  4 |             el.addEventListener('click', async () => {
+2462 |  5 |                 try {
+2463 |  5 |                     let fullPath = null;
+2464 |  6 |                     if (window.electronAPI && window.electronAPI.openPDFByKey) {
+2465 |  6 |                         fullPath = await window.electronAPI.openPDFByKey(itemKey);
+2466 |  5 |                     }
+2467 |  6 |                     if (fullPath) {
+2468 |  6 |                         window.currentPdfPath = fullPath;
+2469 |  6 |                         const webview = document.getElementById('pdf-webview');
+2470 |  6 |                         webview.src = `pdf-viewer.html?file=${encodeURIComponent(fullPath)}`;
+2471 |  6 |                         const pdfTab = document.getElementById('pdf-tab');
+2472 |  6 |                         pdfTab.style.display = 'block';
+2473 |  6 |                         pdfTab.click();
+2474 |  6 |                     } else if (window.electronAPI && window.electronAPI.openExternal) {
+2475 |  6 |                         window.electronAPI.openExternal(`zotero://select/library/items/${itemKey}`);
+2476 |  7 |                         if (geminiInput) {
+2477 |  7 |                             geminiInput.value = `[Citation: ${title}] `;
+2478 |  7 |                             document.querySelector('[data-target="gemini-view"]').click();
+2479 |  7 |                             geminiInput.focus();
+2480 |  6 |                         }
+2481 |  5 |                     }
+2482 |  5 |                 } catch (err) {
+2483 |  5 |                     alert("Error: " + err.message);
+2484 |  4 |                 }
+2485 |  3 |             });
+2486 |  3 |             zoteroList.appendChild(el);
+2487 |  2 |         });
+2488 |  1 |     };
+2489 |  1 | 
+2490 |  2 |     const renderTree = (collections, parentEl, parentId, isApi) => {
+2491 |  2 |         const children = collections.filter(c => isApi ? c.data.parentCollection === (parentId || false) : c.parent_id === parentId);
+2492 |  2 |         
+2493 |  2 |         // Guarantee alphabetical order
+2494 |  3 |         children.sort((a, b) => {
+2495 |  3 |             const nameA = isApi ? (a.data.name || '') : (a.name || '');
+2496 |  3 |             const nameB = isApi ? (b.data.name || '') : (b.name || '');
+2497 |  3 |             return nameA.localeCompare(nameB);
+2498 |  2 |         });
+2499 |  2 | 
+2500 |  2 |         if (children.length === 0) return;
+2501 |  2 |         
+2502 |  3 |         children.forEach(col => {
+2503 |  3 |             const wrapper = document.createElement('div');
+2504 |  3 |             const itemEl = document.createElement('div');
+2505 |  3 |             itemEl.className = 'zotero-collection-item';
+2506 |  3 |             
+2507 |  3 |             const colKey = isApi ? col.key : col.key; 
+2508 |  3 |             const colId = isApi ? col.key : col.id;
+2509 |  3 |             const hasChildren = collections.some(c => isApi ? c.data.parentCollection === colKey : c.parent_id === colId);
+2510 |  3 |             const colName = isApi ? col.data.name : col.name;
+2511 |  3 |             
+2512 |  3 |             let toggleHtml = '<div class="zotero-collection-toggle" style="width: 20px;"></div>';
+2513 |  3 |             if (hasChildren) toggleHtml = `<div class="zotero-collection-toggle" style="width: 20px;">[+]</div>`;
+2514 |  3 |             
+2515 |  3 |             itemEl.innerHTML = `${toggleHtml}<span>${colName}</span>`;
+2516 |  3 |             wrapper.appendChild(itemEl);
+2517 |  3 |             
+2518 |  3 |             const childrenContainer = document.createElement('div');
+2519 |  3 |             childrenContainer.className = 'zotero-collection-children';
+2520 |  3 |             
+2521 |  4 |             if (hasChildren) {
+2522 |  4 |                 const toggleBtn = itemEl.querySelector('.zotero-collection-toggle');
+2523 |  5 |                 toggleBtn.addEventListener('click', (e) => {
+2524 |  5 |                     e.stopPropagation();
+2525 |  6 |                     if (childrenContainer.classList.contains('expanded')) {
+2526 |  6 |                         childrenContainer.classList.remove('expanded');
+2527 |  6 |                         toggleBtn.innerText = '[+]';
+2528 |  6 |                     } else {
+2529 |  6 |                         childrenContainer.classList.add('expanded');
+2530 |  6 |                         toggleBtn.innerText = '[-]';
+2531 |  5 |                     }
+2532 |  4 |                 });
+2533 |  4 |                 renderTree(collections, childrenContainer, colId, isApi);
+2534 |  4 |                 wrapper.appendChild(childrenContainer);
+2535 |  3 |             }
+2536 |  3 |             
+2537 |  4 |             itemEl.addEventListener('click', async () => {
+2538 |  4 |                 document.querySelectorAll('.zotero-collection-item').forEach(el => el.classList.remove('active'));
+2539 |  4 |                 itemEl.classList.add('active');
+2540 |  4 |                 
+2541 |  4 |                 zoteroList.innerHTML = '<div style="color: var(--fg-dim); font-size: 0.8rem;">Loading items...</div>';
+2542 |  5 |                 try {
+2543 |  6 |                     if (isApi) {
+2544 |  6 |                         const itemsUrl = `https://api.zotero.org/users/${userId}/collections/${colKey}/items?v=3&key=${apiKey}&limit=50&sort=dateAdded&direction=desc`;
+2545 |  6 |                         let data;
+2546 |  7 |                         if (window.electronAPI && window.electronAPI.fetchZoteroAPI) {
+2547 |  7 |                             data = await window.electronAPI.fetchZoteroAPI(itemsUrl);
+2548 |  7 |                         } else {
+2549 |  7 |                             const response = await fetch(itemsUrl);
+2550 |  7 |                             data = await response.json();
+2551 |  6 |                         }
+2552 |  6 |                         renderItems(data, true);
+2553 |  6 |                     } else {
+2554 |  6 |                         const res = await window.electronAPI.queryZotero(localPath, 'get_collection_items', colId);
+2555 |  6 |                         if (res.error) throw new Error(res.error);
+2556 |  6 |                         renderItems(res.data, false);
+2557 |  5 |                     }
+2558 |  5 |                 } catch(e) {
+2559 |  5 |                     zoteroList.innerHTML = `<div style="color: var(--fg-dim); font-size: 0.8rem;">Error: ${e.message}</div>`;
+2560 |  4 |                 }
+2561 |  3 |             });
+2562 |  3 |             parentEl.appendChild(wrapper);
+2563 |  2 |         });
+2564 |  1 |     };
+2565 |  1 | 
+2566 |  2 |     try {
+2567 |  3 |         if (userId && apiKey) { // Cloud API
+2568 |  3 |             const colsUrl = `https://api.zotero.org/users/${userId}/collections?v=3&key=${apiKey}&limit=100`;
+2569 |  3 |             let colsData;
+2570 |  4 |             if (window.electronAPI && window.electronAPI.fetchZoteroAPI) {
+2571 |  4 |                 colsData = await window.electronAPI.fetchZoteroAPI(colsUrl);
+2572 |  4 |             } else {
+2573 |  4 |                 const response = await fetch(colsUrl);
+2574 |  4 |                 colsData = await response.json();
+2575 |  3 |             }
+2576 |  3 |             if (colsData.error) throw new Error(colsData.error);
+2577 |  3 |             
+2578 |  4 |             if (zoteroCollectionsList) {
+2579 |  4 |                 zoteroCollectionsList.innerHTML = '';
+2580 |  4 |                 const recentEl = document.createElement('div');
+2581 |  4 |                 recentEl.className = 'zotero-collection-item active';
+2582 |  4 |                 recentEl.innerHTML = `<div class="zotero-collection-toggle" style="width: 20px;"></div><span>RECENT ITEMS</span>`;
+2583 |  4 |                 recentEl.addEventListener('click', () => { fetchZoteroData(); });
+2584 |  4 |                 zoteroCollectionsList.appendChild(recentEl);
+2585 |  4 |                 renderTree(colsData, zoteroCollectionsList, false, true);
+2586 |  3 |             }
+2587 |  3 |             
+2588 |  3 |             const url = `https://api.zotero.org/users/${userId}/items?v=3&key=${apiKey}&limit=50&sort=dateAdded&direction=desc`;
+2589 |  3 |             let data;
+2590 |  4 |             if (window.electronAPI && window.electronAPI.fetchZoteroAPI) {
+2591 |  4 |                 data = await window.electronAPI.fetchZoteroAPI(url);
+2592 |  4 |             } else {
+2593 |  4 |                 const response = await fetch(url);
+2594 |  4 |                 data = await response.json();
+2595 |  3 |             }
+2596 |  3 |             renderItems(data, true);
+2597 |  3 |         } else { // Local DB
+2598 |  3 |             const colsRes = await window.electronAPI.queryZotero(localPath, 'get_collections');
+2599 |  3 |             if (colsRes.error) throw new Error(colsRes.error);
+2600 |  3 |             
+2601 |  4 |             if (zoteroCollectionsList) {
+2602 |  4 |                 zoteroCollectionsList.innerHTML = '';
+2603 |  4 |                 const recentEl = document.createElement('div');
+2604 |  4 |                 recentEl.className = 'zotero-collection-item active';
+2605 |  4 |                 recentEl.innerHTML = `<div class="zotero-collection-toggle" style="width: 20px;"></div><span>RECENT ITEMS</span>`;
+2606 |  4 |                 recentEl.addEventListener('click', () => { fetchZoteroData(); });
+2607 |  4 |                 zoteroCollectionsList.appendChild(recentEl);
+2608 |  4 |                 renderTree(colsRes.data, zoteroCollectionsList, null, false);
+2609 |  3 |             }
+2610 |  3 |             
+2611 |  3 |             const res = await window.electronAPI.queryZotero(localPath, 'get_items');
+2612 |  3 |             if (res.error) throw new Error(res.error);
+2613 |  3 |             renderItems(res.data, false);
+2614 |  2 |         }
+2615 |  2 |     } catch(e) {
+2616 |  2 |         zoteroList.innerHTML = `<div style="color: var(--fg-dim); font-size: 0.8rem;">Error: ${e.message}</div>`;
+2617 |  2 |         if (zoteroCollectionsList) zoteroCollectionsList.innerHTML = '';
+2618 |  1 |     }
+2619 |  0 | }
+2620 |  0 | 
+2621 |  0 | 
+2622 |  1 | if (zoteroSyncBtn) {
+2623 |  1 |     zoteroSyncBtn.addEventListener('click', fetchZoteroData);
+2624 |  0 | }
+2625 |  0 | 
+2626 |  0 | // --- Gemini Integration Logic ---
+2627 |  0 | const geminiInput = document.getElementById('gemini-input');
+2628 |  0 | const geminiSendBtn = document.getElementById('gemini-send-btn');
+2629 |  0 | const geminiChatHistory = document.getElementById('gemini-chat-history');
+2630 |  0 | 
+2631 |  0 | let chatContext = [];
+2632 |  0 | 
+2633 |  1 | async function sendGeminiMessage() {
+2634 |  1 |     const text = geminiInput.value.trim();
+2635 |  1 |     if (!text) return;
+2636 |  1 |     
+2637 |  1 |     const apiKey = localStorage.getItem('geminiApiKey');
+2638 |  2 |     if (!apiKey) {
+2639 |  2 |         appendGeminiMessage('system', 'Please enter your Gemini API Key in the Settings tab first.');
+2640 |  2 |         return;
+2641 |  1 |     }
+2642 |  1 |     
+2643 |  1 |     appendGeminiMessage('user', text);
+2644 |  1 |     geminiInput.value = '';
+2645 |  1 |     
+2646 |  1 |     chatContext.push({ role: 'user', parts: [{ text: text }] });
+2647 |  1 |     
+2648 |  1 |     const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=${apiKey}`;
+2649 |  1 |     
+2650 |  2 |     try {
+2651 |  2 |         const loadingId = 'loading-' + Date.now();
+2652 |  2 |         const loadingEl = document.createElement('div');
+2653 |  2 |         loadingEl.className = 'gemini-message system';
+2654 |  2 |         loadingEl.id = loadingId;
+2655 |  2 |         loadingEl.innerText = 'Thinking...';
+2656 |  2 |         geminiChatHistory.appendChild(loadingEl);
+2657 |  2 |         geminiChatHistory.scrollTop = geminiChatHistory.scrollHeight;
+2658 |  2 |         
+2659 |  3 |         const response = await fetch(url, {
+2660 |  3 |             method: 'POST',
+2661 |  3 |             headers: { 'Content-Type': 'application/json' },
+2662 |  3 |             body: JSON.stringify({ contents: chatContext })
+2663 |  2 |         });
+2664 |  2 |         
+2665 |  2 |         document.getElementById(loadingId)?.remove();
+2666 |  2 |         
+2667 |  3 |         if (!response.ok) {
+2668 |  3 |             const errData = await response.json();
+2669 |  3 |             throw new Error(errData.error?.message || 'API Error');
+2670 |  2 |         }
+2671 |  2 |         
+2672 |  2 |         const data = await response.json();
+2673 |  2 |         const reply = data.candidates?.[0]?.content?.parts?.[0]?.text;
+2674 |  2 |         
+2675 |  3 |         if (reply) {
+2676 |  3 |             chatContext.push({ role: 'model', parts: [{ text: reply }] });
+2677 |  3 |             appendGeminiMessage('assistant', reply);
+2678 |  3 |         } else {
+2679 |  3 |             appendGeminiMessage('system', 'Received empty response.');
+2680 |  2 |         }
+2681 |  2 |     } catch (e) {
+2682 |  2 |         appendGeminiMessage('system', `Error: ${e.message}`);
+2683 |  1 |     }
+2684 |  0 | }
+2685 |  0 | 
+2686 |  1 | function appendGeminiMessage(role, text) {
+2687 |  1 |     const el = document.createElement('div');
+2688 |  1 |     el.className = `gemini-message ${role}`;
+2689 |  1 |     // Replace newlines with <br> for simple formatting
+2690 |  1 |     el.innerHTML = text.replace(/\n/g, '<br>');
+2691 |  1 |     geminiChatHistory.appendChild(el);
+2692 |  1 |     geminiChatHistory.scrollTop = geminiChatHistory.scrollHeight;
+2693 |  0 | }
+2694 |  0 | 
+2695 |  1 | if (geminiSendBtn) {
+2696 |  1 |     geminiSendBtn.addEventListener('click', sendGeminiMessage);
+2697 |  0 | }
+2698 |  1 | if (geminiInput) {
+2699 |  2 |     geminiInput.addEventListener('keydown', (e) => {
+2700 |  3 |         if (e.key === 'Enter' && !e.shiftKey) {
+2701 |  3 |             e.preventDefault();
+2702 |  3 |             sendGeminiMessage();
+2703 |  2 |         }
+2704 |  1 |     });
+2705 |  0 | }
+2706 |  0 | 
+2707 |  0 | const popoutBtn = document.getElementById('pdf-popout-btn');
+2708 |  1 | if (popoutBtn) {
+2709 |  2 |     popoutBtn.addEventListener('click', () => {
+2710 |  3 |         if (window.currentPdfPath && window.electronAPI && window.electronAPI.openPDFWindow) {
+2711 |  3 |             window.electronAPI.openPDFWindow(window.currentPdfPath);
+2712 |  2 |         }
+2713 |  1 |     });
+2714 |  0 | }
+2715 |  0 | 
+2716 |  0 | fetchZoteroData();
+2717 |  0 | 
+2718 |  0 | // Zotero Split View Resizer Logic
+2719 |  0 | const zoteroResizer = document.getElementById('zotero-resizer');
+2720 |  0 | let isZoteroResizing = false;
+2721 |  0 | 
+2722 |  1 | if (zoteroResizer) {
+2723 |  2 |     zoteroResizer.addEventListener('mousedown', (e) => {
+2724 |  2 |         isZoteroResizing = true;
+2725 |  2 |         document.body.style.cursor = 'col-resize';
+2726 |  2 |         document.body.style.userSelect = 'none';
+2727 |  1 |     });
+2728 |  1 |     
+2729 |  2 |     document.addEventListener('mousemove', (e) => {
+2730 |  2 |         if (!isZoteroResizing) return;
+2731 |  2 |         
+2732 |  2 |         const zoteroView = document.getElementById('zotero-view');
+2733 |  2 |         const zoteroCollectionsList = document.getElementById('zotero-collections');
+2734 |  2 |         if (!zoteroView || !zoteroCollectionsList) return;
+2735 |  2 |         
+2736 |  2 |         const containerRect = zoteroView.getBoundingClientRect();
+2737 |  2 |         let newWidth = e.clientX - containerRect.left;
+2738 |  2 |         
+2739 |  2 |         if (newWidth < 120) newWidth = 120;
+2740 |  2 |         if (newWidth > containerRect.width - 200) newWidth = containerRect.width - 200;
+2741 |  2 |         
+2742 |  2 |         zoteroCollectionsList.style.flex = `0 0 ${newWidth}px`;
+2743 |  1 |     });
+2744 |  1 |     
+2745 |  2 |     document.addEventListener('mouseup', () => {
+2746 |  3 |         if (isZoteroResizing) {
+2747 |  3 |             isZoteroResizing = false;
+2748 |  3 |             document.body.style.cursor = '';
+2749 |  3 |             document.body.style.userSelect = '';
+2750 |  2 |         }
+2751 |  1 |     });
+2752 |  0 | }
+2753 |  0 | 
+2754 |  0 | 
+2755 |  0 | // ==========================================
+2756 |  0 | // Screener Logic
+2757 |  0 | // ==========================================
+2758 |  1 | {
+2759 |  1 | const navItemsScreener = document.querySelectorAll('.nav-item');
+2760 |  1 | const screenerBtn = document.getElementById('screener-execute-btn');
+2761 |  1 | const screenerMin = document.getElementById('screener-min');
+2762 |  1 | const screenerMax = document.getElementById('screener-max');
+2763 |  1 | const screenerResults = document.getElementById('screener-results');
+2764 |  1 | 
+2765 |  2 | navItemsScreener.forEach(item => {
+2766 |  3 |     item.addEventListener('click', (e) => {
+2767 |  3 |         const text = e.target.innerText.trim().toUpperCase();
+2768 |  3 |         const researchPanel = document.getElementById('research-panel');
+2769 |  4 |         if (text === 'SCREENER') {
+2770 |  5 |             if (researchPanel) {
+2771 |  5 |                 const rect = researchPanel.getBoundingClientRect();
+2772 |  5 |                 researchPanel.style.flex = `0 0 ${rect.width}px`;
+2773 |  5 |                 const sideBtn = document.querySelector('.research-tab[data-target="screener-view"]');
+2774 |  6 |                 if (sideBtn && sideBtn.classList.contains('active')) {
+2775 |  6 |                     const geminiBtn = document.querySelector('.research-tab[data-target="gemini-view"]');
+2776 |  6 |                     if (geminiBtn) geminiBtn.click();
+2777 |  5 |                 }
+2778 |  4 |             }
+2779 |  4 |             document.body.classList.add('screener-active');
+2780 |  4 |             document.body.classList.remove('reverse-active', 'domestic-active');
+2781 |  4 |             navItemsScreener.forEach(n => n.classList.remove('active'));
+2782 |  4 |             e.target.classList.add('active');
+2783 |  4 |             replayAllAnimations();
+2784 |  4 |         } else if (text === 'REVERSE') {
+2785 |  5 |             if (researchPanel) {
+2786 |  5 |                 const rect = researchPanel.getBoundingClientRect();
+2787 |  5 |                 researchPanel.style.flex = `0 0 ${rect.width}px`;
+2788 |  5 |                 const sideBtn = document.querySelector('.research-tab[data-target="reverse-view"]');
+2789 |  6 |                 if (sideBtn && sideBtn.classList.contains('active')) {
+2790 |  6 |                     const geminiBtn = document.querySelector('.research-tab[data-target="gemini-view"]');
+2791 |  6 |                     if (geminiBtn) geminiBtn.click();
+2792 |  5 |                 }
+2793 |  4 |             }
+2794 |  4 |             document.body.classList.add('reverse-active');
+2795 |  4 |             document.body.classList.remove('screener-active', 'domestic-active');
+2796 |  4 |             navItemsScreener.forEach(n => n.classList.remove('active'));
+2797 |  4 |             e.target.classList.add('active');
+2798 |  4 |             replayAllAnimations();
+2799 |  4 |         } else if (text === 'DOMESTIC') {
+2800 |  5 |             if (researchPanel) {
+2801 |  5 |                 const rect = researchPanel.getBoundingClientRect();
+2802 |  5 |                 researchPanel.style.flex = `0 0 ${rect.width}px`;
+2803 |  5 |                 
+2804 |  5 |                 // Always switch to Gemini when entering Global Domestic mode
+2805 |  5 |                 const geminiBtn = document.querySelector('.research-tab[data-target="gemini-view"]');
+2806 |  5 |                 if (geminiBtn) geminiBtn.click();
+2807 |  4 |             }
+2808 |  4 |             document.body.classList.add('domestic-active');
+2809 |  4 |             document.body.classList.remove('screener-active', 'reverse-active');
+2810 |  4 |             navItemsScreener.forEach(n => n.classList.remove('active'));
+2811 |  4 |             e.target.classList.add('active');
+2812 |  4 |             replayAllAnimations();
+2813 |  4 |             
+2814 |  4 |             // Trigger fetch for domestic news if not already loaded
+2815 |  4 |             fetchDomesticMacroNews();
+2816 |  4 |         } else if (text === 'INSIGHTS') {
+2817 |  5 |             if (researchPanel) {
+2818 |  5 |                 researchPanel.style.flex = ''; // Restore original flex
+2819 |  4 |             }
+2820 |  4 |             document.body.classList.remove('screener-active', 'reverse-active', 'domestic-active');
+2821 |  4 |             navItemsScreener.forEach(n => n.classList.remove('active'));
+2822 |  4 |             e.target.classList.add('active');
+2823 |  4 |             replayAllAnimations();
+2824 |  3 |         }
+2825 |  2 |     });
+2826 |  1 | });
+2827 |  1 | 
+2828 |  2 | async function executeScreenerLogic(btn, minInput, maxInput, resultsContainer) {
+2829 |  2 |     if (btn.disabled) return;
+2830 |  2 |     btn.disabled = true;
+2831 |  2 |     const originalText = btn.innerText;
+2832 |  2 |     btn.innerText = 'Processing...';
+2833 |  2 |     resultsContainer.innerHTML = '';
+2834 |  2 |     
+2835 |  2 |     const minP = parseFloat(minInput.value) || 0;
+2836 |  2 |     const maxP = parseFloat(maxInput.value) || 99999;
+2837 |  2 |     
+2838 |  3 |     try {
+2839 |  3 |         const url = "http://82.push2.eastmoney.com/api/qt/clist/get?pn=1&pz=5000&po=1&np=1&ut=bd1d9ddb04089700cf9c27f6f7426281&fltt=2&invt=2&fid=f3&fs=m:0+t:6,m:0+t:80,m:1+t:2,m:1+t:23,m:0+t:81+s:2048&fields=f12,f14,f2,f3,f9,f23";
+2840 |  3 |         let res;
+2841 |  4 |         if (window.electronAPI && window.electronAPI.fetchFinancialData) {
+2842 |  4 |             res = await window.electronAPI.fetchFinancialData(url);
+2843 |  4 |         } else {
+2844 |  4 |             const resp = await fetch(url);
+2845 |  4 |             res = await resp.json();
+2846 |  3 |         }
+2847 |  3 |         
+2848 |  3 |         let data = typeof res === 'string' ? JSON.parse(res) : res;
+2849 |  3 |         let diff = data?.data?.diff || [];
+2850 |  3 |         
+2851 |  3 |         // Filter by price
+2852 |  4 |         const filtered = diff.filter(row => {
+2853 |  4 |             const price = parseFloat(row.f2);
+2854 |  4 |             if (isNaN(price)) return false;
+2855 |  4 |             return price >= minP && price <= maxP;
+2856 |  3 |         }).slice(0, 100);
+2857 |  3 |         
+2858 |  3 |         // Render
+2859 |  4 |         filtered.forEach((row, idx) => {
+2860 |  4 |             const div = document.createElement('div');
+2861 |  4 |             div.className = 'list-row animate-screener-row';
+2862 |  4 |             // Stagger animation exactly like TrackPort: delayChildren=0.5, staggerChildren=0.1
+2863 |  4 |             div.style.animationDelay = `${(0.5 + idx * 0.1).toFixed(2)}s`;
+2864 |  4 |             
+2865 |  4 |             const change = parseFloat(row.f3) || 0;
+2866 |  4 |             const changeClass = change >= 0 ? 'positive' : 'negative';
+2867 |  4 |             const changeSign = change > 0 ? '+' : '';
+2868 |  4 |             
+2869 |  4 |             div.innerHTML = `
+2870 |  4 |                 <div class="row-col col-code">${row.f12 || '-'}</div>
+2871 |  4 |                 <div class="row-col col-name">${row.f14 || '-'}</div>
+2872 |  4 |                 <div class="row-col col-price">${row.f2 === '-' ? '-' : row.f2}</div>
+2873 |  4 |                 <div class="row-col mono ${changeClass}">${changeSign}${row.f3 === '-' ? '0' : row.f3}%</div>
+2874 |  4 |                 <div class="row-col mono">${row.f9 === '-' ? '-' : row.f9}</div>
+2875 |  4 |                 <div class="row-col mono">${row.f23 === '-' ? '-' : row.f23}</div>
+2876 |  4 |             `;
+2877 |  4 |             resultsContainer.appendChild(div);
+2878 |  3 |         });
+2879 |  3 |         
+2880 |  3 |     } catch(e) {
+2881 |  3 |         console.error("Screener Error:", e);
+2882 |  3 |         resultsContainer.innerHTML = `<div class="mono negative" style="padding: 2rem;">Error fetching data: ${e.message}</div>`;
+2883 |  2 |     }
+2884 |  2 |     
+2885 |  2 |     btn.disabled = false;
+2886 |  2 |     btn.innerText = originalText;
+2887 |  1 | }
+2888 |  1 | 
+2889 |  2 | if (screenerBtn) {
+2890 |  2 |     screenerBtn.addEventListener('click', () => executeScreenerLogic(screenerBtn, screenerMin, screenerMax, screenerResults));
+2891 |  1 | }
+2892 |  1 | const screenerBtnSide = document.getElementById('screener-execute-btn-side');
+2893 |  1 | const screenerMinSide = document.getElementById('screener-min-side');
+2894 |  1 | const screenerMaxSide = document.getElementById('screener-max-side');
+2895 |  1 | const screenerResultsSide = document.getElementById('screener-results-side');
+2896 |  2 | if (screenerBtnSide) {
+2897 |  2 |     screenerBtnSide.addEventListener('click', () => executeScreenerLogic(screenerBtnSide, screenerMinSide, screenerMaxSide, screenerResultsSide));
+2898 |  1 | }
+2899 |  1 | 
+2900 |  1 | const reverseBtn = document.getElementById('reverse-execute-btn');
+2901 |  1 | const reverseSymbols = document.getElementById('reverse-symbols');
+2902 |  1 | const reverseResults = document.getElementById('reverse-results');
+2903 |  1 | // (Original executeReverse listener was removed and moved below executeReverseLogic)
+2904 |  1 | 
+2905 |  2 | async function executeReverseLogic(btn, symbolsInputEl, resultsContainer) {
+2906 |  2 |     if (btn.disabled) return;
+2907 |  2 |     const symbolsInput = symbolsInputEl.value.trim();
+2908 |  2 |     if (!symbolsInput) return;
+2909 |  2 |     
+2910 |  2 |     const symbols = symbolsInput.split(',').map(s => s.trim()).filter(Boolean);
+2911 |  2 |     if (symbols.length === 0) return;
+2912 |  2 | 
+2913 |  2 |     btn.disabled = true;
+2914 |  2 |     const originalText = btn.innerText;
+2915 |  2 |     btn.innerText = 'Analyzing...';
+2916 |  2 |     resultsContainer.innerHTML = '';
+2917 |  2 |     
+2918 |  3 |     try {
+2919 |  3 |         const url = "http://82.push2.eastmoney.com/api/qt/clist/get?pn=1&pz=5000&po=1&np=1&ut=bd1d9ddb04089700cf9c27f6f7426281&fltt=2&invt=2&fid=f3&fs=m:0+t:6,m:0+t:80,m:1+t:2,m:1+t:23,m:0+t:81+s:2048&fields=f12,f14,f2,f3,f9,f23";
+2920 |  3 |         let res;
+2921 |  4 |         if (window.electronAPI && window.electronAPI.fetchFinancialData) {
+2922 |  4 |             res = await window.electronAPI.fetchFinancialData(url);
+2923 |  4 |         } else {
+2924 |  4 |             const resp = await fetch(url);
+2925 |  4 |             res = await resp.json();
+2926 |  3 |         }
+2927 |  3 |         
+2928 |  3 |         let data = typeof res === 'string' ? JSON.parse(res) : res;
+2929 |  3 |         let diff = data?.data?.diff || [];
+2930 |  3 |         
+2931 |  3 |         let validPE = [];
+2932 |  3 |         let validPB = [];
+2933 |  3 |         
+2934 |  4 |         for (const item of diff) {
+2935 |  5 |             if (symbols.includes(item.f12)) {
+2936 |  5 |                 if (item.f9 !== '-' && item.f9 != null) validPE.push(parseFloat(item.f9));
+2937 |  5 |                 if (item.f23 !== '-' && item.f23 != null) validPB.push(parseFloat(item.f23));
+2938 |  4 |             }
+2939 |  3 |         }
+2940 |  3 |         
+2941 |  4 |         if (validPE.length === 0 && validPB.length === 0) {
+2942 |  4 |             resultsContainer.innerHTML = '<div class="negative mono animate-fade" style="margin-top: 2rem; font-size: 1.5rem; opacity: 0; animation-delay: 0.1s; animation-fill-mode: forwards;">未能在市场中找到指定的股票数据或无可用的估值数据</div>';
+2943 |  4 |         } else {
+2944 |  4 |             const avgPE = validPE.length > 0 ? (validPE.reduce((a,b) => a+b, 0) / validPE.length).toFixed(2) : 'N/A';
+2945 |  4 |             const avgPB = validPB.length > 0 ? (validPB.reduce((a,b) => a+b, 0) / validPB.length).toFixed(2) : 'N/A';
+2946 |  4 |             
+2947 |  4 |             resultsContainer.innerHTML = `
+2948 |  4 |                 <div class="analysis-grid animate-slide-up" style="animation-delay: 0.1s; opacity: 0; animation-fill-mode: forwards;">
+2949 |  4 |                   <div class="metric-card"><div class="metric-label">Average P/E Dynamic</div><div class="metric-value">${avgPE}</div></div>
+2950 |  4 |                   <div class="metric-card"><div class="metric-label">Average P/B Ratio</div><div class="metric-value">${avgPB}</div></div>
+2951 |  4 |                 </div>
+2952 |  4 |             `;
+2953 |  3 |         }
+2954 |  3 |     } catch (e) {
+2955 |  3 |         console.error(e);
+2956 |  3 |         resultsContainer.innerHTML = `<div class="negative mono animate-fade" style="margin-top: 2rem; font-size: 1.5rem; opacity: 0; animation-delay: 0.1s; animation-fill-mode: forwards;">请求失败: ${e.message}</div>`;
+2957 |  3 |     } finally {
+2958 |  3 |         btn.disabled = false;
+2959 |  3 |         btn.innerText = originalText;
+2960 |  2 |     }
+2961 |  1 | }
+2962 |  1 | 
+2963 |  2 | if (reverseBtn) {
+2964 |  2 |     reverseBtn.addEventListener('click', () => executeReverseLogic(reverseBtn, reverseSymbols, reverseResults));
+2965 |  1 | }
+2966 |  1 | const reverseBtnSide = document.getElementById('reverse-execute-btn-side');
+2967 |  1 | const reverseSymbolsSide = document.getElementById('reverse-symbols-side');
+2968 |  1 | const reverseResultsSide = document.getElementById('reverse-results-side');
+2969 |  2 | if (reverseBtnSide) {
+2970 |  2 |     reverseBtnSide.addEventListener('click', () => executeReverseLogic(reverseBtnSide, reverseSymbolsSide, reverseResultsSide));
+2971 |  1 | }
+2972 |  1 | 
+2973 |  1 | // === New Tab Logic (Domestic & Watchlist) ===
+2974 |  1 | const watchlistSymbolsInput = document.getElementById('watchlist-symbols-input');
+2975 |  1 | const watchlistLoadBtn = document.getElementById('watchlist-load-btn');
+2976 |  1 | const watchlistFeed = document.getElementById('watchlist-feed');
+2977 |  1 | const domesticFeed = document.getElementById('domestic-feed');
+2978 |  1 | let domesticLoaded = false;
+2979 |  1 | let domesticRefreshInterval = null;
+2980 |  1 | 
+2981 |  2 | if (watchlistLoadBtn) {
+2982 |  2 |     watchlistLoadBtn.addEventListener('click', loadWatchlistNews);
+2983 |  1 | }
+2984 |  1 | 
+2985 |  1 | // Track the newest seen timestamp to detect new items on refresh
+2986 |  1 | let domesticNewestTime = 0;
+2987 |  1 | 
+2988 |  2 | function updateDomesticStatusLabel(count) {
+2989 |  2 |     const el = document.getElementById('domestic-status');
+2990 |  2 |     const elMain = document.getElementById('domestic-status-main');
+2991 |  2 |     const now = new Date();
+2992 |  2 |     const h = String(now.getHours()).padStart(2,'0');
+2993 |  2 |     const m = String(now.getMinutes()).padStart(2,'0');
+2994 |  2 |     const txt = `LAST 24H · ${count} ITEMS · ${h}:${m}`;
+2995 |  2 |     if (el) el.textContent = txt;
+2996 |  2 |     if (elMain) elMain.textContent = txt;
+2997 |  1 | }
+2998 |  1 | 
+2999 |  2 | async function fetchDomesticMacroNews(force = false) {
+3000 |  3 |     if (domesticLoaded && !force) {
+3001 |  3 |         // Tab switched back: re-trigger animations on existing items
+3002 |  3 |         const items = domesticFeed.querySelectorAll('.macro-news-item');
+3003 |  4 |         items.forEach((el, i) => {
+3004 |  4 |             el.style.animation = 'none';
+3005 |  4 |             el.offsetHeight;
+3006 |  4 |             el.style.animation = '';
+3007 |  4 |             el.style.animationDelay = `${(0.05 + i * 0.05).toFixed(2)}s`;
+3008 |  3 |         });
+3009 |  3 |         return;
+3010 |  2 |     }
+3011 |  3 |     try {
+3012 |  3 |         const url = 'https://zhibo.sina.com.cn/api/zhibo/feed?page=1&page_size=90&zhibo_id=152';
+3013 |  3 |         let res;
+3014 |  4 |         if (window.electronAPI && window.electronAPI.fetchFinancialData) {
+3015 |  4 |             res = await window.electronAPI.fetchFinancialData(url);
+3016 |  4 |         } else {
+3017 |  4 |             const resp = await fetch(url);
+3018 |  4 |             res = await resp.json();
+3019 |  3 |         }
+3020 |  3 |         const data = typeof res === 'string' ? JSON.parse(res) : res;
+3021 |  3 |         const rawList = data?.result?.data?.feed?.list || [];
+3022 |  3 | 
+3023 |  3 |         // Filter: only last 24 hours
+3024 |  3 |         const now = Date.now();
+3025 |  3 |         const cutoff = now - 24 * 60 * 60 * 1000;
+3026 |  4 |         const list = rawList.filter(item => {
+3027 |  4 |             const t = new Date(item.create_time.replace(' ', 'T')).getTime();
+3028 |  4 |             return !isNaN(t) && t >= cutoff;
+3029 |  3 |         });
+3030 |  3 | 
+3031 |  4 |         if (!domesticLoaded) {
+3032 |  4 |             // === First Load: render everything with stagger animation ===
+3033 |  4 |             const domesticFeedMain = document.getElementById('domestic-feed-main');
+3034 |  4 |             domesticFeed.innerHTML = '';
+3035 |  4 |             if (domesticFeedMain) domesticFeedMain.innerHTML = '';
+3036 |  4 |             
+3037 |  5 |             if (list.length === 0) {
+3038 |  5 |                 const emptyStr = `<div class="mono" style="color: var(--fg-dim);">No news in the last 24 hours.</div>`;
+3039 |  5 |                 domesticFeed.innerHTML = emptyStr;
+3040 |  5 |                 if (domesticFeedMain) domesticFeedMain.innerHTML = emptyStr;
+3041 |  5 |             } else {
+3042 |  5 |                 const domesticFeedMain = document.getElementById('domestic-feed-main');
+3043 |  6 |                 list.forEach((item, i) => {
+3044 |  6 |                     const delay = `${(0.05 + i * 0.05).toFixed(2)}s`;
+3045 |  6 |                     const innerStr = `
+3046 |  6 |                         <div class="news-time mono">${item.create_time}</div>
+3047 |  6 |                         <div class="news-content">${item.rich_text}</div>
+3048 |  6 |                     `;
+3049 |  6 |                     const el1 = document.createElement('div');
+3050 |  6 |                     el1.className = 'macro-news-item animate-stagger-row';
+3051 |  6 |                     el1.style.animationDelay = delay;
+3052 |  6 |                     el1.dataset.time = item.create_time;
+3053 |  6 |                     el1.innerHTML = innerStr;
+3054 |  6 |                     domesticFeed.appendChild(el1);
+3055 |  6 |                     
+3056 |  7 |                     if (domesticFeedMain) {
+3057 |  7 |                         const el2 = document.createElement('div');
+3058 |  7 |                         el2.className = 'macro-news-item animate-stagger-row';
+3059 |  7 |                         el2.style.animationDelay = delay;
+3060 |  7 |                         el2.dataset.time = item.create_time;
+3061 |  7 |                         el2.innerHTML = innerStr;
+3062 |  7 |                         domesticFeedMain.appendChild(el2);
+3063 |  6 |                     }
+3064 |  5 |                 });
+3065 |  5 |                 // Track newest time
+3066 |  5 |                 const times = list.map(it => new Date(it.create_time.replace(' ', 'T')).getTime()).filter(t => !isNaN(t));
+3067 |  5 |                 if (times.length) domesticNewestTime = Math.max(...times);
+3068 |  4 |             }
+3069 |  4 |             domesticLoaded = true;
+3070 |  4 |             updateDomesticStatusLabel(list.length);
+3071 |  4 | 
+3072 |  4 |             // Start auto-refresh every 2 minutes (only once)
+3073 |  5 |             if (!domesticRefreshInterval) {
+3074 |  6 |                 domesticRefreshInterval = setInterval(() => {
+3075 |  6 |                     fetchDomesticMacroNews(true);
+3076 |  5 |                 }, 2 * 60 * 1000);
+3077 |  4 |             }
+3078 |  4 |         } else {
+3079 |  4 |             // === Refresh: only prepend genuinely new items ===
+3080 |  5 |             const newItems = list.filter(item => {
+3081 |  5 |                 const t = new Date(item.create_time.replace(' ', 'T')).getTime();
+3082 |  5 |                 return !isNaN(t) && t > domesticNewestTime;
+3083 |  4 |             });
+3084 |  4 | 
+3085 |  5 |             if (newItems.length > 0) {
+3086 |  5 |                 // Prepend new items with slide-down animation
+3087 |  5 |                 const firstExisting = domesticFeed.firstChild;
+3088 |  5 |                 const domesticFeedMain = document.getElementById('domestic-feed-main');
+3089 |  5 |                 const firstExistingMain = domesticFeedMain ? domesticFeedMain.firstChild : null;
+3090 |  5 |                 
+3091 |  6 |                 newItems.reverse().forEach((item, i) => {
+3092 |  6 |                     const delay = `${(i * 0.12).toFixed(2)}s`;
+3093 |  6 |                     const innerStr = `
+3094 |  6 |                         <div class="news-time mono">${item.create_time}</div>
+3095 |  6 |                         <div class="news-content">${item.rich_text}</div>
+3096 |  6 |                     `;
+3097 |  6 |                     
+3098 |  6 |                     const el1 = document.createElement('div');
+3099 |  6 |                     el1.className = 'macro-news-item animate-slide-down-new';
+3100 |  6 |                     el1.style.animationDelay = delay;
+3101 |  6 |                     el1.dataset.time = item.create_time;
+3102 |  6 |                     el1.innerHTML = innerStr;
+3103 |  6 |                     domesticFeed.insertBefore(el1, firstExisting);
+3104 |  6 |                     
+3105 |  7 |                     if (domesticFeedMain) {
+3106 |  7 |                         const el2 = document.createElement('div');
+3107 |  7 |                         el2.className = 'macro-news-item animate-slide-down-new';
+3108 |  7 |                         el2.style.animationDelay = delay;
+3109 |  7 |                         el2.dataset.time = item.create_time;
+3110 |  7 |                         el2.innerHTML = innerStr;
+3111 |  7 |                         domesticFeedMain.insertBefore(el2, firstExistingMain);
+3112 |  6 |                     }
+3113 |  5 |                 });
+3114 |  5 |                 // Update newest tracker
+3115 |  5 |                 const times = newItems.map(it => new Date(it.create_time.replace(' ', 'T')).getTime()).filter(t => !isNaN(t));
+3116 |  5 |                 if (times.length) domesticNewestTime = Math.max(domesticNewestTime, ...times);
+3117 |  4 |             }
+3118 |  4 |             // Always silently update the label
+3119 |  4 |             updateDomesticStatusLabel(list.length);
+3120 |  3 |         }
+3121 |  3 |     } catch (e) {
+3122 |  3 |         console.error(e);
+3123 |  4 |         if (domesticFeed) {
+3124 |  4 |             domesticFeed.innerHTML = `<div class="mono negative">Error loading macro news: ${e.message}</div>`;
+3125 |  3 |         }
+3126 |  2 |     }
+3127 |  1 | }
+3128 |  1 | 
+3129 |  2 | async function loadWatchlistNews() {
+3130 |  2 |     if (!watchlistLoadBtn) return;
+3131 |  2 |     const input = watchlistSymbolsInput.value.trim();
+3132 |  2 |     if (!input) return;
+3133 |  2 |     const symbols = input.split(',').map(s => s.trim()).filter(Boolean);
+3134 |  2 |     if (symbols.length === 0) return;
+3135 |  2 |     
+3136 |  2 |     watchlistLoadBtn.disabled = true;
+3137 |  2 |     watchlistLoadBtn.innerText = 'LOADING...';
+3138 |  2 |     watchlistFeed.innerHTML = '';
+3139 |  2 |     
+3140 |  2 |     let globalIdx = 0;
+3141 |  3 |     try {
+3142 |  4 |         for (const sym of symbols) {
+3143 |  4 |             const url = `https://np-anotice-stock.eastmoney.com/api/security/ann?sr=-1&page_size=10&page_index=1&ann_type=A&client_source=web&stock_list=${sym}`;
+3144 |  4 |             let res;
+3145 |  5 |             if (window.electronAPI && window.electronAPI.fetchFinancialData) {
+3146 |  5 |                 res = await window.electronAPI.fetchFinancialData(url);
+3147 |  5 |             } else {
+3148 |  5 |                 const resp = await fetch(url);
+3149 |  5 |                 res = await resp.json();
+3150 |  4 |             }
+3151 |  4 |             const data = typeof res === 'string' ? JSON.parse(res) : res;
+3152 |  4 |             const list = data?.data?.list || [];
+3153 |  4 |             
+3154 |  4 |             const groupEl = document.createElement('div');
+3155 |  4 |             groupEl.className = 'animate-stagger-row';
+3156 |  4 |             groupEl.style.animationDelay = `${(0.05 + globalIdx * 0.08).toFixed(2)}s`;
+3157 |  4 |             globalIdx++;
+3158 |  4 |             
+3159 |  4 |             groupEl.innerHTML = `<h3 class="mono" style="color: var(--fg-dim); border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; margin-bottom: 1rem;">${sym}</h3>`;
+3160 |  4 |             
+3161 |  5 |             if (list.length === 0) {
+3162 |  5 |                 groupEl.innerHTML += `<div class="mono" style="margin-bottom: 1rem;">No recent news.</div>`;
+3163 |  5 |             } else {
+3164 |  6 |                 list.forEach(item => {
+3165 |  6 |                     const itemEl = document.createElement('div');
+3166 |  6 |                     itemEl.className = 'animate-stagger-row';
+3167 |  6 |                     itemEl.style.cssText = `margin-bottom: 1rem; animation-delay: ${(0.05 + globalIdx * 0.08).toFixed(2)}s;`;
+3168 |  6 |                     globalIdx++;
+3169 |  6 |                     itemEl.innerHTML = `
+3170 |  6 |                         <div class="mono" style="font-size: 0.75rem; color: var(--fg-dim);">${item.display_time}</div>
+3171 |  6 |                         <div style="font-size: 1rem; font-weight: 300;">${item.title}</div>
+3172 |  6 |                     `;
+3173 |  6 |                     groupEl.appendChild(itemEl);
+3174 |  5 |                 });
+3175 |  4 |             }
+3176 |  4 |             watchlistFeed.appendChild(groupEl);
+3177 |  3 |         }
+3178 |  3 |     } catch (e) {
+3179 |  3 |         console.error(e);
+3180 |  3 |         watchlistFeed.innerHTML = `<div class="mono negative">Error loading watchlist news: ${e.message}</div>`;
+3181 |  3 |     } finally {
+3182 |  3 |         watchlistLoadBtn.disabled = false;
+3183 |  3 |         watchlistLoadBtn.innerText = 'LOAD';
+3184 |  2 |     }
+3185 |  1 | }
+3186 |  1 | 
+3187 |  1 | // === Drag and Drop Tabs ===
+3188 |  1 | const tabsContainer = document.querySelector('.research-tabs');
+3189 |  1 | let draggedTab = null;
+3190 |  1 | 
+3191 |  2 | function setupDragAndDrop() {
+3192 |  2 |     const tabs = document.querySelectorAll('.research-tab');
+3193 |  3 |     tabs.forEach(tab => {
+3194 |  3 |         tab.setAttribute('draggable', true);
+3195 |  3 |         
+3196 |  3 |         // Remove old listeners if any by cloning (not really needed if we only run once, but safe)
+3197 |  3 |         
+3198 |  4 |         tab.addEventListener('dragstart', function(e) {
+3199 |  4 |             draggedTab = this;
+3200 |  4 |             setTimeout(() => this.style.opacity = '0.5', 0);
+3201 |  3 |         });
+3202 |  3 |         
+3203 |  4 |         tab.addEventListener('dragend', function() {
+3204 |  4 |             draggedTab = null;
+3205 |  4 |             this.style.opacity = '1';
+3206 |  3 |         });
+3207 |  3 |         
+3208 |  4 |         tab.addEventListener('dragover', function(e) {
+3209 |  4 |             e.preventDefault();
+3210 |  3 |         });
+3211 |  3 |         
+3212 |  4 |         tab.addEventListener('dragenter', function(e) {
+3213 |  4 |             e.preventDefault();
+3214 |  4 |             this.style.transform = 'scale(1.05)';
+3215 |  3 |         });
+3216 |  3 |         
+3217 |  4 |         tab.addEventListener('dragleave', function() {
+3218 |  4 |             this.style.transform = '';
+3219 |  3 |         });
+3220 |  3 |         
+3221 |  4 |         tab.addEventListener('drop', function(e) {
+3222 |  4 |             this.style.transform = '';
+3223 |  5 |             if (draggedTab && draggedTab !== this) {
+3224 |  5 |                 const allTabs = [...tabsContainer.querySelectorAll('.research-tab')];
+3225 |  5 |                 const draggedIdx = allTabs.indexOf(draggedTab);
+3226 |  5 |                 const droppedIdx = allTabs.indexOf(this);
+3227 |  5 |                 
+3228 |  6 |                 if (draggedIdx < droppedIdx) {
+3229 |  6 |                     this.parentNode.insertBefore(draggedTab, this.nextSibling);
+3230 |  6 |                 } else {
+3231 |  6 |                     this.parentNode.insertBefore(draggedTab, this);
+3232 |  5 |                 }
+3233 |  4 |             }
+3234 |  3 |         });
+3235 |  2 |     });
+3236 |  1 | }
+3237 |  1 | setupDragAndDrop();

@@ -1,8 +1,8 @@
 {
   "name": "ticker",
   "productName": "Ticker",
-  "version": "5.0.0",
-  "description": "Stock Price Calculator Ticker",
+  "version": "5.1.0",
+  "description": "Financial research dashboard with AI",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
