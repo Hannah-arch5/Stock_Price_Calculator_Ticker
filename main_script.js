@@ -346,7 +346,7 @@ function stripAnimationsForDrag() {
     });
 }
 
-function renderHistory() {
+function renderHistory(scrollToSymbol = null) {
     if (isRenderingHistory) return;
     isRenderingHistory = true;
     
@@ -996,6 +996,9 @@ function renderHistory() {
         newsPanel.style.animationDelay = `${(baseDelay + 1 * 0.1).toFixed(2)}s`;
         newsPanel.id = `news-panel-${group.symbol}`;
         
+        newsPanel.addEventListener('mouseenter', () => { groupEl.draggable = false; });
+        newsPanel.addEventListener('mouseleave', () => { groupEl.draggable = true; });
+        
         if (NEWS_CACHE[group.symbol]) {
             newsPanel.innerHTML = NEWS_CACHE[group.symbol];
             const tabs = newsPanel.querySelectorAll('.news-tab');
@@ -1046,6 +1049,9 @@ function renderHistory() {
             </div>
             <textarea class="group-note mono" placeholder="Add notes...">${group.note || ''}</textarea>
         `;
+        
+        memoArea.addEventListener('mouseenter', () => { groupEl.draggable = false; });
+        memoArea.addEventListener('mouseleave', () => { groupEl.draggable = true; });
         
         clearTimeout(group.newsTimeout);
         // Reset newsLoaded so news is always fetched on app start/re-render
@@ -1121,8 +1127,17 @@ function renderHistory() {
         groupEl.appendChild(listEl);
         historyListEl.appendChild(groupEl);
     });
-        if (historyRecords.length > 0 && prevScrollTop > 0) {
+        if (hasRenderedHistoryBefore) {
             historyListEl.scrollTop = prevScrollTop;
+        }
+        
+        if (scrollToSymbol) {
+            setTimeout(() => {
+                const targetGroup = historyListEl.querySelector(`[data-symbol="${scrollToSymbol}"]`);
+                if (targetGroup) {
+                    targetGroup.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            }, 50);
         }
     } catch (error) {
         console.error('Error rendering history:', error);
@@ -1410,11 +1425,10 @@ function addRecordToHistory(record) {
             record.urgency = group.records[0].urgency;
         }
         group.records.unshift(record);
-        historyRecords = historyRecords.filter(g => g !== group);
-        historyRecords.unshift(group);
+        // User requested: do NOT reorder historyRecords here. Just append to group.
     }
     saveState();
-    renderHistory();
+    renderHistory(sym);
 }
 
 saveTargetBtn.addEventListener('click', () => {
