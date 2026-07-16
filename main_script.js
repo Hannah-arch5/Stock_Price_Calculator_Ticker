@@ -335,11 +335,22 @@ clearPercentageBtn.addEventListener('click', () => {
     handleInput();
 });
 let isRenderingHistory = false;
+let hasRenderedHistoryBefore = false;
 
 // History Logic
+function stripAnimationsForDrag() {
+    document.querySelectorAll('.animate-stagger-row').forEach(el => {
+        el.classList.remove('animate-stagger-row');
+        el.style.animation = 'none';
+        el.style.opacity = '1';
+    });
+}
+
 function renderHistory() {
     if (isRenderingHistory) return;
     isRenderingHistory = true;
+    
+    const animClass = hasRenderedHistoryBefore ? '' : ' animate-stagger-row';
     
     const prevScrollTop = historyListEl.scrollTop;
 
@@ -382,6 +393,7 @@ function renderHistory() {
             
             tag.addEventListener('dragstart', (e) => {
                 if (e.target !== tag) return;
+                stripAnimationsForDrag();
                 tag.classList.add('dragging-tag');
                 e.dataTransfer.effectAllowed = 'move';
             });
@@ -392,7 +404,15 @@ function renderHistory() {
                 updateArrayFromDOMTags();
                 historyRecords.forEach(g => {
                     const groupNode = historyListEl.querySelector(`[data-symbol="${g.symbol}"]`);
-                    if (groupNode) historyListEl.appendChild(groupNode);
+                    if (groupNode) {
+                        // Prevent re-animating when appending
+                        groupNode.querySelectorAll('.animate-stagger-row').forEach(el => {
+                            el.classList.remove('animate-stagger-row');
+                            el.style.animation = 'none';
+                            el.style.opacity = '1';
+                        });
+                        historyListEl.appendChild(groupNode);
+                    }
                 });
                 saveState();
             });
@@ -415,6 +435,7 @@ function renderHistory() {
         
         groupEl.addEventListener('dragstart', (e) => {
             if (e.target !== groupEl) return;
+            stripAnimationsForDrag();
             groupEl.classList.add('dragging-group');
             e.dataTransfer.effectAllowed = 'move';
         });
@@ -427,14 +448,17 @@ function renderHistory() {
             if (tagsEl) {
                 historyRecords.forEach(g => {
                     const tagNode = tagsEl.querySelector(`[data-symbol="${g.symbol}"]`);
-                    if (tagNode) tagsEl.appendChild(tagNode);
+                    if (tagNode) {
+                        tagNode.style.animation = 'none';
+                        tagsEl.appendChild(tagNode);
+                    }
                 });
             }
             saveState();
         });
         
         const headerEl = document.createElement('div');
-        headerEl.className = 'group-header animate-stagger-row';
+        headerEl.className = 'group-header' + animClass;
         headerEl.style.animationDelay = `${(baseDelay + 0 * 0.1).toFixed(2)}s`;
         const titleEl = document.createElement('div');
         titleEl.className = 'group-title-container';
@@ -539,6 +563,12 @@ function renderHistory() {
                                 group.name = newVal;
                                 saveState();
                                 nameSpan.textContent = newVal;
+                                
+                                const tagEl = document.getElementById('quick-tags')?.querySelector(`[data-symbol="${group.symbol}"]`);
+                                if (tagEl) {
+                                    const cleanName = newVal.replace(/\s+/g, '');
+                                    tagEl.textContent = cleanName.length <= 3 ? cleanName : cleanName.substring(0, 2);
+                                }
                             } else {
                                 nameSpan.textContent = group.name || '';
                             }
@@ -643,7 +673,7 @@ function renderHistory() {
         
         group.records.forEach((record, itemIndex) => {
             const item = document.createElement('div');
-            item.className = 'list-row history-item animate-stagger-row';
+            item.className = 'list-row history-item' + animClass;
             item.style.animationDelay = `${(baseDelay + (3 + itemIndex) * 0.1).toFixed(2)}s`;
             if (record.highlighted) {
                 item.classList.add('highlighted');
@@ -722,6 +752,7 @@ function renderHistory() {
             `;
             
             item.addEventListener('dragstart', (e) => {
+                stripAnimationsForDrag();
                 item.classList.add('dragging');
                 e.dataTransfer.effectAllowed = 'move';
             });
@@ -893,7 +924,7 @@ function renderHistory() {
                 
                 if (e.detail === 1) {
                     item.clickTimer = setTimeout(() => {
-                        populateForm(record);
+                        populateForm(record, group.symbol);
                     }, 200);
                 }
             });
@@ -961,7 +992,7 @@ function renderHistory() {
         });
         
         const newsPanel = document.createElement('div');
-        newsPanel.className = 'group-news-panel animate-stagger-row';
+        newsPanel.className = 'group-news-panel' + animClass;
         newsPanel.style.animationDelay = `${(baseDelay + 1 * 0.1).toFixed(2)}s`;
         newsPanel.id = `news-panel-${group.symbol}`;
         
@@ -1004,7 +1035,7 @@ function renderHistory() {
         }, 0);
 
         const memoArea = document.createElement('div');
-        memoArea.className = 'group-memo-area animate-stagger-row';
+        memoArea.className = 'group-memo-area' + animClass;
         memoArea.style.animationDelay = `${(baseDelay + 2 * 0.1).toFixed(2)}s`;
         
         memoArea.innerHTML = `
@@ -1096,7 +1127,11 @@ function renderHistory() {
     } catch (error) {
         console.error('Error rendering history:', error);
     } finally {
-        isRenderingHistory = false;
+        hasRenderedHistoryBefore = true;
+        
+        setTimeout(() => {
+            isRenderingHistory = false;
+        }, 100);
     }
 }
 
@@ -1254,9 +1289,8 @@ function updateArrayFromDOM() {
 
         const items = [...groupEl.querySelectorAll('.history-item')];
         const records = items.map((item, itemIndex) => {
-            const originalGroupIndex = parseInt(item.dataset.groupIndex, 10);
             const originalItemIndex = parseInt(item.dataset.itemIndex, 10);
-            const record = historyRecords[originalGroupIndex].records[originalItemIndex];
+            const record = (originalGroup.records || [])[originalItemIndex];
             
             const sharesInput = item.querySelector('.shares-inline-input');
             if (sharesInput) {
@@ -1417,7 +1451,7 @@ savePercentageBtn.addEventListener('click', () => {
     });
 });
 
-function populateForm(record) {
+function populateForm(record, symbol) {
     let isPercentage = false;
     if (record.mode === 'percentage') {
         isPercentage = true;
@@ -1430,7 +1464,7 @@ function populateForm(record) {
     }
 
     if (!isPercentage) {
-        stockSymbol1Input.value = record.symbol || '';
+        stockSymbol1Input.value = symbol || record.symbol || '';
         if (record.inputs) {
             basePriceInput.value = record.inputs.base;
             percentageChangeInput.value = record.inputs.perc;
@@ -1440,13 +1474,13 @@ function populateForm(record) {
             const percMatch = record.details.match(/(Up|Down)\s+([\d.]+)%/);
             if (baseMatch) basePriceInput.value = baseMatch[1];
             if (percMatch) {
-                document.getElementById(percMatch[1] === 'Up' ? 'move-up' : 'move-down').checked = true;
                 percentageChangeInput.value = percMatch[2];
+                document.getElementById(percMatch[1] === 'Up' ? 'move-up' : 'move-down').checked = true;
             }
         }
         handleInput();
     } else {
-        stockSymbol2Input.value = record.symbol || '';
+        stockSymbol2Input.value = symbol || record.symbol || '';
         if (record.inputs) {
             initialPriceInput.value = record.inputs.initial;
             finalPriceInput.value = record.inputs.final;

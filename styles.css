@@ -669,9 +669,9 @@ input[type=number] {
 
 .memo-timeframes {
   display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem 1rem;
-  align-items: center;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 100%;
   font-size: 0.75rem;
   color: var(--fg-dim);
 }
@@ -680,7 +680,7 @@ input[type=number] {
   display: flex;
   align-items: baseline;
   gap: 0.5rem;
-  flex: 1 1 120px;
+  width: 100%;
 }
 
 .tf-label {
@@ -987,12 +987,12 @@ body.light-theme .global-action-btn:hover { color: var(--fg-dim); background: rg
     font-family: 'JetBrains Mono', monospace;
     cursor: pointer;
     user-select: none;
-    transition: background-color 0.3s, padding-left 0.3s, color 0.3s;
+    transition: background-color 0.3s, transform 0.3s, color 0.3s;
     white-space: nowrap;
 }
 .custom-label:hover {
     background-color: #111;
-    padding-left: 18px;
+    transform: translateX(4px);
     color: var(--fg);
 }
 .custom-label.dragging-label {
