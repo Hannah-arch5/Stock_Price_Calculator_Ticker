@@ -514,7 +514,7 @@ input[type=number] {
 .quick-tag:hover {
   background-color: #111;
   color: var(--fg);
-  padding-left: 1rem;
+  transform: translateX(4px);
   border-color: var(--fg-dim);
 }
 
