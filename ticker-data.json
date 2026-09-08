@@ -804,7 +804,7 @@
             "isUp": true
           },
           "currency": "$",
-          "urgency": "green",
+          "urgency": "orange",
           "shares": ""
         },
         {
@@ -820,12 +820,12 @@
             "isUp": true
           },
           "currency": "$",
-          "urgency": "green",
+          "urgency": "orange",
           "shares": "12",
           "highlighted": true
         },
         {
-          "type": "W卖点2",
+          "type": "D卖点2",
           "mode": "target",
           "symbol": "APP",
           "details": "<span>Base: $297.5</span><span>Up 34%</span>",
@@ -837,7 +837,7 @@
             "isUp": true
           },
           "currency": "$",
-          "urgency": "green",
+          "urgency": "orange",
           "shares": "12",
           "highlighted": false
         },
@@ -854,7 +854,7 @@
             "isUp": true
           },
           "currency": "$",
-          "urgency": "green",
+          "urgency": "orange",
           "shares": "24"
         }
       ],
@@ -863,7 +863,8 @@
       "note": "一定要等D涨很多后再考虑卖出！！！\n至少要涨到375再卖！！！",
       "tf_w": "还未跌完，但这次上升趋势启动",
       "tf_d": "RSI已触底，此次波段好时机开始",
-      "tf_30": "感觉还有波涨，等到375再卖！！！"
+      "tf_30": "感觉还有波涨，等到375再卖！！！",
+      "urgency": "orange"
     }
   ],
   "historyVersion": "2",
@@ -876,7 +877,6 @@
     "目前30已涨",
     "目前D已涨",
     "D买点2",
-    "D卖点2",
     "30买点1",
     "W卖点2",
     "30卖点1",
@@ -884,7 +884,8 @@
     "W买点1",
     "D买点1",
     "W买点2",
-    "D卖点1"
+    "D卖点1",
+    "D卖点2"
   ],
   "calcInputs": {
     "currency": "¥",
@@ -896,5 +897,5 @@
     "initialPrice": "",
     "finalPrice": ""
   },
-  "lastUpdated": 1788870757985
+  "lastUpdated": 1788871975088
 }

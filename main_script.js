@@ -1881,10 +1881,31 @@ if (desktopLiveSyncBtn) {
             desktopLiveSyncBtn.className = 'status-pill status-syncing';
             if (desktopSyncText) desktopSyncText.textContent = 'SYNCING...';
 
-            // 3. Trigger manual sync in main process (pushes to Google Drive & updates workspace)
+            // Clean stateObj to pass to manualSync directly
+            const cleanRecords = historyRecords.map(group => {
+                const { newsLoaded, newsTimeout, klineMetrics, ...cleanGroup } = group;
+                return cleanGroup;
+            });
+            const stateObj = {
+                historyRecords: cleanRecords,
+                historyVersion: '2',
+                customLabels: customLabels,
+                calcInputs: {
+                    currency: currentCurrency,
+                    stock1: stockSymbol1Input ? stockSymbol1Input.value : '',
+                    basePrice: basePriceInput ? basePriceInput.value : '',
+                    moveDown: document.getElementById('move-down') ? document.getElementById('move-down').checked : false,
+                    percentChange: percentageChangeInput ? percentageChangeInput.value : '',
+                    stock2: stockSymbol2Input ? stockSymbol2Input.value : '',
+                    initialPrice: initialPriceInput ? initialPriceInput.value : '',
+                    finalPrice: finalPriceInput ? finalPriceInput.value : ''
+                }
+            };
+
+            // 3. Trigger manual sync in main process (pushes to Google Drive, GitHub & updates workspace)
             let result = null;
             if (window.electronAPI && window.electronAPI.manualSync) {
-                result = await window.electronAPI.manualSync();
+                result = await window.electronAPI.manualSync(JSON.stringify(stateObj));
             }
 
             // 4. Update UI status & show toast
@@ -1892,9 +1913,9 @@ if (desktopLiveSyncBtn) {
                 desktopLiveSyncBtn.className = 'status-pill status-live';
                 if (desktopSyncText) desktopSyncText.textContent = 'LIVE';
                 
-                const count = (result && result.recordsCount !== undefined) ? result.recordsCount : calcHistory.length;
+                const count = (result && result.recordsCount !== undefined) ? result.recordsCount : cleanRecords.length;
                 showDesktopToast(`数据已同步至云端与手机 (${count}条标的已同步)`, 'success');
-            }, 600);
+            }, 500);
         } catch (err) {
             console.error('[Desktop Sync] Error:', err);
             desktopLiveSyncBtn.className = 'status-pill status-offline';

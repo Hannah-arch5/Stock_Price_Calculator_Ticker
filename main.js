@@ -897,10 +897,34 @@ ipcMain.on('save-data', (event, dataStr) => {
 
         // 6. Asynchronously push to Google Drive
         syncToGDrive(dataStr);
+
+        // 7. Background git sync to keep GitHub Pages / CDN up to date
+        triggerGitSyncDebounced();
     } catch(e) {
         console.error('[main] save-data error:', e);
     }
 });
+
+let gitSyncTimer = null;
+function triggerGitSyncDebounced() {
+    if (gitSyncTimer) clearTimeout(gitSyncTimer);
+    gitSyncTimer = setTimeout(() => {
+        try {
+            const projectDir = __dirname;
+            if (fs.existsSync(path.join(projectDir, '.git'))) {
+                exec('git add ticker-data.json && git commit -m "sync: auto-sync ticker dataset" && git push origin v5.4.0', { cwd: projectDir }, (err, stdout, stderr) => {
+                    if (err) {
+                        console.log('[GitSync] Notice:', stderr || err.message);
+                    } else {
+                        console.log('[GitSync] Successfully pushed ticker-data.json to GitHub repository');
+                    }
+                });
+            }
+        } catch(e) {
+            console.warn('[GitSync] Error:', e);
+        }
+    }, 1200);
+}
 
 ipcMain.handle('manual-sync', async (event, clientDataStr) => {
     try {
@@ -934,6 +958,9 @@ ipcMain.handle('manual-sync', async (event, clientDataStr) => {
 
         // 4. Push to Google Drive Web App synchronously with await
         const gdriveOk = await syncToGDrive(dataToSave);
+
+        // 5. Trigger background git push
+        triggerGitSyncDebounced();
 
         return {
             success: true,

@@ -2005,8 +2005,8 @@
       const localUpdated = appState?.lastUpdated ? Number(appState.lastUpdated) : 0;
       const remoteUpdated = data.lastUpdated ? Number(data.lastUpdated) : Date.now();
       
-      // If not forced, never let older data overwrite newer data
-      if (!force && localUpdated > 0 && remoteUpdated < localUpdated) {
+      // If not forced and local has valid records with newer timestamp, preserve local
+      if (!force && localUpdated > 0 && remoteUpdated < localUpdated && appState.historyRecords && appState.historyRecords.length > 0) {
         console.log(`[Cache] Preserved newer local state (${localUpdated} > ${remoteUpdated})`);
         return;
       }
@@ -2026,51 +2026,27 @@
     return localStorage.getItem(GDRIVE_CACHE_KEY) || DEFAULT_GDRIVE_URL;
   }
 
-  async function fetchFromTickerData(force = false) {
-    const candidatePaths = [
-      './ticker-data.json?_ts=' + Date.now(),
-      '/Stock_Price_Calculator_Ticker/ticker-data.json?_ts=' + Date.now(),
-      'ticker-data.json?_ts=' + Date.now()
-    ];
-    for (const p of candidatePaths) {
-      try {
-        const res = await fetch(p, { cache: 'no-store' });
-        if (res.ok) {
-          const json = await res.json();
-          if (json && Array.isArray(json.historyRecords) && json.historyRecords.length > 0) {
-            saveToCache(json, force);
-            return true;
-          }
-        }
-      } catch (e) {}
-    }
-    return false;
-  }
-
-  async function fetchFromGDrive(gdriveUrl) {
+  async function fetchWithTimeout(url, timeoutMs) {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
     try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 15000);
-      const fetchUrl = gdriveUrl + (gdriveUrl.includes('?') ? '&' : '?') + '_ts=' + Date.now();
-      const res = await fetch(fetchUrl, {
+      const res = await fetch(url, {
         method: 'GET',
         cache: 'no-store',
         redirect: 'follow',
         signal: controller.signal
       });
       clearTimeout(timeoutId);
-      if (res.ok) {
-        const json = await res.json();
-        if (json && Array.isArray(json.historyRecords) && json.historyRecords.length > 0) {
-          if (!json.lastUpdated) json.lastUpdated = Date.now();
-          saveToCache(json, true);
-          return true;
-        }
+      if (!res.ok) return null;
+      const json = await res.json();
+      if (json && Array.isArray(json.historyRecords) && json.historyRecords.length > 0) {
+        return json;
       }
+      return null;
     } catch (e) {
-      console.warn('[GDrive] fetch error:', e);
+      clearTimeout(timeoutId);
+      return null;
     }
-    return false;
   }
 
   async function fetchLatestData(isManual = false) {
@@ -2085,50 +2061,54 @@
       if (syncText) syncText.textContent = 'LIVE';
     }
 
+    const ts = Date.now();
     const isGitHubPages = window.location.hostname.includes('github.io');
-
-    // 1. Prioritize Google Drive Cloud Sync (works across all 5G / Wi-Fi networks)
     const gdriveUrl = getGDriveUrl();
-    let cloudSynced = false;
+    
+    // Multi-source parallel endpoints
+    const sources = [];
+    
+    // Source 1: Google Apps Script Web App (6s timeout)
     if (gdriveUrl) {
-      try {
-        cloudSynced = await fetchFromGDrive(gdriveUrl);
-      } catch (_) {}
+      const gUrl = gdriveUrl + (gdriveUrl.includes('?') ? '&' : '?') + '_ts=' + ts;
+      sources.push(fetchWithTimeout(gUrl, 6000));
+    }
+    
+    // Source 2: GitHub Pages dataset (3.5s timeout)
+    sources.push(fetchWithTimeout('./ticker-data.json?_ts=' + ts, 3500));
+    sources.push(fetchWithTimeout('/Stock_Price_Calculator_Ticker/ticker-data.json?_ts=' + ts, 3500));
+
+    // Source 3: GitHub Raw dataset (4s timeout)
+    sources.push(fetchWithTimeout('https://raw.githubusercontent.com/Hannah-arch5/Stock_Price_Calculator_Ticker/v5.4.0/ticker-data.json?_ts=' + ts, 4000));
+
+    // Source 4: Local LAN Mac server (1.5s timeout, if not on github.io)
+    if (!isGitHubPages) {
+      sources.push(fetchWithTimeout('/api/data?_ts=' + ts, 1500));
     }
 
-    // 2. If on local LAN and cloud sync didn't run, check local Mac server
-    let lanSynced = false;
-    if (!isGitHubPages && !cloudSynced) {
-      try {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 1200);
-        const res = await fetch('/api/data', { cache: 'no-store', signal: controller.signal });
-        clearTimeout(timeoutId);
-        if (res.ok) {
-          const json = await res.json();
-          saveToCache(json, true);
-          lanSynced = true;
-          try {
-            const infoRes = await fetch('/api/server-info', { signal: AbortSignal.timeout(1000) });
-            if (infoRes.ok) {
-              const info = await infoRes.json();
-              if (info.gdriveUrl) localStorage.setItem(GDRIVE_CACHE_KEY, info.gdriveUrl);
-            }
-          } catch(_) {}
-        }
-      } catch (e) {
-        console.log('[Mobile] Mac server unreachable, trying cloud/cdn...');
-      }
-    }
+    const results = await Promise.allSettled(sources);
+    const validCandidates = results
+      .filter(r => r.status === 'fulfilled' && r.value && Array.isArray(r.value.historyRecords) && r.value.historyRecords.length > 0)
+      .map(r => r.value);
 
-    // 3. Same-origin static ticker-data.json fallback
-    let cdnOk = false;
-    if (!cloudSynced && !lanSynced) {
-      cdnOk = await fetchFromTickerData(isManual);
+    let synced = false;
+    if (validCandidates.length > 0) {
+      // Sort candidates: highest lastUpdated timestamp first, then largest record count
+      validCandidates.sort((a, b) => {
+        const timeA = Number(a.lastUpdated || 0);
+        const timeB = Number(b.lastUpdated || 0);
+        if (timeA !== timeB) return timeB - timeA;
+        return (b.historyRecords ? b.historyRecords.length : 0) - (a.historyRecords ? a.historyRecords.length : 0);
+      });
+
+      const bestData = validCandidates[0];
+      if (!bestData.lastUpdated) bestData.lastUpdated = ts;
+      saveToCache(bestData, isManual);
+      synced = true;
     }
 
     const hasData = appState.historyRecords && appState.historyRecords.length > 0;
-    if (cloudSynced || lanSynced || cdnOk || hasData) {
+    if (synced || hasData) {
       if (indicator) indicator.className = 'status-pill status-live';
       if (syncText) syncText.textContent = 'LIVE';
       if (isManual) {
