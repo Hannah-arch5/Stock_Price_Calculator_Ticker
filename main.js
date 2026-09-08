@@ -29,7 +29,7 @@ function getGDriveSyncUrl() {
 
 async function syncToGDrive(dataStr) {
     const url = getGDriveSyncUrl();
-    if (!url) return;
+    if (!url) return false;
     try {
         console.log('[GDrive] Syncing data to Google Drive Web App...');
         const res = await fetch(url, {
@@ -40,11 +40,14 @@ async function syncToGDrive(dataStr) {
         });
         if (res.ok) {
             console.log('[GDrive] Sync to Google Drive successful!');
+            return true;
         } else {
             console.warn('[GDrive] Sync responded with status:', res.status);
+            return false;
         }
     } catch (e) {
         console.error('[GDrive] Sync error:', e.message);
+        return false;
     }
 }
 
@@ -896,6 +899,51 @@ ipcMain.on('save-data', (event, dataStr) => {
         syncToGDrive(dataStr);
     } catch(e) {
         console.error('[main] save-data error:', e);
+    }
+});
+
+ipcMain.handle('manual-sync', async (event, clientDataStr) => {
+    try {
+        let dataToSave = clientDataStr;
+        if (!dataToSave && fs.existsSync(DATA_FILE)) {
+            dataToSave = fs.readFileSync(DATA_FILE, 'utf8');
+        }
+        if (!dataToSave) return { success: false, error: 'No data to sync' };
+
+        let parsed = null;
+        try {
+            parsed = JSON.parse(dataToSave);
+            parsed.lastUpdated = Date.now();
+            dataToSave = JSON.stringify(parsed, null, 2);
+        } catch(e) {}
+
+        // 1. Save locally to DATA_FILE
+        fs.mkdirSync(FIXED_USER_DATA, { recursive: true });
+        fs.writeFileSync(DATA_FILE, dataToSave, 'utf8');
+
+        // 2. Save to workspace ticker-data.json if present
+        try {
+            const wsTickerData = path.join(__dirname, 'ticker-data.json');
+            fs.writeFileSync(wsTickerData, dataToSave, 'utf8');
+        } catch(e) {}
+
+        // 3. Broadcast to local SSE clients
+        if (parsed) {
+            broadcastSyncData(parsed);
+        }
+
+        // 4. Push to Google Drive Web App synchronously with await
+        const gdriveOk = await syncToGDrive(dataToSave);
+
+        return {
+            success: true,
+            gdriveSynced: gdriveOk,
+            recordsCount: (parsed && Array.isArray(parsed.historyRecords)) ? parsed.historyRecords.length : 0,
+            timestamp: Date.now()
+        };
+    } catch (e) {
+        console.error('[main] manual-sync error:', e);
+        return { success: false, error: e.message };
     }
 });
 

@@ -18,5 +18,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
     getSyncServerInfo: () => ipcRenderer.invoke('get-sync-server-info'),
     getGDriveSyncUrl: () => ipcRenderer.invoke('get-gdrive-sync-url'),
     saveGDriveSyncUrl: (url) => ipcRenderer.invoke('save-gdrive-sync-url', url),
+    manualSync: () => ipcRenderer.invoke('manual-sync'),
     onSyncDataUpdated: (callback) => ipcRenderer.on('sync-data-updated', (event, data) => callback(data))
 });

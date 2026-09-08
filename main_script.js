@@ -1852,6 +1852,58 @@ if (sizeToggleBtn && window.electronAPI) {
     });
 }
 
+function showDesktopToast(message, type = 'success', duration = 2400) {
+    let toast = document.getElementById('desktop-toast-banner');
+    if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'desktop-toast-banner';
+        document.body.appendChild(toast);
+    }
+    toast.textContent = message;
+    toast.className = `desktop-toast-banner toast-${type} visible`;
+    if (toast._timer) clearTimeout(toast._timer);
+    toast._timer = setTimeout(() => {
+        toast.classList.remove('visible');
+    }, duration);
+}
+
+// Desktop LIVE Manual Sync Button
+const desktopLiveSyncBtn = document.getElementById('desktop-live-sync-btn');
+const desktopSyncText = document.getElementById('desktop-sync-text');
+
+if (desktopLiveSyncBtn) {
+    desktopLiveSyncBtn.addEventListener('click', async () => {
+        try {
+            // 1. Collect latest inputs & state from UI
+            saveState();
+
+            // 2. Visual syncing feedback
+            desktopLiveSyncBtn.className = 'status-pill status-syncing';
+            if (desktopSyncText) desktopSyncText.textContent = 'SYNCING...';
+
+            // 3. Trigger manual sync in main process (pushes to Google Drive & updates workspace)
+            let result = null;
+            if (window.electronAPI && window.electronAPI.manualSync) {
+                result = await window.electronAPI.manualSync();
+            }
+
+            // 4. Update UI status & show toast
+            setTimeout(() => {
+                desktopLiveSyncBtn.className = 'status-pill status-live';
+                if (desktopSyncText) desktopSyncText.textContent = 'LIVE';
+                
+                const count = (result && result.recordsCount !== undefined) ? result.recordsCount : calcHistory.length;
+                showDesktopToast(`数据已同步至云端与手机 (${count}条标的已同步)`, 'success');
+            }, 600);
+        } catch (err) {
+            console.error('[Desktop Sync] Error:', err);
+            desktopLiveSyncBtn.className = 'status-pill status-offline';
+            if (desktopSyncText) desktopSyncText.textContent = 'OFFLINE';
+            showDesktopToast('同步异常，请检查网络连接', 'warning');
+        }
+    });
+}
+
 // Mobile Sync Modal Logic (Studio Noir)
 const mobileSyncBtn = document.getElementById('mobile-sync-btn');
 const mobileSyncModal = document.getElementById('mobile-sync-modal');
