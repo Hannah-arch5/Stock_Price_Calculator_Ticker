@@ -2026,7 +2026,7 @@
     return localStorage.getItem(GDRIVE_CACHE_KEY) || DEFAULT_GDRIVE_URL;
   }
 
-  async function fetchFromTickerData() {
+  async function fetchFromTickerData(force = false) {
     const candidatePaths = [
       './ticker-data.json?_ts=' + Date.now(),
       '/Stock_Price_Calculator_Ticker/ticker-data.json?_ts=' + Date.now(),
@@ -2034,11 +2034,11 @@
     ];
     for (const p of candidatePaths) {
       try {
-        const res = await fetch(p);
+        const res = await fetch(p, { cache: 'no-store' });
         if (res.ok) {
           const json = await res.json();
           if (json && Array.isArray(json.historyRecords) && json.historyRecords.length > 0) {
-            saveToCache(json, false);
+            saveToCache(json, force);
             return true;
           }
         }
@@ -2054,6 +2054,7 @@
       const fetchUrl = gdriveUrl + (gdriveUrl.includes('?') ? '&' : '?') + '_ts=' + Date.now();
       const res = await fetch(fetchUrl, {
         method: 'GET',
+        cache: 'no-store',
         redirect: 'follow',
         signal: controller.signal
       });
@@ -2077,11 +2078,9 @@
     const syncText = document.getElementById('sync-text');
 
     if (isManual) {
-      if (syncText) syncText.textContent = 'SYNCING';
-    }
-
-    // Immediately mark LIVE if we already have records from cache or inline
-    if (appState.historyRecords && appState.historyRecords.length > 0) {
+      if (indicator) indicator.className = 'status-pill status-syncing';
+      if (syncText) syncText.textContent = 'SYNCING...';
+    } else if (appState.historyRecords && appState.historyRecords.length > 0) {
       if (indicator) indicator.className = 'status-pill status-live';
       if (syncText) syncText.textContent = 'LIVE';
     }
@@ -2098,17 +2097,17 @@
     }
 
     // 2. If on local LAN and cloud sync didn't run, check local Mac server
+    let lanSynced = false;
     if (!isGitHubPages && !cloudSynced) {
       try {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 1200);
-        const res = await fetch('/api/data', { signal: controller.signal });
+        const res = await fetch('/api/data', { cache: 'no-store', signal: controller.signal });
         clearTimeout(timeoutId);
         if (res.ok) {
           const json = await res.json();
           saveToCache(json, true);
-          if (indicator) indicator.className = 'status-pill status-live';
-          if (syncText) syncText.textContent = 'LIVE';
+          lanSynced = true;
           try {
             const infoRes = await fetch('/api/server-info', { signal: AbortSignal.timeout(1000) });
             if (infoRes.ok) {
@@ -2116,24 +2115,26 @@
               if (info.gdriveUrl) localStorage.setItem(GDRIVE_CACHE_KEY, info.gdriveUrl);
             }
           } catch(_) {}
-          if (isManual) showAlert('已从电脑端同步最新数据', 'success', 2000);
-          return;
         }
       } catch (e) {
         console.log('[Mobile] Mac server unreachable, trying cloud/cdn...');
       }
     }
 
-    // 3. Same-origin static ticker-data.json fallback if cloud sync was not successful
+    // 3. Same-origin static ticker-data.json fallback
     let cdnOk = false;
-    if (!cloudSynced) {
-      cdnOk = await fetchFromTickerData();
+    if (!cloudSynced && !lanSynced) {
+      cdnOk = await fetchFromTickerData(isManual);
     }
 
-    if (cloudSynced || cdnOk || (appState.historyRecords && appState.historyRecords.length > 0)) {
+    const hasData = appState.historyRecords && appState.historyRecords.length > 0;
+    if (cloudSynced || lanSynced || cdnOk || hasData) {
       if (indicator) indicator.className = 'status-pill status-live';
       if (syncText) syncText.textContent = 'LIVE';
-      if (isManual) showAlert('数据已同步至最新状态', 'success', 2000);
+      if (isManual) {
+        const count = appState.historyRecords ? appState.historyRecords.length : 0;
+        showAlert(`数据已同步至最新状态 (${count}条标的已刷新)`, 'success', 2200);
+      }
     } else {
       if (indicator) indicator.className = 'status-pill status-offline';
       if (syncText) syncText.textContent = 'OFFLINE';
@@ -2528,6 +2529,15 @@
         return;
       }
     });
+
+    const syncIndicatorBtn = document.getElementById('sync-indicator');
+    if (syncIndicatorBtn) {
+      syncIndicatorBtn.onclick = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        fetchLatestData(true);
+      };
+    }
 
     // 3. Stock Edit Sheet Buttons
     const stockCancelBtn = document.getElementById('stock-cancel-btn');

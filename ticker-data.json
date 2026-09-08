@@ -1,20 +1,6 @@
 {
   "historyRecords": [
     {
-      "symbol": "AAPL",
-      "name": "Apple Inc.",
-      "cost": "",
-      "qty": "",
-      "tf_w": "",
-      "tf_d": "",
-      "tf_30": "",
-      "note": "",
-      "isFavorite": true,
-      "records": [],
-      "inLedger": false,
-      "research_notes": ""
-    },
-    {
       "symbol": "300775",
       "records": [
         {
@@ -50,6 +36,22 @@
           "highlighted": false
         },
         {
+          "type": "D卖点1",
+          "mode": "target",
+          "symbol": "300775",
+          "details": "<span>Base: ¥18.86</span><span>Up 30%</span>",
+          "result": "¥24.518",
+          "isUp": true,
+          "inputs": {
+            "base": 18.86,
+            "perc": 30,
+            "isUp": true
+          },
+          "currency": "¥",
+          "urgency": "green",
+          "shares": "6000"
+        },
+        {
           "type": "W卖点1",
           "symbol": "300775",
           "details": "<span>Base: ¥<span class=\"edit-trigger-val\" data-field=\"base\"><span class=\"edit-container-val\">18.86</span></span></span><span><span class=\"editable-toggle\" data-field=\"isUp\">Up</span> <span class=\"edit-trigger-val\" data-field=\"perc\"><span class=\"edit-container-val\">39</span>%</span></span>",
@@ -66,7 +68,7 @@
           "currency": "¥"
         }
       ],
-      "note": "22.66 - 8000买入（一共8200股）\n23.35 - 8000卖出\n22.22 - 8000买入\n21.11 - 8000卖出\n20.44 -8000买入\n19.92 - 1900卖出\n20.10 - 6200卖出\n21.55 - 5800买入\n21.85 - 5800卖出\n21.68 - 5800买入\n22.76 -5800卖出\n22.48 -6000买入（33.945）\n22.12 -6000卖出\n21.75 -6100买入（33.406）\n\n23.38 - 2300买入（800股+1600股=2400股）\n23.35 - 2300卖出\n22.19 - 2300买入\n21.11 - 2300卖出\n19.71 - 2300买入（34.838）\n20.10 - 2300卖出\n21.55 - 2300买入（36.215）\n\n如果涨，一定要等涨到26左右再卖出！！！（主要等待D的RSI触中线或触顶）\n如果跌很多可在20左右接回\n整体还处于低位，可以不动，未来趋势肯定还是涨的",
+      "note": "22.66 - 8000买入（一共8200股）\n23.35 - 8000卖出\n22.22 - 8000买入\n21.11 - 8000卖出\n20.44 -8000买入\n19.92 - 1900卖出\n20.10 - 6200卖出\n21.55 - 5800买入\n21.85 - 5800卖出\n21.68 - 5800买入\n22.76 -5800卖出\n22.48 -6000买入（33.945）\n22.12 -6000卖出\n21.75 -6100买入（33.406）\n\n23.38 - 2300买入（800股+1600股=2400股）\n23.35 - 2300卖出\n22.19 - 2300买入\n21.11 - 2300卖出\n19.71 - 2300买入（34.838）\n20.10 - 2300卖出\n21.55 - 2300买入（36.215）\n\n如果涨，一定要等涨到24.5左右再卖出！！！（主要等待D的RSI触中线或触顶）\n如果跌很多可在20左右接回\n整体还处于低位，可以不动，未来趋势肯定还是涨的",
       "tf_w": "等待回0轴低点，RSI进入可买回区域",
       "tf_d": "已涨马上回0轴",
       "tf_30": "等RSI触底线",
@@ -171,20 +173,36 @@
       "symbol": "600893",
       "records": [
         {
-          "type": "W买点1",
+          "type": "W买点2",
           "mode": "target",
           "symbol": "600893",
-          "details": "<span>Base: ¥38.33</span><span>Down 15%</span>",
-          "result": "¥32.5805",
+          "details": "<span>Base: ¥41.56</span><span>Down 19%</span>",
+          "result": "¥33.6636",
           "isUp": false,
           "inputs": {
-            "base": 38.33,
-            "perc": 15,
+            "base": 41.56,
+            "perc": 19,
             "isUp": false
           },
           "currency": "¥",
           "urgency": "orange",
-          "highlighted": false,
+          "shares": "",
+          "highlighted": true
+        },
+        {
+          "type": "W买点1",
+          "mode": "target",
+          "symbol": "600893",
+          "details": "<span>Base: ¥41.56</span><span>Down 14%</span>",
+          "result": "¥35.7416",
+          "isUp": false,
+          "inputs": {
+            "base": 41.56,
+            "perc": 14,
+            "isUp": false
+          },
+          "currency": "¥",
+          "urgency": "orange",
           "shares": ""
         },
         {
@@ -202,7 +220,7 @@
           "currency": "¥",
           "urgency": "orange",
           "shares": "",
-          "highlighted": true
+          "highlighted": false
         }
       ],
       "note": "（主要等待D的RSI触顶）\n等跌\nw感觉还会跌",
@@ -227,7 +245,7 @@
             "final": 48
           },
           "currency": "¥",
-          "urgency": "red",
+          "urgency": "green",
           "shares": "",
           "highlighted": false
         },
@@ -235,16 +253,16 @@
           "type": "D买点1",
           "mode": "target",
           "symbol": "002865",
-          "details": "<span>Base: ¥<span class=\"edit-trigger-val\" data-field=\"base\"><span class=\"edit-container-val\">38.43</span></span></span><span><span class=\"editable-toggle\" data-field=\"isUp\">Up</span> <span class=\"edit-trigger-val\" data-field=\"perc\"><span class=\"edit-container-val\">35</span>%</span></span>",
-          "result": "¥51.8805",
+          "details": "<span>Base: ¥<span class=\"edit-trigger-val\" data-field=\"base\"><span class=\"edit-container-val\">38.01</span></span></span><span><span class=\"editable-toggle\" data-field=\"isUp\">Up</span> <span class=\"edit-trigger-val\" data-field=\"perc\"><span class=\"edit-container-val\">35</span>%</span></span>",
+          "result": "¥51.3135",
           "isUp": true,
           "inputs": {
-            "base": 38.43,
+            "base": 38.01,
             "perc": 35,
             "isUp": true
           },
           "currency": "¥",
-          "urgency": "red",
+          "urgency": "green",
           "shares": "800"
         },
         {
@@ -260,7 +278,7 @@
             "isUp": true
           },
           "currency": "¥",
-          "urgency": "red",
+          "urgency": "green",
           "shares": "1800",
           "highlighted": true
         }
@@ -272,7 +290,8 @@
       "nameFetched": true,
       "name": "钧达股份",
       "cost": "46.233",
-      "qty": "2700"
+      "qty": "2700",
+      "urgency": "green"
     },
     {
       "symbol": "603315",
@@ -296,18 +315,18 @@
           "type": "D买点1",
           "mode": "target",
           "symbol": "603315",
-          "details": "<span>Base: ¥<span class=\"edit-trigger-val\" data-field=\"base\"><span class=\"edit-container-val\">11.24</span></span></span><span><span class=\"editable-toggle\" data-field=\"isUp\">Up</span> <span class=\"edit-trigger-val\" data-field=\"perc\"><span class=\"edit-container-val\">27</span>%</span></span>",
-          "result": "¥14.2748",
+          "details": "<span>Base: ¥<span class=\"edit-trigger-val\" data-field=\"base\"><span class=\"edit-container-val\">11.52</span></span></span><span><span class=\"editable-toggle\" data-field=\"isUp\">Up</span> <span class=\"edit-trigger-val\" data-field=\"perc\"><span class=\"edit-container-val\">16</span>%</span></span>",
+          "result": "¥13.3632",
           "isUp": true,
           "inputs": {
-            "base": 11.24,
-            "perc": 27,
+            "base": 11.52,
+            "perc": 16,
             "isUp": true
           },
           "currency": "¥",
           "urgency": "green",
           "shares": "1300",
-          "highlighted": true
+          "highlighted": false
         },
         {
           "type": "W卖点1",
@@ -323,7 +342,8 @@
           },
           "currency": "¥",
           "urgency": "green",
-          "shares": "1300"
+          "shares": "1300",
+          "highlighted": true
         }
       ],
       "nameFetched": true,
@@ -350,25 +370,25 @@
             "final": 36.5
           },
           "currency": "¥",
-          "urgency": "red",
+          "urgency": "orange",
           "shares": ""
         },
         {
-          "type": "D卖点1",
+          "type": "D买点1",
           "mode": "target",
           "symbol": "002518",
-          "details": "<span>Base: ¥<span class=\"edit-trigger-val\" data-field=\"base\"><span class=\"edit-container-val\">32.34</span></span></span><span><span class=\"editable-toggle\" data-field=\"isUp\">Up</span> <span class=\"edit-trigger-val\" data-field=\"perc\"><span class=\"edit-container-val\">25</span>%</span></span>",
-          "result": "¥40.425",
-          "isUp": true,
+          "details": "<span>Base: ¥38.69</span><span>Down 15%</span>",
+          "result": "¥32.8865",
+          "isUp": false,
           "inputs": {
-            "base": 32.34,
-            "perc": 25,
-            "isUp": true
+            "base": 38.69,
+            "perc": 15,
+            "isUp": false
           },
           "currency": "¥",
-          "urgency": "red",
+          "urgency": "orange",
           "shares": "1100",
-          "highlighted": false
+          "highlighted": true
         },
         {
           "type": "W卖点1",
@@ -383,9 +403,9 @@
             "isUp": true
           },
           "currency": "¥",
-          "urgency": "red",
+          "urgency": "orange",
           "shares": "",
-          "highlighted": true
+          "highlighted": false
         }
       ],
       "note": "64.93 -1200买入（一共1200股）\n47.67 - 1100卖出\n37.60 -1100买入\n37.06 -1100卖出\n33.67 -1100买入\n32.30 -1100卖出\n32.24 -1100买入\n33.22 -1100卖出\n34.36 -1100买入\n34.88 -1100卖出\n35.70 -900买入\n34.00 -900卖出\n33.40 -1000买入（55）\n34.00 -1000卖出\n\n至少会涨到43，如果跌到33左右可考虑买回（主要等待D的RSI触中线或触顶）\n之后跌到29以下可以考虑买入\nw感觉还会跌",
@@ -394,7 +414,8 @@
       "tf_30": "等待背驰",
       "nameFetched": true,
       "name": "科士达",
-      "qty": "1200"
+      "qty": "1200",
+      "urgency": "orange"
     },
     {
       "symbol": "600482",
@@ -411,7 +432,7 @@
             "final": 30.9
           },
           "currency": "¥",
-          "urgency": "green",
+          "urgency": "red",
           "shares": ""
         },
         {
@@ -427,7 +448,7 @@
             "isUp": false
           },
           "currency": "¥",
-          "urgency": "green",
+          "urgency": "red",
           "shares": "300",
           "highlighted": false
         },
@@ -444,9 +465,9 @@
             "isUp": true
           },
           "currency": "¥",
-          "urgency": "green",
+          "urgency": "red",
           "shares": "300",
-          "highlighted": false
+          "highlighted": true
         },
         {
           "type": "W卖点1",
@@ -461,19 +482,20 @@
             "isUp": true
           },
           "currency": "¥",
-          "urgency": "green",
+          "urgency": "red",
           "shares": "300",
-          "highlighted": true
+          "highlighted": false
         }
       ],
       "nameFetched": true,
       "name": "中国动力",
-      "note": "32.4 - 300卖出\n34.83 - 300买入\n34.91 - 300卖出\n34.4 - 300买入\n34.81 - 300卖出\n30.30 - 300买入\n29.78 - 300卖出\n30.38 - 300买入\n31.30 - 300卖出\n33.50 - 400买入\n32.24 - 400卖出（每股亏1.3）\n31.32 - 300买入（回本）\n31.55 -300卖出\n31.35 - 300买入（现已回到400股-回本）\n\n如果跌先不动，如果涨很多到37左右才考虑卖出！！！\n感觉未来还是涨的",
+      "note": "32.4 - 300卖出\n34.83 - 300买入\n34.91 - 300卖出\n34.4 - 300买入\n34.81 - 300卖出\n30.30 - 300买入\n29.78 - 300卖出\n30.38 - 300买入\n31.30 - 300卖出\n33.50 - 400买入\n32.24 - 400卖出（每股亏1.3）\n31.32 - 300买入（回本）\n31.55 -300卖出\n31.35 - 300买入（现已回到400股-回本）\n\n如果跌先不动，如果涨很多到37或38左右才考虑卖出！！！\n感觉未来还是涨的",
       "tf_w": "还未涨完，暂时回撤；还未回抽0轴，等待RSI跌回中线（因为RSI未触顶）",
       "tf_d": "继续下跌，等待RSI触底线",
       "tf_30": "等待回抽0轴低点",
       "cost": "38.238",
-      "qty": "400"
+      "qty": "400",
+      "urgency": "red"
     },
     {
       "symbol": "000070",
@@ -495,6 +517,23 @@
           "highlighted": false
         },
         {
+          "type": "D卖点1",
+          "mode": "target",
+          "symbol": "000070",
+          "details": "<span>Base: ¥15.26</span><span>Up 22%</span>",
+          "result": "¥18.6172",
+          "isUp": true,
+          "inputs": {
+            "base": 15.26,
+            "perc": 22,
+            "isUp": true
+          },
+          "currency": "¥",
+          "urgency": "red",
+          "shares": "1000",
+          "highlighted": true
+        },
+        {
           "type": "W卖点1",
           "mode": "target",
           "symbol": "000070",
@@ -508,35 +547,35 @@
           },
           "currency": "¥",
           "urgency": "red",
-          "shares": "",
+          "shares": "1000",
           "highlighted": false
         },
         {
           "type": "30买点1",
           "mode": "target",
           "symbol": "000070",
-          "details": "<span>Base: ¥16.74</span><span>Down 10%</span>",
-          "result": "¥15.066",
+          "details": "<span>Base: ¥<span class=\"edit-trigger-val\" data-field=\"base\"><span class=\"edit-container-val\">16.9</span></span></span><span><span class=\"editable-toggle\" data-field=\"isUp\">Down</span> <span class=\"edit-trigger-val\" data-field=\"perc\"><span class=\"edit-container-val\">10</span>%</span></span>",
+          "result": "¥15.21",
           "isUp": false,
           "inputs": {
-            "base": 16.74,
+            "base": 16.9,
             "perc": 10,
             "isUp": false
           },
           "currency": "¥",
           "urgency": "red",
           "shares": "1000",
-          "highlighted": false
+          "highlighted": true
         },
         {
           "type": "D买点1",
           "mode": "target",
           "symbol": "000070",
-          "details": "<span>Base: ¥16.74</span><span>Down 16%</span>",
-          "result": "¥14.0616",
+          "details": "<span>Base: ¥<span class=\"edit-trigger-val\" data-field=\"base\"><span class=\"edit-container-val\">16.9</span></span></span><span><span class=\"editable-toggle\" data-field=\"isUp\">Down</span> <span class=\"edit-trigger-val\" data-field=\"perc\"><span class=\"edit-container-val\">16</span>%</span></span>",
+          "result": "¥14.196",
           "isUp": false,
           "inputs": {
-            "base": 16.74,
+            "base": 16.9,
             "perc": 16,
             "isUp": false
           },
@@ -549,11 +588,11 @@
           "type": "W买点1",
           "mode": "target",
           "symbol": "000070",
-          "details": "<span>Base: ¥<span class=\"edit-trigger-val\" data-field=\"base\"><span class=\"edit-container-val\">16.74</span></span></span><span><span class=\"editable-toggle\" data-field=\"isUp\">Down</span> <span class=\"edit-trigger-val\" data-field=\"perc\"><span class=\"edit-container-val\">25</span>%</span></span>",
-          "result": "¥12.555",
+          "details": "<span>Base: ¥<span class=\"edit-trigger-val\" data-field=\"base\"><span class=\"edit-container-val\">16.9</span></span></span><span><span class=\"editable-toggle\" data-field=\"isUp\">Down</span> <span class=\"edit-trigger-val\" data-field=\"perc\"><span class=\"edit-container-val\">25</span>%</span></span>",
+          "result": "¥12.675",
           "isUp": false,
           "inputs": {
-            "base": 16.74,
+            "base": 16.9,
             "perc": 25,
             "isUp": false
           },
@@ -587,7 +626,7 @@
             "final": 239
           },
           "currency": "¥",
-          "urgency": "red",
+          "urgency": "green",
           "shares": ""
         },
         {
@@ -603,7 +642,7 @@
             "isUp": false
           },
           "currency": "¥",
-          "urgency": "red",
+          "urgency": "green",
           "shares": "200",
           "highlighted": false
         },
@@ -620,7 +659,7 @@
             "isUp": true
           },
           "currency": "¥",
-          "urgency": "red",
+          "urgency": "green",
           "shares": "200",
           "highlighted": true
         }
@@ -633,7 +672,7 @@
       "name": "澜起科技",
       "cost": "146.685",
       "qty": "300",
-      "urgency": "red"
+      "urgency": "green"
     },
     {
       "symbol": "601138",
@@ -657,11 +696,11 @@
           "type": "D买点1",
           "mode": "target",
           "symbol": "601138",
-          "details": "<span>Base: ¥66.69</span><span>Down 18%</span>",
-          "result": "¥54.6858",
+          "details": "<span>Base: ¥<span class=\"edit-trigger-val\" data-field=\"base\"><span class=\"edit-container-val\">66.88</span></span></span><span><span class=\"editable-toggle\" data-field=\"isUp\">Down</span> <span class=\"edit-trigger-val\" data-field=\"perc\"><span class=\"edit-container-val\">18</span>%</span></span>",
+          "result": "¥54.8416",
           "isUp": false,
           "inputs": {
-            "base": 66.69,
+            "base": 66.88,
             "perc": 18,
             "isUp": false
           },
@@ -691,12 +730,12 @@
           "type": "30卖点1",
           "mode": "target",
           "symbol": "601138",
-          "details": "<span>Base: ¥62.5</span><span>Up 11%</span>",
-          "result": "¥69.375",
+          "details": "<span>Base: ¥<span class=\"edit-trigger-val\" data-field=\"base\"><span class=\"edit-container-val\">61.4</span></span></span><span><span class=\"editable-toggle\" data-field=\"isUp\">Up</span> <span class=\"edit-trigger-val\" data-field=\"perc\"><span class=\"edit-container-val\">14</span>%</span></span>",
+          "result": "¥69.996",
           "isUp": true,
           "inputs": {
-            "base": 62.5,
-            "perc": 11,
+            "base": 61.4,
+            "perc": 14,
             "isUp": true
           },
           "currency": "¥",
@@ -841,20 +880,21 @@
     "30买点1",
     "W卖点2",
     "30卖点1",
-    "D卖点1",
     "W卖点1",
     "W买点1",
-    "D买点1"
+    "D买点1",
+    "W买点2",
+    "D卖点1"
   ],
   "calcInputs": {
     "currency": "¥",
     "stock1": "300775",
-    "basePrice": "20.16",
+    "basePrice": "18.86",
     "moveDown": false,
-    "percentChange": "14",
+    "percentChange": "30",
     "stock2": "",
     "initialPrice": "",
     "finalPrice": ""
   },
-  "lastUpdated": 1788673060090
+  "lastUpdated": 1788870757985
 }
