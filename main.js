@@ -899,31 +899,58 @@ ipcMain.on('save-data', (event, dataStr) => {
         syncToGDrive(dataStr);
 
         // 7. Background git sync to keep GitHub Pages / CDN up to date
-        triggerGitSyncDebounced();
+        triggerGitSyncDebounced(dataStr);
     } catch(e) {
         console.error('[main] save-data error:', e);
     }
 });
 
+function getWorkspaceDir() {
+    const candidates = [
+        path.join(os.homedir(), 'Documents', 'antigravity', 'Stock Price Calculator'),
+        path.join(os.homedir(), 'Documents', 'antigravity', 'Stock_Price_Calculator'),
+        __dirname
+    ];
+    for (const dir of candidates) {
+        if (dir && fs.existsSync(path.join(dir, '.git'))) {
+            return dir;
+        }
+    }
+    return null;
+}
+
 let gitSyncTimer = null;
-function triggerGitSyncDebounced() {
+function triggerGitSyncDebounced(dataStr) {
     if (gitSyncTimer) clearTimeout(gitSyncTimer);
     gitSyncTimer = setTimeout(() => {
         try {
-            const projectDir = __dirname;
-            if (fs.existsSync(path.join(projectDir, '.git'))) {
-                exec('git add ticker-data.json && git commit -m "sync: auto-sync ticker dataset" && git push origin v5.4.0', { cwd: projectDir }, (err, stdout, stderr) => {
+            const projectDir = getWorkspaceDir();
+            if (projectDir) {
+                const wsTickerData = path.join(projectDir, 'ticker-data.json');
+                if (dataStr) {
+                    fs.writeFileSync(wsTickerData, dataStr, 'utf8');
+                    const mobileHtmlPath = path.join(projectDir, 'mobile.html');
+                    if (fs.existsSync(mobileHtmlPath)) {
+                        let html = fs.readFileSync(mobileHtmlPath, 'utf8');
+                        html = html.replace(
+                            /<script id="initial-ticker-data" type="application\/json">[\s\S]*?<\/script>/,
+                            `<script id="initial-ticker-data" type="application/json">\n${dataStr.trim()}\n</script>`
+                        );
+                        fs.writeFileSync(mobileHtmlPath, html, 'utf8');
+                    }
+                }
+                exec('git add ticker-data.json mobile.html && git commit -m "sync: auto-sync ticker dataset" && git push origin v5.4.0', { cwd: projectDir }, (err, stdout, stderr) => {
                     if (err) {
                         console.log('[GitSync] Notice:', stderr || err.message);
                     } else {
-                        console.log('[GitSync] Successfully pushed ticker-data.json to GitHub repository');
+                        console.log('[GitSync] Successfully pushed ticker-data.json and mobile.html to GitHub repository');
                     }
                 });
             }
         } catch(e) {
             console.warn('[GitSync] Error:', e);
         }
-    }, 1200);
+    }, 800);
 }
 
 ipcMain.handle('manual-sync', async (event, clientDataStr) => {
@@ -946,10 +973,13 @@ ipcMain.handle('manual-sync', async (event, clientDataStr) => {
         fs.writeFileSync(DATA_FILE, dataToSave, 'utf8');
 
         // 2. Save to workspace ticker-data.json if present
-        try {
-            const wsTickerData = path.join(__dirname, 'ticker-data.json');
-            fs.writeFileSync(wsTickerData, dataToSave, 'utf8');
-        } catch(e) {}
+        const projectDir = getWorkspaceDir();
+        if (projectDir) {
+            try {
+                const wsTickerData = path.join(projectDir, 'ticker-data.json');
+                fs.writeFileSync(wsTickerData, dataToSave, 'utf8');
+            } catch(e) {}
+        }
 
         // 3. Broadcast to local SSE clients
         if (parsed) {
@@ -959,8 +989,8 @@ ipcMain.handle('manual-sync', async (event, clientDataStr) => {
         // 4. Push to Google Drive Web App synchronously with await
         const gdriveOk = await syncToGDrive(dataToSave);
 
-        // 5. Trigger background git push
-        triggerGitSyncDebounced();
+        // 5. Trigger background git push to keep GitHub Pages / CDN synchronized
+        triggerGitSyncDebounced(dataToSave);
 
         return {
             success: true,

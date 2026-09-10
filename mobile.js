@@ -2065,50 +2065,49 @@
     const isGitHubPages = window.location.hostname.includes('github.io');
     const gdriveUrl = getGDriveUrl();
     
-    // Multi-source parallel endpoints
-    const sources = [];
+    // Multi-source parallel endpoints with progressive adoption
+    let anySynced = false;
+    let newestTimestamp = appState?.lastUpdated ? Number(appState.lastUpdated) : 0;
+
+    function handleCandidate(candidate) {
+      if (!candidate || !Array.isArray(candidate.historyRecords) || candidate.historyRecords.length === 0) return false;
+      const cTime = Number(candidate.lastUpdated || 0);
+      if (cTime >= newestTimestamp || isManual || !appState.historyRecords || appState.historyRecords.length === 0) {
+        newestTimestamp = cTime || ts;
+        if (!candidate.lastUpdated) candidate.lastUpdated = newestTimestamp;
+        saveToCache(candidate, true);
+        anySynced = true;
+        if (indicator) indicator.className = 'status-pill status-live';
+        if (syncText) syncText.textContent = 'LIVE';
+        return true;
+      }
+      return false;
+    }
+
+    const tasks = [];
     
-    // Source 1: Google Apps Script Web App (6s timeout)
+    // Source 1: Google Apps Script Web App (12s timeout)
     if (gdriveUrl) {
       const gUrl = gdriveUrl + (gdriveUrl.includes('?') ? '&' : '?') + '_ts=' + ts;
-      sources.push(fetchWithTimeout(gUrl, 6000));
+      tasks.push(fetchWithTimeout(gUrl, 12000).then(handleCandidate));
     }
     
-    // Source 2: GitHub Pages dataset (3.5s timeout)
-    sources.push(fetchWithTimeout('./ticker-data.json?_ts=' + ts, 3500));
-    sources.push(fetchWithTimeout('/Stock_Price_Calculator_Ticker/ticker-data.json?_ts=' + ts, 3500));
+    // Source 2: GitHub Pages dataset (4s timeout)
+    tasks.push(fetchWithTimeout('./ticker-data.json?_ts=' + ts, 4000).then(handleCandidate));
+    tasks.push(fetchWithTimeout('/Stock_Price_Calculator_Ticker/ticker-data.json?_ts=' + ts, 4000).then(handleCandidate));
 
-    // Source 3: GitHub Raw dataset (4s timeout)
-    sources.push(fetchWithTimeout('https://raw.githubusercontent.com/Hannah-arch5/Stock_Price_Calculator_Ticker/v5.4.0/ticker-data.json?_ts=' + ts, 4000));
+    // Source 3: GitHub Raw dataset (5s timeout)
+    tasks.push(fetchWithTimeout('https://raw.githubusercontent.com/Hannah-arch5/Stock_Price_Calculator_Ticker/v5.4.0/ticker-data.json?_ts=' + ts, 5000).then(handleCandidate));
 
     // Source 4: Local LAN Mac server (1.5s timeout, if not on github.io)
     if (!isGitHubPages) {
-      sources.push(fetchWithTimeout('/api/data?_ts=' + ts, 1500));
+      tasks.push(fetchWithTimeout('/api/data?_ts=' + ts, 1500).then(handleCandidate));
     }
 
-    const results = await Promise.allSettled(sources);
-    const validCandidates = results
-      .filter(r => r.status === 'fulfilled' && r.value && Array.isArray(r.value.historyRecords) && r.value.historyRecords.length > 0)
-      .map(r => r.value);
-
-    let synced = false;
-    if (validCandidates.length > 0) {
-      // Sort candidates: highest lastUpdated timestamp first, then largest record count
-      validCandidates.sort((a, b) => {
-        const timeA = Number(a.lastUpdated || 0);
-        const timeB = Number(b.lastUpdated || 0);
-        if (timeA !== timeB) return timeB - timeA;
-        return (b.historyRecords ? b.historyRecords.length : 0) - (a.historyRecords ? a.historyRecords.length : 0);
-      });
-
-      const bestData = validCandidates[0];
-      if (!bestData.lastUpdated) bestData.lastUpdated = ts;
-      saveToCache(bestData, isManual);
-      synced = true;
-    }
+    await Promise.allSettled(tasks);
 
     const hasData = appState.historyRecords && appState.historyRecords.length > 0;
-    if (synced || hasData) {
+    if (anySynced || hasData) {
       if (indicator) indicator.className = 'status-pill status-live';
       if (syncText) syncText.textContent = 'LIVE';
     } else {

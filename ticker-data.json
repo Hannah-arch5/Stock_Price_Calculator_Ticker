@@ -49,7 +49,8 @@
           },
           "currency": "¥",
           "urgency": "green",
-          "shares": "6000"
+          "shares": "6000",
+          "highlighted": true
         },
         {
           "type": "W卖点1",
@@ -62,7 +63,7 @@
             "perc": 39,
             "isUp": true
           },
-          "highlighted": true,
+          "highlighted": false,
           "urgency": "green",
           "shares": "6000",
           "currency": "¥"
@@ -162,7 +163,7 @@
           "shares": ""
         }
       ],
-      "note": "如果跌先不动，一定要等涨！！！（主要等待D的RSI触顶）",
+      "note": "如果跌先不动，一定要等涨！！！（主要等待D的RSI触顶）\n整体还处于低位，可以不动，未来趋势肯定还是涨的",
       "tf_w": "等待回0轴低点，RSI触底（有待观察）",
       "tf_d": "等待RSI触顶",
       "tf_30": "等待背驰",
@@ -176,11 +177,11 @@
           "type": "W买点2",
           "mode": "target",
           "symbol": "600893",
-          "details": "<span>Base: ¥41.56</span><span>Down 19%</span>",
-          "result": "¥33.6636",
+          "details": "<span>Base: ¥<span class=\"edit-trigger-val\" data-field=\"base\"><span class=\"edit-container-val\">42.44</span></span></span><span><span class=\"editable-toggle\" data-field=\"isUp\">Down</span> <span class=\"edit-trigger-val\" data-field=\"perc\"><span class=\"edit-container-val\">19</span>%</span></span>",
+          "result": "¥34.3764",
           "isUp": false,
           "inputs": {
-            "base": 41.56,
+            "base": 42.44,
             "perc": 19,
             "isUp": false
           },
@@ -193,11 +194,11 @@
           "type": "W买点1",
           "mode": "target",
           "symbol": "600893",
-          "details": "<span>Base: ¥41.56</span><span>Down 14%</span>",
-          "result": "¥35.7416",
+          "details": "<span>Base: ¥<span class=\"edit-trigger-val\" data-field=\"base\"><span class=\"edit-container-val\">42.44</span></span></span><span><span class=\"editable-toggle\" data-field=\"isUp\">Down</span> <span class=\"edit-trigger-val\" data-field=\"perc\"><span class=\"edit-container-val\">14</span>%</span></span>",
+          "result": "¥36.4984",
           "isUp": false,
           "inputs": {
-            "base": 41.56,
+            "base": 42.44,
             "perc": 14,
             "isUp": false
           },
@@ -253,11 +254,11 @@
           "type": "D买点1",
           "mode": "target",
           "symbol": "002865",
-          "details": "<span>Base: ¥<span class=\"edit-trigger-val\" data-field=\"base\"><span class=\"edit-container-val\">38.01</span></span></span><span><span class=\"editable-toggle\" data-field=\"isUp\">Up</span> <span class=\"edit-trigger-val\" data-field=\"perc\"><span class=\"edit-container-val\">35</span>%</span></span>",
-          "result": "¥51.3135",
+          "details": "<span>Base: ¥<span class=\"edit-trigger-val\" data-field=\"base\"><span class=\"edit-container-val\">37.67</span></span></span><span><span class=\"editable-toggle\" data-field=\"isUp\">Up</span> <span class=\"edit-trigger-val\" data-field=\"perc\"><span class=\"edit-container-val\">35</span>%</span></span>",
+          "result": "¥50.8545",
           "isUp": true,
           "inputs": {
-            "base": 38.01,
+            "base": 37.67,
             "perc": 35,
             "isUp": true
           },
@@ -283,7 +284,7 @@
           "highlighted": true
         }
       ],
-      "note": "59.80 - 1800 卖出（一共1900股）\n57.91 - 300 买入\n53.45 - 300 卖出\n42.90 - 1600买入\n42.42 - 1600卖出\n41.80 - 1700买入\n41.86  - 1700卖出\n41.40 - 1700买入\n44.97 - 1700卖出\n44.20 - 1800买入\n39.66 - 800买入\n41.07 -800卖出\n40.68 - 800买入（46.233）\n\n如果涨，一定要等涨到53左右再卖出！！！\n如果跌很多或者创最新低，逢低可买入，涨了也不要卖！！！会有大涨（主要等待D的RSI触顶）\n整体还处于低位，可以不动，未来趋势肯定还是涨的",
+      "note": "59.80 - 1800 卖出（一共1900股）\n57.91 - 300 买入\n53.45 - 300 卖出\n42.90 - 1600买入\n42.42 - 1600卖出\n41.80 - 1700买入\n41.86  - 1700卖出\n41.40 - 1700买入\n44.97 - 1700卖出\n44.20 - 1800买入\n39.66 - 800买入\n41.07 -800卖出\n40.68 - 800买入（46.233）\n\n感觉会有大涨，一定要等涨到53左右再卖出！！！\n如果跌很多或者创最新低，逢低可买入，涨了也不要卖！！！会有大涨（主要等待D的RSI触顶）\n整体还处于低位，可以不动，未来趋势肯定还是涨的",
       "tf_w": "继续下跌，等待回0轴，RSI继续跌即将触底",
       "tf_d": "等待RSI触顶",
       "tf_30": "等待背驰",
@@ -308,23 +309,23 @@
             "final": 12.4
           },
           "currency": "¥",
-          "urgency": "green",
+          "urgency": "orange",
           "shares": ""
         },
         {
           "type": "D买点1",
           "mode": "target",
           "symbol": "603315",
-          "details": "<span>Base: ¥<span class=\"edit-trigger-val\" data-field=\"base\"><span class=\"edit-container-val\">11.52</span></span></span><span><span class=\"editable-toggle\" data-field=\"isUp\">Up</span> <span class=\"edit-trigger-val\" data-field=\"perc\"><span class=\"edit-container-val\">16</span>%</span></span>",
-          "result": "¥13.3632",
+          "details": "<span>Base: ¥<span class=\"edit-trigger-val\" data-field=\"base\"><span class=\"edit-container-val\">11.05</span></span></span><span><span class=\"editable-toggle\" data-field=\"isUp\">Up</span> <span class=\"edit-trigger-val\" data-field=\"perc\"><span class=\"edit-container-val\">16</span>%</span></span>",
+          "result": "¥12.818",
           "isUp": true,
           "inputs": {
-            "base": 11.52,
+            "base": 11.05,
             "perc": 16,
             "isUp": true
           },
           "currency": "¥",
-          "urgency": "green",
+          "urgency": "orange",
           "shares": "1300",
           "highlighted": false
         },
@@ -341,7 +342,7 @@
             "isUp": true
           },
           "currency": "¥",
-          "urgency": "green",
+          "urgency": "orange",
           "shares": "1300",
           "highlighted": true
         }
@@ -351,9 +352,10 @@
       "tf_w": "还会继续涨，即将回抽0轴，RSI即将触底线",
       "tf_d": "等待RSI触顶",
       "tf_30": "等待背驰",
-      "note": "19.017 - 1400 \n13.82 - 1300卖出\n12.87 -1300买入\n12.00 - 1300卖出\n11.15 -1300买入\n10.94 - 1300卖出\n12.02 -1300买入（现已回到1400股-18.342）\n\n不要卖！！！一定要等大涨再卖！！！（主要等待D的RSI触顶）\n整体还处于低位，可以不动，未来趋势肯定还是涨的",
+      "note": "19.017 - 1400 \n13.82 - 1300卖出\n12.87 -1300买入\n12.00 - 1300卖出\n11.15 -1300买入\n10.94 - 1300卖出\n12.02 -1300买入（现已回到1400股-18.342）\n\n不要卖！！！一定要等大涨再卖！！！（主要等待D的RSI触顶）\n做好准备有可能跌回10元附近（有钱可以考虑买入）\n整体还处于低位，可以不动，未来趋势肯定还是涨的",
       "cost": "18.342",
-      "qty": "1400"
+      "qty": "1400",
+      "urgency": "orange"
     },
     {
       "symbol": "002518",
@@ -549,57 +551,6 @@
           "urgency": "red",
           "shares": "1000",
           "highlighted": false
-        },
-        {
-          "type": "30买点1",
-          "mode": "target",
-          "symbol": "000070",
-          "details": "<span>Base: ¥<span class=\"edit-trigger-val\" data-field=\"base\"><span class=\"edit-container-val\">16.9</span></span></span><span><span class=\"editable-toggle\" data-field=\"isUp\">Down</span> <span class=\"edit-trigger-val\" data-field=\"perc\"><span class=\"edit-container-val\">10</span>%</span></span>",
-          "result": "¥15.21",
-          "isUp": false,
-          "inputs": {
-            "base": 16.9,
-            "perc": 10,
-            "isUp": false
-          },
-          "currency": "¥",
-          "urgency": "red",
-          "shares": "1000",
-          "highlighted": true
-        },
-        {
-          "type": "D买点1",
-          "mode": "target",
-          "symbol": "000070",
-          "details": "<span>Base: ¥<span class=\"edit-trigger-val\" data-field=\"base\"><span class=\"edit-container-val\">16.9</span></span></span><span><span class=\"editable-toggle\" data-field=\"isUp\">Down</span> <span class=\"edit-trigger-val\" data-field=\"perc\"><span class=\"edit-container-val\">16</span>%</span></span>",
-          "result": "¥14.196",
-          "isUp": false,
-          "inputs": {
-            "base": 16.9,
-            "perc": 16,
-            "isUp": false
-          },
-          "currency": "¥",
-          "urgency": "red",
-          "shares": "1000",
-          "highlighted": true
-        },
-        {
-          "type": "W买点1",
-          "mode": "target",
-          "symbol": "000070",
-          "details": "<span>Base: ¥<span class=\"edit-trigger-val\" data-field=\"base\"><span class=\"edit-container-val\">16.9</span></span></span><span><span class=\"editable-toggle\" data-field=\"isUp\">Down</span> <span class=\"edit-trigger-val\" data-field=\"perc\"><span class=\"edit-container-val\">25</span>%</span></span>",
-          "result": "¥12.675",
-          "isUp": false,
-          "inputs": {
-            "base": 16.9,
-            "perc": 25,
-            "isUp": false
-          },
-          "currency": "¥",
-          "urgency": "red",
-          "shares": "2300",
-          "highlighted": false
         }
       ],
       "nameFetched": true,
@@ -607,7 +558,7 @@
       "tf_w": "下跌趋势已启动，出现背驰；先等回撤0轴；RSI继续跌等待触底线",
       "tf_d": "等跌；等待到0轴低点；RSI等待触底线",
       "tf_30": "等涨下就卖掉先吧",
-      "note": "18.168 -1100买入\n15.05 -1000卖出\n14.04 -1000买入\n13.68 -100卖出\n12.87 -900卖出（每股亏1.2）\n14.46 -1000买入\n14.90 -1000卖出（每股亏0.8）\n\n如果跌要等待30的RSI触底！！！大概周一观测下\n12.50或14以下可以考虑买入（在14以下买回才不会额外亏，14以上买回就买2000股，每1000股买入）\n如果涨就等大跌！！！\nw感觉还会跌，还未回0轴",
+      "note": "18.168 -1100买入\n15.05 -1000卖出\n14.04 -1000买入\n13.68 -100卖出\n12.87 -900卖出（每股亏1.2）\n14.46 -1000买入\n14.90 -1000卖出（每股亏0.8）\n16.48 -1000买入\n16.75 -1200买入（18.36）\n\n目标18.50左右卖出1000股\n感觉还会涨（主要等待D的RSI触顶）",
       "cost": "18.168",
       "qty": "1100"
     },
@@ -650,12 +601,12 @@
           "type": "W卖点1",
           "mode": "target",
           "symbol": "688008",
-          "details": "<span>Base: ¥<span class=\"edit-trigger-val\" data-field=\"base\"><span class=\"edit-container-val\">180.25</span></span></span><span><span class=\"editable-toggle\" data-field=\"isUp\">Up</span> <span class=\"edit-trigger-val\" data-field=\"perc\"><span class=\"edit-container-val\">30</span>%</span></span>",
-          "result": "¥234.325",
+          "details": "<span>Base: ¥<span class=\"edit-trigger-val\" data-field=\"base\"><span class=\"edit-container-val\">185.8</span></span></span><span><span class=\"editable-toggle\" data-field=\"isUp\">Up</span> <span class=\"edit-trigger-val\" data-field=\"perc\"><span class=\"edit-container-val\">15</span>%</span></span>",
+          "result": "¥213.67",
           "isUp": true,
           "inputs": {
-            "base": 180.25,
-            "perc": 30,
+            "base": 185.8,
+            "perc": 15,
             "isUp": true
           },
           "currency": "¥",
@@ -707,7 +658,7 @@
           "currency": "¥",
           "urgency": "red",
           "shares": "400",
-          "highlighted": false
+          "highlighted": true
         },
         {
           "type": "W买点1",
@@ -727,38 +678,21 @@
           "highlighted": false
         },
         {
-          "type": "30卖点1",
+          "type": "D卖点1",
           "mode": "target",
           "symbol": "601138",
-          "details": "<span>Base: ¥<span class=\"edit-trigger-val\" data-field=\"base\"><span class=\"edit-container-val\">61.4</span></span></span><span><span class=\"editable-toggle\" data-field=\"isUp\">Up</span> <span class=\"edit-trigger-val\" data-field=\"perc\"><span class=\"edit-container-val\">14</span>%</span></span>",
-          "result": "¥69.996",
+          "details": "<span>Base: ¥<span class=\"edit-trigger-val\" data-field=\"base\"><span class=\"edit-container-val\">58.75</span></span></span><span><span class=\"editable-toggle\" data-field=\"isUp\">Up</span> <span class=\"edit-trigger-val\" data-field=\"perc\"><span class=\"edit-container-val\">17</span>%</span></span>",
+          "result": "¥68.7375",
           "isUp": true,
           "inputs": {
-            "base": 61.4,
-            "perc": 14,
+            "base": 58.75,
+            "perc": 17,
             "isUp": true
           },
           "currency": "¥",
           "urgency": "red",
           "shares": "400",
           "highlighted": true
-        },
-        {
-          "type": "D卖点1",
-          "mode": "target",
-          "symbol": "601138",
-          "details": "<span>Base: ¥58.75</span><span>Up 18%</span>",
-          "result": "¥69.325",
-          "isUp": true,
-          "inputs": {
-            "base": 58.75,
-            "perc": 18,
-            "isUp": true
-          },
-          "currency": "¥",
-          "urgency": "red",
-          "shares": "400",
-          "highlighted": false
         },
         {
           "type": "D卖点2",
@@ -775,7 +709,7 @@
           "currency": "¥",
           "urgency": "red",
           "shares": "300",
-          "highlighted": true
+          "highlighted": false
         }
       ],
       "note": "75.77 - 700买入\n76.4 - 100卖出\n72.80 - 600卖出\n66.59 - 700买入\n65 - 700卖出\n62.45 - 700买入\n62.84 - 700卖出\n67.58 -1200买入\n63.64 -500买入\n66.30 -500卖出\n66.00 -500卖出（现已回到800股-48.238）\n64.02 -400卖出\n63.35 -400买入（47.932）\n\n目标70左右卖掉400股、73左右卖掉300股（主要等待D的RSI触顶）\n如果跌到54或44买入\n感觉w还会跌",
@@ -889,13 +823,13 @@
   ],
   "calcInputs": {
     "currency": "¥",
-    "stock1": "300775",
-    "basePrice": "18.86",
+    "stock1": "601138",
+    "basePrice": "61.4",
     "moveDown": false,
-    "percentChange": "30",
+    "percentChange": "14",
     "stock2": "",
     "initialPrice": "",
     "finalPrice": ""
   },
-  "lastUpdated": 1788871975088
+  "lastUpdated": 1789045473790
 }
