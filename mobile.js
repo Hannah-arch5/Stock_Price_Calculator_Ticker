@@ -2111,10 +2111,6 @@
     if (synced || hasData) {
       if (indicator) indicator.className = 'status-pill status-live';
       if (syncText) syncText.textContent = 'LIVE';
-      if (isManual) {
-        const count = appState.historyRecords ? appState.historyRecords.length : 0;
-        showAlert(`数据已同步至最新状态 (${count}条标的已刷新)`, 'success', 2200);
-      }
     } else {
       if (indicator) indicator.className = 'status-pill status-offline';
       if (syncText) syncText.textContent = 'OFFLINE';

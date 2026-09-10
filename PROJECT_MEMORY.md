@@ -274,9 +274,18 @@ The app features intelligent automatic market detection via `getMarketInfo(symbo
 
 ---
 
+### v6.1.2: Silent & Clean LIVE Sync Interaction (Remove Green Alert Banner) [LOCKED & TAGGED: v6.1.2]
+- **Official Version Name**: `Ticker Pocket v6.1.2` (Mobile & Desktop).
+- **Tag**: `v6.1.2` | **Date**: `2026-09-10`
+- **Silent & Clean Studio Noir Sync (纯净静默同步交互)**:
+  - 彻底移除了手机端和电脑端点击右上角 `LIVE` 成功后的顶部绿色悬浮横幅/Toast 提示。
+  - 同步交互完全由右上角状态 Pill 自身的状态流转（`LIVE` -> `SYNCING...` 呼吸动效 -> `LIVE`）呈现，保持纯粹极简的高端质感。
+
+---
+
 ### v6.1.1: Multi-Source Parallel Sync Engine & Real-time Auto-Git Backup [LOCKED & TAGGED: v6.1.1]
 - **Official Version Name**: `Ticker Pocket v6.1.1` (Mobile & Desktop).
-- **Tag**: `v6.1.1` | **Date**: `2026-09-08`
+- **Tag**: `v6.1.1` | **Commit**: `bf880cf` | **Date**: `2026-09-08`
 - **Multi-Source Parallel Sync (多通道并行同步引擎)**:
   - 手机端同步全面升级为多源并行架构（Google Apps Script、GitHub Pages CDN、GitHub Raw 镜像、本地局域网四通道并发竞速）。
   - 根据 `lastUpdated` 毫秒级时间戳与标的数据完整度自动择优采用最新版本，彻底根除单一慢源（如 Google Apps Script 重定向超时）导致的同步受阻。
@@ -290,7 +299,8 @@ The app features intelligent automatic market detection via `getMarketInfo(symbo
 ## 5. Locked Version Archive & Rollback Guide (锁定版本归档与回退索引)
 
 | 锁定版本 Tag | 对应 Commit | 发布日期 | 核心功能与主要改动说明 | 回退切换命令 |
-| **`v6.1.1`** | `80b586c` | 2026-09-08 | **当前最新稳定版**：多通道并行秒级同步引擎、桌面端自动 Git 备份、版本号 `v6.1.1`。 | `git checkout v6.1.1` |
+| **`v6.1.2`** | `a524d58` | 2026-09-10 | **当前最新稳定版**：纯净静默 LIVE 同步交互（彻底去除悬浮绿色提示框）、版本号 `v6.1.2`。 | `git checkout v6.1.2` |
+| **`v6.1.1`** | `bf880cf` | 2026-09-08 | **多通道秒级同步版**：多通道并行秒级同步引擎、桌面端自动 Git 备份、版本号 `v6.1.1`。 | `git checkout v6.1.1` |
 | **`v6.1.0`** | `c193e2a` | 2026-09-08 | **双向手动同步版**：电脑端+手机端双向 LIVE 手动一键同步按钮、极简 Toast 反馈、版本号 `v6.1.0`。 | `git checkout v6.1.0` |
 | **`v6.0.9`** | `6714e26` | 2026-09-08 | **手机手动同步版**：右上角 LIVE 手动点击即刻同步、穿透缓存强制刷新、版本号 `v6.0.9`。 | `git checkout v6.0.9` |
 | **`v6.0.8`** | `c662783` | 2026-09-06 | **唤醒同步版**：iOS 生命周期即刻唤醒同步、20s 云端轮询、版本号 `v6.0.8`。 | `git checkout v6.0.8` |
