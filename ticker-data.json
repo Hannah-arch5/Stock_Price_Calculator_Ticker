@@ -876,10 +876,10 @@
     "stock1": "APP",
     "basePrice": "325.47",
     "moveDown": true,
-    "percentChange": "5.1",
+    "percentChange": "8",
     "stock2": "",
     "initialPrice": "",
     "finalPrice": ""
   },
-  "lastUpdated": 1789151041948
+  "lastUpdated": 1789151146569
 }
