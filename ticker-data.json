@@ -759,6 +759,21 @@
       "symbol": "APP",
       "records": [
         {
+          "type": "Target Projection",
+          "mode": "target",
+          "symbol": "APP",
+          "details": "<span>Base: $325.47</span><span>Down 5.1%</span>",
+          "result": "$308.871",
+          "isUp": false,
+          "inputs": {
+            "base": 325.47,
+            "perc": 5.1,
+            "isUp": false
+          },
+          "currency": "$",
+          "urgency": "orange"
+        },
+        {
           "type": "30卖点1",
           "mode": "target",
           "symbol": "APP",
@@ -864,5 +879,5 @@
     "initialPrice": "",
     "finalPrice": ""
   },
-  "lastUpdated": 1789150874453
+  "lastUpdated": 1789151018512
 }
