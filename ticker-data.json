@@ -759,21 +759,6 @@
       "symbol": "APP",
       "records": [
         {
-          "type": "Target Projection",
-          "mode": "target",
-          "symbol": "APP",
-          "details": "<span>Base: $325.47</span><span>Down 5.1%</span>",
-          "result": "$308.871",
-          "isUp": false,
-          "inputs": {
-            "base": 325.47,
-            "perc": 5.1,
-            "isUp": false
-          },
-          "currency": "$",
-          "urgency": "orange"
-        },
-        {
           "type": "30卖点1",
           "mode": "target",
           "symbol": "APP",
@@ -784,6 +769,22 @@
             "base": 297.5,
             "perc": 15,
             "isUp": true
+          },
+          "currency": "$",
+          "urgency": "orange",
+          "shares": ""
+        },
+        {
+          "type": "Target Projection",
+          "mode": "target",
+          "symbol": "APP",
+          "details": "<span>Base: $325.47</span><span>Down 5.1%</span>",
+          "result": "$308.871",
+          "isUp": false,
+          "inputs": {
+            "base": 325.47,
+            "perc": 5.1,
+            "isUp": false
           },
           "currency": "$",
           "urgency": "orange",
@@ -879,5 +880,5 @@
     "initialPrice": "",
     "finalPrice": ""
   },
-  "lastUpdated": 1789151018512
+  "lastUpdated": 1789151022101
 }
