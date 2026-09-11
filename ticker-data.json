@@ -778,12 +778,12 @@
           "type": "Target Projection",
           "mode": "target",
           "symbol": "APP",
-          "details": "<span>Base: $<span class=\"edit-trigger-val\" data-field=\"base\"><span class=\"edit-container-val\">325.47</span></span></span><span><span class=\"editable-toggle\" data-field=\"isUp\">Down</span> <span class=\"edit-trigger-val\" data-field=\"perc\"><span class=\"edit-container-val\">5</span>%</span></span>",
-          "result": "$309.1965",
+          "details": "<span>Base: $<span class=\"edit-trigger-val\" data-field=\"base\"><span class=\"edit-container-val\">325.47</span></span></span><span><span class=\"editable-toggle\" data-field=\"isUp\">Down</span> <span class=\"edit-trigger-val\" data-field=\"perc\"><span class=\"edit-container-val\">5.1</span>%</span></span>",
+          "result": "$308.871",
           "isUp": false,
           "inputs": {
             "base": 325.47,
-            "perc": 5,
+            "perc": 5.1,
             "isUp": false
           },
           "currency": "$",
@@ -880,5 +880,5 @@
     "initialPrice": "",
     "finalPrice": ""
   },
-  "lastUpdated": 1789151024757
+  "lastUpdated": 1789151029781
 }
