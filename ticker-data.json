@@ -15,7 +15,7 @@
             "final": 22.39
           },
           "currency": "¥",
-          "urgency": "green",
+          "urgency": "red",
           "shares": ""
         },
         {
@@ -31,7 +31,7 @@
             "isUp": false
           },
           "currency": "¥",
-          "urgency": "green",
+          "urgency": "red",
           "shares": "6000",
           "highlighted": true
         },
@@ -48,7 +48,7 @@
             "isUp": true
           },
           "currency": "¥",
-          "urgency": "green",
+          "urgency": "red",
           "shares": "6000",
           "highlighted": true
         },
@@ -64,7 +64,7 @@
             "isUp": true
           },
           "highlighted": false,
-          "urgency": "green",
+          "urgency": "red",
           "shares": "6000",
           "currency": "¥"
         }
@@ -77,7 +77,7 @@
       "name": "三角防务",
       "cost": "36.215",
       "qty": "2400",
-      "urgency": "green"
+      "urgency": "red"
     },
     {
       "symbol": "300118",
@@ -848,5 +848,5 @@
     "initialPrice": "",
     "finalPrice": ""
   },
-  "lastUpdated": 1789137759341
+  "lastUpdated": 1789137761228
 }
