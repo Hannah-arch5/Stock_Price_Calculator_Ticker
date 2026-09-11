@@ -806,7 +806,7 @@
           "currency": "$",
           "urgency": "orange",
           "shares": "12",
-          "highlighted": true
+          "highlighted": false
         },
         {
           "type": "D卖点2",
@@ -881,5 +881,5 @@
     "initialPrice": "",
     "finalPrice": ""
   },
-  "lastUpdated": 1789151040680
+  "lastUpdated": 1789151041948
 }
