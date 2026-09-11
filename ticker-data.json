@@ -857,12 +857,12 @@
   "calcInputs": {
     "currency": "$",
     "stock1": "APP",
-    "basePrice": "325",
+    "basePrice": "325.47",
     "moveDown": false,
     "percentChange": "26",
     "stock2": "",
     "initialPrice": "",
     "finalPrice": ""
   },
-  "lastUpdated": 1789150846340
+  "lastUpdated": 1789150848599
 }
