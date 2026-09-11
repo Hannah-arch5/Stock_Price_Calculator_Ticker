@@ -673,7 +673,7 @@
             "final": 58.75
           },
           "currency": "¥",
-          "urgency": "orange",
+          "urgency": "red",
           "shares": ""
         },
         {
@@ -689,7 +689,7 @@
             "isUp": false
           },
           "currency": "¥",
-          "urgency": "orange",
+          "urgency": "red",
           "shares": "400",
           "highlighted": true
         },
@@ -706,7 +706,7 @@
             "isUp": false
           },
           "currency": "¥",
-          "urgency": "orange",
+          "urgency": "red",
           "shares": "400",
           "highlighted": false
         },
@@ -723,7 +723,7 @@
             "isUp": true
           },
           "currency": "¥",
-          "urgency": "orange",
+          "urgency": "red",
           "shares": "400",
           "highlighted": true
         },
@@ -740,7 +740,7 @@
             "isUp": true
           },
           "currency": "¥",
-          "urgency": "orange",
+          "urgency": "red",
           "shares": "300",
           "highlighted": false
         }
@@ -753,7 +753,7 @@
       "name": "工业富联",
       "cost": "48.238",
       "qty": "800",
-      "urgency": "orange"
+      "urgency": "red"
     },
     {
       "symbol": "APP",
@@ -864,5 +864,5 @@
     "initialPrice": "",
     "finalPrice": ""
   },
-  "lastUpdated": 1789138610879
+  "lastUpdated": 1789138611779
 }
