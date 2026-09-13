@@ -872,14 +872,14 @@
     "30卖点1"
   ],
   "calcInputs": {
-    "currency": "$",
+    "currency": "¥",
     "stock1": "APP",
     "basePrice": "325.47",
     "moveDown": true,
     "percentChange": "8",
-    "stock2": "",
-    "initialPrice": "",
-    "finalPrice": ""
+    "stock2": "300775",
+    "initialPrice": "18.86",
+    "finalPrice": "22.39"
   },
-  "lastUpdated": 1789293543671
+  "lastUpdated": 1789293615004
 }
