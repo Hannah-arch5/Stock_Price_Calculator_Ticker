@@ -866,20 +866,6 @@
             "isUp": true
           },
           "currency": "$"
-        },
-        {
-          "type": "Target Projection",
-          "mode": "target",
-          "symbol": "SNDK",
-          "details": "<span>Base: ¥1504.99</span><span>Up 7.3%</span>",
-          "result": "¥1614.8543",
-          "isUp": true,
-          "inputs": {
-            "base": 1504.99,
-            "perc": 7.3,
-            "isUp": true
-          },
-          "currency": "¥"
         }
       ],
       "nameFetched": true,
@@ -918,5 +904,5 @@
     "initialPrice": "18.86",
     "finalPrice": "22.39"
   },
-  "lastUpdated": 1789394841782
+  "lastUpdated": 1789394843827
 }
