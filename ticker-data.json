@@ -857,6 +857,20 @@
           "type": "Target Projection",
           "mode": "target",
           "symbol": "SNDK",
+          "details": "<span>Base: $1504.99</span><span>Up 25%</span>",
+          "result": "$1881.2375",
+          "isUp": true,
+          "inputs": {
+            "base": 1504.99,
+            "perc": 25,
+            "isUp": true
+          },
+          "currency": "$"
+        },
+        {
+          "type": "Target Projection",
+          "mode": "target",
+          "symbol": "SNDK",
           "details": "<span>Base: $1504.99</span><span>Up 7.3%</span>",
           "result": "$1614.8543",
           "isUp": true,
@@ -904,5 +918,5 @@
     "initialPrice": "18.86",
     "finalPrice": "22.39"
   },
-  "lastUpdated": 1789395007027
+  "lastUpdated": 1789395008338
 }
