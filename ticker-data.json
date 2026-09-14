@@ -1,27 +1,6 @@
 {
   "historyRecords": [
     {
-      "symbol": "SNDK",
-      "records": [
-        {
-          "type": "Target Projection",
-          "mode": "target",
-          "symbol": "SNDK",
-          "details": "<span>Base: ¥1504.99</span><span>Up 7.3%</span>",
-          "result": "¥1614.8543",
-          "isUp": true,
-          "inputs": {
-            "base": 1504.99,
-            "perc": 7.3,
-            "isUp": true
-          },
-          "currency": "¥"
-        }
-      ],
-      "nameFetched": true,
-      "name": "闪迪"
-    },
-    {
       "symbol": "300775",
       "records": [
         {
@@ -870,6 +849,27 @@
       "tf_d": "RSI已触底，此次波段好时机开始",
       "tf_30": "感觉还有波涨，等到375再卖！！！",
       "urgency": "orange"
+    },
+    {
+      "symbol": "SNDK",
+      "records": [
+        {
+          "type": "Target Projection",
+          "mode": "target",
+          "symbol": "SNDK",
+          "details": "<span>Base: ¥1504.99</span><span>Up 7.3%</span>",
+          "result": "¥1614.8543",
+          "isUp": true,
+          "inputs": {
+            "base": 1504.99,
+            "perc": 7.3,
+            "isUp": true
+          },
+          "currency": "¥"
+        }
+      ],
+      "nameFetched": true,
+      "name": "闪迪"
     }
   ],
   "historyVersion": "2",
@@ -902,5 +902,5 @@
     "initialPrice": "18.86",
     "finalPrice": "22.39"
   },
-  "lastUpdated": 1789394796857
+  "lastUpdated": 1789394799779
 }
