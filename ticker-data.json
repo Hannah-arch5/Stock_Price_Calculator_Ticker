@@ -870,7 +870,7 @@
       ],
       "nameFetched": true,
       "name": "闪迪",
-      "cost": "15"
+      "cost": "1549"
     }
   ],
   "historyVersion": "2",
@@ -903,5 +903,5 @@
     "initialPrice": "18.86",
     "finalPrice": "22.39"
   },
-  "lastUpdated": 1789394809046
+  "lastUpdated": 1789394811585
 }
