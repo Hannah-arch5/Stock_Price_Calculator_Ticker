@@ -310,7 +310,7 @@
             "final": 12.4
           },
           "currency": "¥",
-          "urgency": "orange",
+          "urgency": "green",
           "shares": ""
         },
         {
@@ -326,7 +326,7 @@
             "isUp": true
           },
           "currency": "¥",
-          "urgency": "orange",
+          "urgency": "green",
           "shares": "1300",
           "highlighted": true
         },
@@ -343,7 +343,7 @@
             "isUp": true
           },
           "currency": "¥",
-          "urgency": "orange",
+          "urgency": "green",
           "shares": "1300",
           "highlighted": false
         }
@@ -356,7 +356,7 @@
       "note": "19.017 - 1400 \n13.82 - 1300卖出\n12.87 -1300买入\n12.00 - 1300卖出\n11.15 -1300买入\n10.94 - 1300卖出\n12.02 -1300买入（现已回到1400股-18.342）\n\n不要卖！！！一定要等大涨再卖！！！（主要等待D的RSI触顶）\n做好准备有可能跌回10元附近（有钱可以考虑买入）\n整体还处于低位，可以不动，未来趋势肯定还是涨的",
       "cost": "18.342",
       "qty": "1400",
-      "urgency": "orange"
+      "urgency": "green"
     },
     {
       "symbol": "002518",
@@ -926,5 +926,5 @@
     "initialPrice": "18.86",
     "finalPrice": "22.39"
   },
-  "lastUpdated": 1789515756472
+  "lastUpdated": 1789515889467
 }
