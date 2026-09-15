@@ -916,13 +916,13 @@
   ],
   "calcInputs": {
     "currency": "$",
-    "stock1": "SNDK",
-    "basePrice": "338.32",
+    "stock1": "APP",
+    "basePrice": "325.47",
     "moveDown": true,
-    "percentChange": "8",
+    "percentChange": "5.1",
     "stock2": "300775",
     "initialPrice": "18.86",
     "finalPrice": "22.39"
   },
-  "lastUpdated": 1789479676000
+  "lastUpdated": 1789503011334
 }
