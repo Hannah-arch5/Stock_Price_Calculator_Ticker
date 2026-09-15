@@ -100,22 +100,6 @@
           "highlighted": false
         },
         {
-          "type": "D卖点1",
-          "mode": "target",
-          "symbol": "300118",
-          "details": "<span>Base: ¥<span class=\"edit-trigger-val\" data-field=\"base\"><span class=\"edit-container-val\">8.9</span></span></span><span><span class=\"editable-toggle\" data-field=\"isUp\">Up</span> <span class=\"edit-trigger-val\" data-field=\"perc\"><span class=\"edit-container-val\">26</span>%</span></span>",
-          "result": "¥11.214",
-          "isUp": true,
-          "inputs": {
-            "base": 8.9,
-            "perc": 26,
-            "isUp": true
-          },
-          "currency": "¥",
-          "urgency": "green",
-          "shares": ""
-        },
-        {
           "type": "W卖点1",
           "mode": "target",
           "symbol": "300118",
@@ -942,5 +926,5 @@
     "initialPrice": "18.86",
     "finalPrice": "22.39"
   },
-  "lastUpdated": 1789515422794
+  "lastUpdated": 1789515434809
 }
