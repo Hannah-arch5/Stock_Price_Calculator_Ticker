@@ -914,7 +914,7 @@
     "D卖点2",
     "D买点1",
     "D卖点1",
-    "New Label"
+    "30卖点1"
   ],
   "calcInputs": {
     "currency": "¥",
@@ -926,5 +926,5 @@
     "initialPrice": "18.86",
     "finalPrice": "22.39"
   },
-  "lastUpdated": 1789515647341
+  "lastUpdated": 1789515655406
 }
