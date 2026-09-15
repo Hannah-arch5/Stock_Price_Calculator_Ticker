@@ -19,7 +19,7 @@
           "shares": ""
         },
         {
-          "type": "Target Projection",
+          "type": "30卖点1",
           "mode": "target",
           "symbol": "300775",
           "details": "<span>Base: ¥20.92</span><span>Up 15%</span>",
@@ -926,5 +926,5 @@
     "initialPrice": "18.86",
     "finalPrice": "22.39"
   },
-  "lastUpdated": 1789515657141
+  "lastUpdated": 1789515660586
 }
