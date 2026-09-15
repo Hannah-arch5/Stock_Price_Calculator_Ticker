@@ -48,7 +48,7 @@
           },
           "highlighted": false,
           "urgency": "orange",
-          "shares": "6000",
+          "shares": "6400",
           "currency": "¥"
         }
       ],
@@ -909,5 +909,5 @@
     "initialPrice": "18.86",
     "finalPrice": "22.39"
   },
-  "lastUpdated": 1789515544551
+  "lastUpdated": 1789515546802
 }
