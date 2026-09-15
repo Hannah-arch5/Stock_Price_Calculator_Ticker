@@ -4,6 +4,21 @@
       "symbol": "300775",
       "records": [
         {
+          "type": "Target Projection",
+          "mode": "target",
+          "symbol": "300775",
+          "details": "<span>Base: ¥20.92</span><span>Up 15%</span>",
+          "result": "¥24.058",
+          "isUp": true,
+          "inputs": {
+            "base": 20.92,
+            "perc": 15,
+            "isUp": true
+          },
+          "currency": "¥",
+          "urgency": "orange"
+        },
+        {
           "type": "目前30已涨",
           "mode": "percentage",
           "symbol": "300775",
@@ -909,5 +924,5 @@
     "initialPrice": "18.86",
     "finalPrice": "22.39"
   },
-  "lastUpdated": 1789515601528
+  "lastUpdated": 1789515604970
 }
