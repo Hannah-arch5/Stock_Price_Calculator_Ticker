@@ -439,6 +439,21 @@
       "symbol": "600482",
       "records": [
         {
+          "type": "Target Projection",
+          "mode": "target",
+          "symbol": "600482",
+          "details": "<span>Base: ¥35.96</span><span>Down 9%</span>",
+          "result": "¥32.7236",
+          "isUp": false,
+          "inputs": {
+            "base": 35.96,
+            "perc": 9,
+            "isUp": false
+          },
+          "currency": "¥",
+          "urgency": "red"
+        },
+        {
           "type": "目前D已跌",
           "mode": "percentage",
           "symbol": "600482",
@@ -924,5 +939,5 @@
     "initialPrice": "18.86",
     "finalPrice": "22.39"
   },
-  "lastUpdated": 1789513680315
+  "lastUpdated": 1789513681378
 }
