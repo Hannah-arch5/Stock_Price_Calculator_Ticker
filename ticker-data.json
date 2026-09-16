@@ -22,11 +22,11 @@
           "type": "30卖点1",
           "mode": "target",
           "symbol": "300775",
-          "details": "<span>Base: ¥20.92</span><span>Up 15%</span>",
-          "result": "¥24.058",
+          "details": "<span>Base: ¥<span class=\"edit-trigger-val\" data-field=\"base\"><span class=\"edit-container-val\">20.76</span></span></span><span><span class=\"editable-toggle\" data-field=\"isUp\">Up</span> <span class=\"edit-trigger-val\" data-field=\"perc\"><span class=\"edit-container-val\">15</span>%</span></span>",
+          "result": "¥23.874",
           "isUp": true,
           "inputs": {
-            "base": 20.92,
+            "base": 20.76,
             "perc": 15,
             "isUp": true
           },
@@ -926,5 +926,5 @@
     "initialPrice": "18.86",
     "finalPrice": "22.39"
   },
-  "lastUpdated": 1789515889467
+  "lastUpdated": 1789538186195
 }
