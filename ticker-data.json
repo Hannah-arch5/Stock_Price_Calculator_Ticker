@@ -145,7 +145,7 @@
           "shares": ""
         },
         {
-          "type": "Target Projection",
+          "type": "D买点1",
           "mode": "target",
           "symbol": "600481",
           "details": "<span>Base: ¥4.03</span><span>Up 20%</span>",
@@ -894,10 +894,10 @@
     "W买点2",
     "D卖点2",
     "D卖点2",
-    "D买点1",
     "D卖点1",
     "30卖点1",
-    "W买点1"
+    "W买点1",
+    "D买点1"
   ],
   "calcInputs": {
     "currency": "¥",
@@ -909,5 +909,5 @@
     "initialPrice": "18.86",
     "finalPrice": "22.39"
   },
-  "lastUpdated": 1789592855680
+  "lastUpdated": 1789592870664
 }
