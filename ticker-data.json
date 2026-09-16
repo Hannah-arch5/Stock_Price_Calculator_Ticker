@@ -611,7 +611,7 @@
             "final": 239
           },
           "currency": "¥",
-          "urgency": "green",
+          "urgency": "red",
           "shares": ""
         },
         {
@@ -627,7 +627,7 @@
             "isUp": false
           },
           "currency": "¥",
-          "urgency": "green",
+          "urgency": "red",
           "shares": "200",
           "highlighted": false
         },
@@ -644,7 +644,7 @@
             "isUp": true
           },
           "currency": "¥",
-          "urgency": "green",
+          "urgency": "red",
           "shares": "200",
           "highlighted": true
         }
@@ -657,7 +657,7 @@
       "name": "澜起科技",
       "cost": "146.685",
       "qty": "300",
-      "urgency": "green"
+      "urgency": "red"
     },
     {
       "symbol": "601138",
@@ -909,5 +909,5 @@
     "initialPrice": "18.86",
     "finalPrice": "22.39"
   },
-  "lastUpdated": 1789591954435
+  "lastUpdated": 1789592009906
 }
