@@ -180,7 +180,7 @@
         }
       ],
       "note": "如果跌先不动，一定要等涨！！！（主要等待D的RSI触顶）\n整体还处于低位，可以不动，未来趋势肯定还是涨的",
-      "tf_w": "RSI触底（有待观察）",
+      "tf_w": "RSI触底",
       "tf_d": "等待RSI触顶",
       "tf_30": "等待背驰",
       "nameFetched": true,
@@ -910,5 +910,5 @@
     "initialPrice": "18.86",
     "finalPrice": "22.39"
   },
-  "lastUpdated": 1789679354052
+  "lastUpdated": 1789679356374
 }
