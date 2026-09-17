@@ -756,7 +756,7 @@
             "isUp": true
           },
           "currency": "$",
-          "urgency": "orange",
+          "urgency": "green",
           "shares": ""
         },
         {
@@ -772,7 +772,7 @@
             "isUp": false
           },
           "currency": "$",
-          "urgency": "orange",
+          "urgency": "green",
           "shares": "12",
           "highlighted": true
         },
@@ -789,7 +789,7 @@
             "isUp": true
           },
           "currency": "$",
-          "urgency": "orange",
+          "urgency": "green",
           "shares": "12",
           "highlighted": false
         },
@@ -806,7 +806,7 @@
             "isUp": true
           },
           "currency": "$",
-          "urgency": "orange",
+          "urgency": "green",
           "shares": "12",
           "highlighted": false
         },
@@ -823,7 +823,7 @@
             "isUp": true
           },
           "currency": "$",
-          "urgency": "orange",
+          "urgency": "green",
           "shares": "24"
         }
       ],
@@ -833,7 +833,7 @@
       "tf_w": "还未跌完，但这次上升趋势启动",
       "tf_d": "RSI已触底，此次波段好时机开始",
       "tf_30": "感觉还有波涨，等到375再卖！！！",
-      "urgency": "orange"
+      "urgency": "green"
     },
     {
       "symbol": "SNDK",
@@ -910,5 +910,5 @@
     "initialPrice": "18.86",
     "finalPrice": "22.39"
   },
-  "lastUpdated": 1789678705376
+  "lastUpdated": 1789678709803
 }
