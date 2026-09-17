@@ -452,7 +452,7 @@
             "final": 30.9
           },
           "currency": "¥",
-          "urgency": "orange",
+          "urgency": "red",
           "shares": ""
         },
         {
@@ -468,7 +468,7 @@
             "isUp": false
           },
           "currency": "¥",
-          "urgency": "orange",
+          "urgency": "red",
           "shares": "300",
           "highlighted": false
         },
@@ -485,7 +485,7 @@
             "isUp": true
           },
           "currency": "¥",
-          "urgency": "orange",
+          "urgency": "red",
           "shares": "300",
           "highlighted": true
         },
@@ -502,7 +502,7 @@
             "isUp": true
           },
           "currency": "¥",
-          "urgency": "orange",
+          "urgency": "red",
           "shares": "300",
           "highlighted": false
         }
@@ -515,7 +515,7 @@
       "tf_30": "等待回抽0轴低点",
       "cost": "38.238",
       "qty": "400",
-      "urgency": "orange"
+      "urgency": "red"
     },
     {
       "symbol": "000070",
@@ -910,5 +910,5 @@
     "initialPrice": "18.86",
     "finalPrice": "22.39"
   },
-  "lastUpdated": 1789679025165
+  "lastUpdated": 1789679027907
 }
