@@ -299,7 +299,7 @@
           "currency": "¥",
           "urgency": "green",
           "shares": "800",
-          "highlighted": false
+          "highlighted": true
         },
         {
           "type": "W买点2",
@@ -938,10 +938,10 @@
     "stock1": "002865",
     "basePrice": "36.02",
     "moveDown": false,
-    "percentChange": "17",
+    "percentChange": "35",
     "stock2": "300775",
     "initialPrice": "18.86",
     "finalPrice": "22.39"
   },
-  "lastUpdated": 1789858713037
+  "lastUpdated": 1789858782217
 }
