@@ -348,7 +348,7 @@
           "highlighted": false
         },
         {
-          "type": "D卖点1",
+          "type": "D卖点2",
           "mode": "target",
           "symbol": "603315",
           "details": "<span>Base: ¥10.48</span><span>Up 25%</span>",
@@ -909,13 +909,13 @@
     "W卖点2",
     "W买点2",
     "D卖点2",
-    "D卖点2",
     "30卖点1",
     "W买点1",
     "W卖点1",
     "30买点1",
     "D买点1",
-    "D卖点1"
+    "D卖点1",
+    "D卖点2"
   ],
   "calcInputs": {
     "currency": "¥",
@@ -927,5 +927,5 @@
     "initialPrice": "18.86",
     "finalPrice": "22.39"
   },
-  "lastUpdated": 1789858474281
+  "lastUpdated": 1789858484265
 }
