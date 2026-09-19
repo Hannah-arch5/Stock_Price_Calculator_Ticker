@@ -345,7 +345,7 @@
           "currency": "¥",
           "urgency": "green",
           "shares": "1300",
-          "highlighted": true
+          "highlighted": false
         },
         {
           "type": "Target Projection",
@@ -926,5 +926,5 @@
     "initialPrice": "18.86",
     "finalPrice": "22.39"
   },
-  "lastUpdated": 1789858458775
+  "lastUpdated": 1789858460499
 }
