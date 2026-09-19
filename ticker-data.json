@@ -252,21 +252,6 @@
       "symbol": "002865",
       "records": [
         {
-          "type": "Target Projection",
-          "mode": "target",
-          "symbol": "002865",
-          "details": "<span>Base: ¥36.02</span><span>Up 17%</span>",
-          "result": "¥42.1434",
-          "isUp": true,
-          "inputs": {
-            "base": 36.02,
-            "perc": 17,
-            "isUp": true
-          },
-          "currency": "¥",
-          "urgency": "green"
-        },
-        {
           "type": "目前W已涨",
           "mode": "percentage",
           "symbol": "600481",
@@ -281,6 +266,22 @@
           "urgency": "green",
           "shares": "",
           "highlighted": false
+        },
+        {
+          "type": "Target Projection",
+          "mode": "target",
+          "symbol": "002865",
+          "details": "<span>Base: ¥36.02</span><span>Up 17%</span>",
+          "result": "¥42.1434",
+          "isUp": true,
+          "inputs": {
+            "base": 36.02,
+            "perc": 17,
+            "isUp": true
+          },
+          "currency": "¥",
+          "urgency": "green",
+          "shares": ""
         },
         {
           "type": "D买点1",
@@ -942,5 +943,5 @@
     "initialPrice": "18.86",
     "finalPrice": "22.39"
   },
-  "lastUpdated": 1789858667086
+  "lastUpdated": 1789858669434
 }
