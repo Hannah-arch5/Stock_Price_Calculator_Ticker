@@ -348,7 +348,7 @@
           "highlighted": false
         },
         {
-          "type": "Target Projection",
+          "type": "D卖点1",
           "mode": "target",
           "symbol": "603315",
           "details": "<span>Base: ¥10.48</span><span>Up 25%</span>",
@@ -361,7 +361,8 @@
           },
           "currency": "¥",
           "urgency": "green",
-          "shares": ""
+          "shares": "",
+          "highlighted": true
         },
         {
           "type": "W卖点1",
@@ -911,10 +912,10 @@
     "D卖点2",
     "30卖点1",
     "W买点1",
-    "D卖点1",
     "W卖点1",
     "30买点1",
-    "D买点1"
+    "D买点1",
+    "D卖点1"
   ],
   "calcInputs": {
     "currency": "¥",
@@ -926,5 +927,5 @@
     "initialPrice": "18.86",
     "finalPrice": "22.39"
   },
-  "lastUpdated": 1789858460499
+  "lastUpdated": 1789858471062
 }
