@@ -794,7 +794,7 @@
           "highlighted": true
         },
         {
-          "type": "Target Projection",
+          "type": "D卖点2",
           "mode": "target",
           "symbol": "APP",
           "details": "<span>Base: $307.76</span><span>Up 13%</span>",
@@ -807,7 +807,8 @@
           },
           "currency": "$",
           "urgency": "green",
-          "shares": ""
+          "shares": "",
+          "highlighted": true
         },
         {
           "type": "D卖点1",
@@ -924,13 +925,13 @@
     "D买点2",
     "W卖点2",
     "W买点2",
-    "D卖点2",
     "30卖点1",
     "W卖点1",
     "D买点1",
     "D卖点1",
     "30买点1",
-    "W买点1"
+    "W买点1",
+    "D卖点2"
   ],
   "calcInputs": {
     "currency": "$",
@@ -942,5 +943,5 @@
     "initialPrice": "18.86",
     "finalPrice": "22.39"
   },
-  "lastUpdated": 1789972308408
+  "lastUpdated": 1789972311393
 }
