@@ -618,21 +618,6 @@
       "symbol": "688008",
       "records": [
         {
-          "type": "Target Projection",
-          "mode": "target",
-          "symbol": "688008",
-          "details": "<span>Base: ¥180.25</span><span>Up 39%</span>",
-          "result": "¥250.5475",
-          "isUp": true,
-          "inputs": {
-            "base": 180.25,
-            "perc": 39,
-            "isUp": true
-          },
-          "currency": "¥",
-          "urgency": "green"
-        },
-        {
           "type": "目前D已跌",
           "mode": "percentage",
           "symbol": "600482",
@@ -680,6 +665,22 @@
           "urgency": "green",
           "shares": "200",
           "highlighted": true
+        },
+        {
+          "type": "Target Projection",
+          "mode": "target",
+          "symbol": "688008",
+          "details": "<span>Base: ¥180.25</span><span>Up 39%</span>",
+          "result": "¥250.5475",
+          "isUp": true,
+          "inputs": {
+            "base": 180.25,
+            "perc": 39,
+            "isUp": true
+          },
+          "currency": "¥",
+          "urgency": "green",
+          "shares": ""
         }
       ],
       "note": "230.36 -200卖出\n259 -315买入\n275 -100卖出\n268.18 -200卖出\n222.80 -200买入\n225 -115卖出\n215 -300买入\n220.25 -200卖出（现已回到300股-146.685）\n\n目标220左右卖出（主要等待30的RSI触顶）\n低于180以下可以考虑买入，如果没跌破186底线就先不要动！！！\nw感觉还会跌",
@@ -941,5 +942,5 @@
     "initialPrice": "180.25",
     "finalPrice": "239"
   },
-  "lastUpdated": 1789985276112
+  "lastUpdated": 1789985284487
 }
