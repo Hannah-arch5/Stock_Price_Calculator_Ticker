@@ -761,21 +761,6 @@
       "symbol": "APP",
       "records": [
         {
-          "type": "Target Projection",
-          "mode": "target",
-          "symbol": "APP",
-          "details": "<span>Base: $307.76</span><span>Up 13%</span>",
-          "result": "$347.7688",
-          "isUp": true,
-          "inputs": {
-            "base": 307.76,
-            "perc": 13,
-            "isUp": true
-          },
-          "currency": "$",
-          "urgency": "green"
-        },
-        {
           "type": "30卖点1",
           "mode": "target",
           "symbol": "APP",
@@ -807,6 +792,22 @@
           "urgency": "green",
           "shares": "12",
           "highlighted": true
+        },
+        {
+          "type": "Target Projection",
+          "mode": "target",
+          "symbol": "APP",
+          "details": "<span>Base: $307.76</span><span>Up 13%</span>",
+          "result": "$347.7688",
+          "isUp": true,
+          "inputs": {
+            "base": 307.76,
+            "perc": 13,
+            "isUp": true
+          },
+          "currency": "$",
+          "urgency": "green",
+          "shares": ""
         },
         {
           "type": "D卖点1",
@@ -941,5 +942,5 @@
     "initialPrice": "18.86",
     "finalPrice": "22.39"
   },
-  "lastUpdated": 1789972296121
+  "lastUpdated": 1789972298653
 }
