@@ -32,7 +32,7 @@
           },
           "currency": "¥",
           "urgency": "green",
-          "shares": "",
+          "shares": "6400",
           "highlighted": true
         },
         {
@@ -919,12 +919,12 @@
   "calcInputs": {
     "currency": "¥",
     "stock1": "300775",
-    "basePrice": "22.20",
+    "basePrice": "22.2",
     "moveDown": true,
     "percentChange": "5",
     "stock2": "300775",
     "initialPrice": "18.86",
     "finalPrice": "22.39"
   },
-  "lastUpdated": 1789958384345
+  "lastUpdated": 1789958390268
 }
