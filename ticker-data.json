@@ -224,7 +224,7 @@
           "highlighted": false
         }
       ],
-      "note": "（主要等待D的RSI触顶）\n等跌\nw感觉还会跌",
+      "note": "（主要等待D的RSI触顶）\nw感觉还会跌",
       "tf_w": "等待回0轴低点，RSI继续跌还未触底",
       "tf_d": "等待RSI触顶",
       "tf_30": "等待背驰",
@@ -921,5 +921,5 @@
     "initialPrice": "180.25",
     "finalPrice": "239"
   },
-  "lastUpdated": 1790071658390
+  "lastUpdated": 1790071671845
 }
