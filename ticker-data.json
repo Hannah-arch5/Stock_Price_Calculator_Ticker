@@ -978,7 +978,6 @@
     "D卖点1",
     "D买点1",
     "D买点1",
-    "30买点1",
     "D买点2"
   ],
   "calcInputs": {
@@ -991,5 +990,5 @@
     "initialPrice": "180.25",
     "finalPrice": "239"
   },
-  "lastUpdated": 1790070875604
+  "lastUpdated": 1790070892054
 }
