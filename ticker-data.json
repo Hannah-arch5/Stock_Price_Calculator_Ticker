@@ -730,6 +730,21 @@
       "symbol": "601138",
       "records": [
         {
+          "type": "Target Projection",
+          "mode": "target",
+          "symbol": "601138",
+          "details": "<span>Base: ¥52.57</span><span>Up 47%</span>",
+          "result": "¥77.2779",
+          "isUp": true,
+          "inputs": {
+            "base": 52.57,
+            "perc": 47,
+            "isUp": true
+          },
+          "currency": "¥",
+          "urgency": "orange"
+        },
+        {
           "type": "目前D已涨",
           "mode": "percentage",
           "symbol": "601138",
@@ -975,5 +990,5 @@
     "initialPrice": "180.25",
     "finalPrice": "239"
   },
-  "lastUpdated": 1790070869639
+  "lastUpdated": 1790070871623
 }
