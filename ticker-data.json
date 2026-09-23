@@ -741,7 +741,7 @@
           "currency": "¥",
           "urgency": "orange",
           "shares": "400",
-          "highlighted": true
+          "highlighted": false
         },
         {
           "type": "W卖点1",
@@ -937,5 +937,5 @@
     "initialPrice": "180.25",
     "finalPrice": "239"
   },
-  "lastUpdated": 1790167073709
+  "lastUpdated": 1790167092351
 }
