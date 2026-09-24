@@ -553,7 +553,7 @@
           "highlighted": false
         },
         {
-          "type": "Target Projection",
+          "type": "30卖点1",
           "mode": "target",
           "symbol": "000070",
           "details": "<span>Base: ¥17.73</span><span>Up 7%</span>",
@@ -566,7 +566,7 @@
           },
           "currency": "¥",
           "urgency": "red",
-          "shares": ""
+          "shares": "1000"
         },
         {
           "type": "D买点1",
@@ -990,5 +990,5 @@
     "initialPrice": "70.97",
     "finalPrice": "58.75"
   },
-  "lastUpdated": 1790252010440
+  "lastUpdated": 1790252021283
 }
