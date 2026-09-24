@@ -569,22 +569,6 @@
           "shares": ""
         },
         {
-          "type": "30买点1",
-          "mode": "target",
-          "symbol": "000070",
-          "details": "<span>Base: ¥19.66</span><span>Down 8.5%</span>",
-          "result": "¥17.9889",
-          "isUp": false,
-          "inputs": {
-            "base": 19.66,
-            "perc": 8.5,
-            "isUp": false
-          },
-          "currency": "¥",
-          "urgency": "red",
-          "shares": "1000"
-        },
-        {
           "type": "D买点1",
           "mode": "target",
           "symbol": "000070",
@@ -1006,5 +990,5 @@
     "initialPrice": "70.97",
     "finalPrice": "58.75"
   },
-  "lastUpdated": 1790252008880
+  "lastUpdated": 1790252010440
 }
