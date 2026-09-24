@@ -726,7 +726,7 @@
           "shares": ""
         },
         {
-          "type": "Target Projection",
+          "type": "30卖点1",
           "mode": "target",
           "symbol": "601138",
           "details": "<span>Base: ¥60.8</span><span>Up 5.5%</span>",
@@ -989,5 +989,5 @@
     "initialPrice": "70.97",
     "finalPrice": "58.75"
   },
-  "lastUpdated": 1790251519399
+  "lastUpdated": 1790251523122
 }
