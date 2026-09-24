@@ -947,12 +947,12 @@
   "calcInputs": {
     "currency": "¥",
     "stock1": "601138",
-    "basePrice": "66.88",
+    "basePrice": "70.97",
     "moveDown": true,
     "percentChange": "18",
     "stock2": "601138",
     "initialPrice": "70.97",
     "finalPrice": "58.75"
   },
-  "lastUpdated": 1790251224320
+  "lastUpdated": 1790251227133
 }
