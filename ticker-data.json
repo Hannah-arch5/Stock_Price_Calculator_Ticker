@@ -977,7 +977,7 @@
     "W卖点1",
     "W买点1",
     "30买点1",
-    "New Label"
+    "30卖点1"
   ],
   "calcInputs": {
     "currency": "¥",
@@ -989,5 +989,5 @@
     "initialPrice": "70.97",
     "finalPrice": "58.75"
   },
-  "lastUpdated": 1790251514771
+  "lastUpdated": 1790251519399
 }
