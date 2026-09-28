@@ -601,7 +601,7 @@
           "currency": "¥",
           "urgency": "red",
           "shares": "2200",
-          "highlighted": true
+          "highlighted": false
         },
         {
           "type": "W买点1",
@@ -618,7 +618,7 @@
           "currency": "¥",
           "urgency": "red",
           "shares": "2000",
-          "highlighted": false
+          "highlighted": true
         }
       ],
       "nameFetched": true,
@@ -1000,13 +1000,13 @@
   ],
   "calcInputs": {
     "currency": "¥",
-    "stock1": "002518",
-    "basePrice": "40.86",
+    "stock1": "000070",
+    "basePrice": "19.66",
     "moveDown": true,
-    "percentChange": "24",
+    "percentChange": "28",
     "stock2": "601138",
     "initialPrice": "70.97",
     "finalPrice": "58.75"
   },
-  "lastUpdated": 1790568236084
+  "lastUpdated": 1790568395054
 }
