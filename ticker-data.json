@@ -69,11 +69,11 @@
           "type": "D卖点1",
           "mode": "target",
           "symbol": "300118",
-          "details": "<span>Base: ¥<span class=\"edit-trigger-val\" data-field=\"base\"><span class=\"edit-container-val\">8.82</span></span></span><span><span class=\"editable-toggle\" data-field=\"isUp\">Up</span> <span class=\"edit-trigger-val\" data-field=\"perc\"><span class=\"edit-container-val\">26</span>%</span></span>",
-          "result": "¥11.1132",
+          "details": "<span>Base: ¥<span class=\"edit-trigger-val\" data-field=\"base\"><span class=\"edit-container-val\">8.68</span></span></span><span><span class=\"editable-toggle\" data-field=\"isUp\">Up</span> <span class=\"edit-trigger-val\" data-field=\"perc\"><span class=\"edit-container-val\">26</span>%</span></span>",
+          "result": "¥10.9368",
           "isUp": true,
           "inputs": {
-            "base": 8.82,
+            "base": 8.68,
             "perc": 26,
             "isUp": true
           },
@@ -1008,5 +1008,5 @@
     "initialPrice": "70.97",
     "finalPrice": "58.75"
   },
-  "lastUpdated": 1790568146943
+  "lastUpdated": 1790568194210
 }
