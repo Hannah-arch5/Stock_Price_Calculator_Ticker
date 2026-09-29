@@ -818,7 +818,7 @@
       "tf_30": "必须等待明显背驰",
       "nameFetched": true,
       "name": "工业富联",
-      "cost": "48.238",
+      "cost": "59.",
       "qty": "800",
       "urgency": "red"
     },
@@ -991,5 +991,5 @@
     "initialPrice": "70.97",
     "finalPrice": "58.75"
   },
-  "lastUpdated": 1790683882744
+  "lastUpdated": 1790684068019
 }
