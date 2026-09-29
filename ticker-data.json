@@ -725,7 +725,7 @@
           "currency": "¥",
           "urgency": "red",
           "shares": "700",
-          "highlighted": true
+          "highlighted": false
         },
         {
           "type": "D买点1",
@@ -967,13 +967,13 @@
   ],
   "calcInputs": {
     "currency": "¥",
-    "stock1": "600482",
-    "basePrice": "36.2",
-    "moveDown": true,
-    "percentChange": "20",
+    "stock1": "601138",
+    "basePrice": "57.86",
+    "moveDown": false,
+    "percentChange": "6",
     "stock2": "601138",
     "initialPrice": "70.97",
     "finalPrice": "58.75"
   },
-  "lastUpdated": 1790657233807
+  "lastUpdated": 1790657298292
 }
