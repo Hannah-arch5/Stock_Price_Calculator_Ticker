@@ -704,7 +704,7 @@
       "tf_30": "等回抽0轴低点，RSI还未触线",
       "nameFetched": true,
       "name": "澜起科技",
-      "cost": "146.685",
+      "cost": "146.",
       "qty": "300",
       "urgency": "red"
     },
@@ -991,5 +991,5 @@
     "initialPrice": "70.97",
     "finalPrice": "58.75"
   },
-  "lastUpdated": 1790745472011
+  "lastUpdated": 1790746412220
 }
