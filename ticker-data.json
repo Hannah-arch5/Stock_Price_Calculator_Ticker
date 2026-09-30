@@ -507,7 +507,7 @@
           "highlighted": true
         },
         {
-          "type": "Target Projection",
+          "type": "W买点2",
           "mode": "target",
           "symbol": "600482",
           "details": "<span>Base: ¥36.2</span><span>Down 17%</span>",
@@ -987,7 +987,6 @@
     "目前30已涨",
     "目前D已涨",
     "W卖点2",
-    "W买点2",
     "D卖点2",
     "D卖点1",
     "D买点2",
@@ -995,7 +994,8 @@
     "30买点1",
     "30卖点1",
     "W买点1",
-    "D买点1"
+    "D买点1",
+    "W买点2"
   ],
   "calcInputs": {
     "currency": "¥",
@@ -1007,5 +1007,5 @@
     "initialPrice": "70.97",
     "finalPrice": "58.75"
   },
-  "lastUpdated": 1790750427080
+  "lastUpdated": 1790750441263
 }
