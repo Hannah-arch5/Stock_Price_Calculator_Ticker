@@ -59,7 +59,7 @@
       "nameFetched": true,
       "name": "三角防务",
       "cost": "38.449",
-      "qty": "2400",
+      "qty": "800",
       "urgency": "green"
     },
     {
@@ -991,5 +991,5 @@
     "initialPrice": "70.97",
     "finalPrice": "58.75"
   },
-  "lastUpdated": 1790746564549
+  "lastUpdated": 1790746572365
 }
