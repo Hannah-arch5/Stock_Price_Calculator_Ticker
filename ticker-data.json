@@ -985,11 +985,11 @@
     "currency": "¥",
     "stock1": "601138",
     "basePrice": "57.86",
-    "moveDown": false,
+    "moveDown": true,
     "percentChange": "7",
     "stock2": "601138",
     "initialPrice": "70.97",
     "finalPrice": "58.75"
   },
-  "lastUpdated": 1790744748661
+  "lastUpdated": 1790744750487
 }
