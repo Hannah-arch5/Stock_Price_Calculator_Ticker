@@ -58,7 +58,7 @@
       "tf_30": "等RSI触底线",
       "nameFetched": true,
       "name": "三角防务",
-      "cost": "38",
+      "cost": "38.449",
       "qty": "2400",
       "urgency": "green"
     },
@@ -991,5 +991,5 @@
     "initialPrice": "70.97",
     "finalPrice": "58.75"
   },
-  "lastUpdated": 1790746562126
+  "lastUpdated": 1790746564549
 }
