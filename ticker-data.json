@@ -906,11 +906,11 @@
     "currency": "$",
     "stock1": "AMZN",
     "basePrice": "287.20",
-    "moveDown": false,
+    "moveDown": true,
     "percentChange": "17",
     "stock2": "601138",
     "initialPrice": "70.97",
     "finalPrice": "58.75"
   },
-  "lastUpdated": 1790825240671
+  "lastUpdated": 1790825241765
 }
