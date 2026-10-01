@@ -904,7 +904,7 @@
   ],
   "calcInputs": {
     "currency": "¥",
-    "stock1": "amzn",
+    "stock1": "",
     "basePrice": "36.2",
     "moveDown": true,
     "percentChange": "17",
@@ -912,5 +912,5 @@
     "initialPrice": "70.97",
     "finalPrice": "58.75"
   },
-  "lastUpdated": 1790825206661
+  "lastUpdated": 1790825208202
 }
