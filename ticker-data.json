@@ -682,7 +682,7 @@
           "highlighted": true
         },
         {
-          "type": "Target Projection",
+          "type": "D买点2",
           "mode": "target",
           "symbol": "688008",
           "details": "<span>Base: ¥233.19</span><span>Down 22%</span>",
@@ -954,5 +954,5 @@
     "initialPrice": "70.97",
     "finalPrice": "58.75"
   },
-  "lastUpdated": 1791458291951
+  "lastUpdated": 1791458295202
 }
