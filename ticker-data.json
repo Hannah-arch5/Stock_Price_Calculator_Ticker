@@ -254,12 +254,12 @@
           "type": "D卖点1",
           "mode": "target",
           "symbol": "002865",
-          "details": "<span>Base: ¥35.68</span><span>Up 18%</span>",
-          "result": "¥42.1024",
+          "details": "<span>Base: ¥<span class=\"edit-trigger-val\" data-field=\"base\"><span class=\"edit-container-val\">35.68</span></span></span><span><span class=\"editable-toggle\" data-field=\"isUp\">Up</span> <span class=\"edit-trigger-val\" data-field=\"perc\"><span class=\"edit-container-val\">20</span>%</span></span>",
+          "result": "¥42.816",
           "isUp": true,
           "inputs": {
             "base": 35.68,
-            "perc": 18,
+            "perc": 20,
             "isUp": true
           },
           "currency": "¥",
@@ -955,5 +955,5 @@
     "initialPrice": "70.97",
     "finalPrice": "58.75"
   },
-  "lastUpdated": 1791434940276
+  "lastUpdated": 1791434974140
 }
