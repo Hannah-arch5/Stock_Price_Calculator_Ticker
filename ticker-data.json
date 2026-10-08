@@ -235,21 +235,6 @@
       "symbol": "002865",
       "records": [
         {
-          "type": "Target Projection",
-          "mode": "target",
-          "symbol": "002865",
-          "details": "<span>Base: ¥35.68</span><span>Up 18%</span>",
-          "result": "¥42.1024",
-          "isUp": true,
-          "inputs": {
-            "base": 35.68,
-            "perc": 18,
-            "isUp": true
-          },
-          "currency": "¥",
-          "urgency": "green"
-        },
-        {
           "type": "目前W已涨",
           "mode": "percentage",
           "symbol": "600481",
@@ -264,6 +249,22 @@
           "urgency": "green",
           "shares": "",
           "highlighted": false
+        },
+        {
+          "type": "Target Projection",
+          "mode": "target",
+          "symbol": "002865",
+          "details": "<span>Base: ¥35.68</span><span>Up 18%</span>",
+          "result": "¥42.1024",
+          "isUp": true,
+          "inputs": {
+            "base": 35.68,
+            "perc": 18,
+            "isUp": true
+          },
+          "currency": "¥",
+          "urgency": "green",
+          "shares": ""
         },
         {
           "type": "D卖点2",
@@ -869,11 +870,16 @@
             "perc": 19,
             "isUp": false
           },
-          "currency": "$"
+          "currency": "$",
+          "shares": ""
         }
       ],
       "nameFetched": true,
-      "name": "亚马逊"
+      "name": "亚马逊",
+      "note": "",
+      "tf_w": "",
+      "tf_d": "",
+      "tf_30": ""
     },
     {
       "symbol": "SNDK",
@@ -949,5 +955,5 @@
     "initialPrice": "70.97",
     "finalPrice": "58.75"
   },
-  "lastUpdated": 1791434916782
+  "lastUpdated": 1791434919449
 }
