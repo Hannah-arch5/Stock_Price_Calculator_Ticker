@@ -757,7 +757,7 @@
           "currency": "¥",
           "urgency": "red",
           "shares": "700",
-          "highlighted": false
+          "highlighted": true
         },
         {
           "type": "D卖点2",
@@ -904,5 +904,5 @@
     "initialPrice": "70.97",
     "finalPrice": "58.75"
   },
-  "lastUpdated": 1791550252738
+  "lastUpdated": 1791550262654
 }
