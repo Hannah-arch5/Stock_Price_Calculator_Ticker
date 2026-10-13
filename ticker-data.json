@@ -648,7 +648,7 @@
           "highlighted": false
         },
         {
-          "type": "W买点1",
+          "type": "M买点1",
           "mode": "target",
           "symbol": "688008",
           "details": "<span>Base: ¥<span class=\"edit-trigger-val\" data-field=\"base\"><span class=\"edit-container-val\">233.19</span></span></span><span><span class=\"editable-toggle\" data-field=\"isUp\">Down</span> <span class=\"edit-trigger-val\" data-field=\"perc\"><span class=\"edit-container-val\">33</span>%</span></span>",
@@ -888,5 +888,5 @@
     "initialPrice": "244.30",
     "finalPrice": "315"
   },
-  "lastUpdated": 1791894957196
+  "lastUpdated": 1791894974495
 }
