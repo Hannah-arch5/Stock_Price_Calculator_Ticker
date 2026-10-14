@@ -883,10 +883,10 @@
     "stock1": "688008",
     "basePrice": "156",
     "moveDown": false,
-    "percentChange": "10",
+    "percentChange": "12",
     "stock2": "601138",
     "initialPrice": "244.30",
     "finalPrice": "315"
   },
-  "lastUpdated": 1791972096181
+  "lastUpdated": 1791972098615
 }
