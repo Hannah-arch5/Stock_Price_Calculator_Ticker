@@ -170,68 +170,6 @@
       "name": "双良节能"
     },
     {
-      "symbol": "600893",
-      "records": [
-        {
-          "type": "D买点1",
-          "mode": "target",
-          "symbol": "600893",
-          "details": "<span>Base: ¥<span class=\"edit-trigger-val\" data-field=\"base\"><span class=\"edit-container-val\">42.44</span></span></span><span><span class=\"editable-toggle\" data-field=\"isUp\">Down</span> <span class=\"edit-trigger-val\" data-field=\"perc\"><span class=\"edit-container-val\">15</span>%</span></span>",
-          "result": "¥36.074",
-          "isUp": false,
-          "inputs": {
-            "base": 42.44,
-            "perc": 15,
-            "isUp": false
-          },
-          "currency": "¥",
-          "urgency": "orange",
-          "shares": "",
-          "highlighted": false
-        },
-        {
-          "type": "W买点2",
-          "mode": "target",
-          "symbol": "600893",
-          "details": "<span>Base: ¥<span class=\"edit-trigger-val\" data-field=\"base\"><span class=\"edit-container-val\">42.44</span></span></span><span><span class=\"editable-toggle\" data-field=\"isUp\">Down</span> <span class=\"edit-trigger-val\" data-field=\"perc\"><span class=\"edit-container-val\">19.2</span>%</span></span>",
-          "result": "¥34.2915",
-          "isUp": false,
-          "inputs": {
-            "base": 42.44,
-            "perc": 19.2,
-            "isUp": false
-          },
-          "currency": "¥",
-          "urgency": "orange",
-          "shares": "",
-          "highlighted": true
-        },
-        {
-          "type": "W卖点1",
-          "mode": "target",
-          "symbol": "600893",
-          "details": "<span>Base: ¥<span class=\"edit-trigger-val\" data-field=\"base\"><span class=\"edit-container-val\">31.86</span></span></span><span><span class=\"editable-toggle\" data-field=\"isUp\">Up</span> <span class=\"edit-trigger-val\" data-field=\"perc\"><span class=\"edit-container-val\">30</span>%</span></span>",
-          "result": "¥41.418",
-          "isUp": true,
-          "inputs": {
-            "base": 31.86,
-            "perc": 30,
-            "isUp": true
-          },
-          "currency": "¥",
-          "urgency": "orange",
-          "shares": "",
-          "highlighted": false
-        }
-      ],
-      "note": "要大跌了（主要等待D的RSI触顶）\nw感觉还会跌（3-4周，预计跌到10月末，30为低点）",
-      "tf_w": "等待回0轴低点，RSI继续跌还未触底",
-      "tf_d": "等待RSI触顶",
-      "tf_30": "等待背驰",
-      "nameFetched": true,
-      "name": "航发动力"
-    },
-    {
       "symbol": "002865",
       "records": [
         {
@@ -436,6 +374,68 @@
       "name": "科士达",
       "qty": "1200",
       "urgency": "red"
+    },
+    {
+      "symbol": "600893",
+      "records": [
+        {
+          "type": "D买点1",
+          "mode": "target",
+          "symbol": "600893",
+          "details": "<span>Base: ¥<span class=\"edit-trigger-val\" data-field=\"base\"><span class=\"edit-container-val\">42.44</span></span></span><span><span class=\"editable-toggle\" data-field=\"isUp\">Down</span> <span class=\"edit-trigger-val\" data-field=\"perc\"><span class=\"edit-container-val\">15</span>%</span></span>",
+          "result": "¥36.074",
+          "isUp": false,
+          "inputs": {
+            "base": 42.44,
+            "perc": 15,
+            "isUp": false
+          },
+          "currency": "¥",
+          "urgency": "orange",
+          "shares": "",
+          "highlighted": false
+        },
+        {
+          "type": "W买点2",
+          "mode": "target",
+          "symbol": "600893",
+          "details": "<span>Base: ¥<span class=\"edit-trigger-val\" data-field=\"base\"><span class=\"edit-container-val\">42.44</span></span></span><span><span class=\"editable-toggle\" data-field=\"isUp\">Down</span> <span class=\"edit-trigger-val\" data-field=\"perc\"><span class=\"edit-container-val\">19.2</span>%</span></span>",
+          "result": "¥34.2915",
+          "isUp": false,
+          "inputs": {
+            "base": 42.44,
+            "perc": 19.2,
+            "isUp": false
+          },
+          "currency": "¥",
+          "urgency": "orange",
+          "shares": "",
+          "highlighted": true
+        },
+        {
+          "type": "W卖点1",
+          "mode": "target",
+          "symbol": "600893",
+          "details": "<span>Base: ¥<span class=\"edit-trigger-val\" data-field=\"base\"><span class=\"edit-container-val\">31.86</span></span></span><span><span class=\"editable-toggle\" data-field=\"isUp\">Up</span> <span class=\"edit-trigger-val\" data-field=\"perc\"><span class=\"edit-container-val\">30</span>%</span></span>",
+          "result": "¥41.418",
+          "isUp": true,
+          "inputs": {
+            "base": 31.86,
+            "perc": 30,
+            "isUp": true
+          },
+          "currency": "¥",
+          "urgency": "orange",
+          "shares": "",
+          "highlighted": false
+        }
+      ],
+      "note": "要大跌了（主要等待D的RSI触顶）\nw感觉还会跌（3-4周，预计跌到10月末，30为低点）",
+      "tf_w": "等待回0轴低点，RSI继续跌还未触底",
+      "tf_d": "等待RSI触顶",
+      "tf_30": "等待背驰",
+      "nameFetched": true,
+      "name": "航发动力"
     },
     {
       "symbol": "600482",
@@ -889,5 +889,5 @@
     "initialPrice": "244.30",
     "finalPrice": "315"
   },
-  "lastUpdated": 1792065527590
+  "lastUpdated": 1792065579337
 }
