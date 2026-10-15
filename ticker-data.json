@@ -271,11 +271,11 @@
           "type": "W买点1",
           "mode": "target",
           "symbol": "002865",
-          "details": "<span>Base: ¥<span class=\"edit-trigger-val\" data-field=\"base\"><span class=\"edit-container-val\">34.16</span></span></span><span><span class=\"editable-toggle\" data-field=\"isUp\">Up</span> <span class=\"edit-trigger-val\" data-field=\"perc\"><span class=\"edit-container-val\">35</span>%</span></span>",
-          "result": "¥46.116",
+          "details": "<span>Base: ¥<span class=\"edit-trigger-val\" data-field=\"base\"><span class=\"edit-container-val\">32</span></span></span><span><span class=\"editable-toggle\" data-field=\"isUp\">Up</span> <span class=\"edit-trigger-val\" data-field=\"perc\"><span class=\"edit-container-val\">35</span>%</span></span>",
+          "result": "¥43.2",
           "isUp": true,
           "inputs": {
-            "base": 34.16,
+            "base": 32,
             "perc": 35,
             "isUp": true
           },
@@ -889,5 +889,5 @@
     "initialPrice": "244.30",
     "finalPrice": "315"
   },
-  "lastUpdated": 1792065305694
+  "lastUpdated": 1792065307980
 }
