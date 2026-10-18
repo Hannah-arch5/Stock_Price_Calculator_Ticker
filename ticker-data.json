@@ -865,14 +865,14 @@
     "30卖点2"
   ],
   "calcInputs": {
-    "currency": "$",
-    "stock1": "SNDK",
-    "basePrice": "1504.99",
-    "moveDown": false,
-    "percentChange": "25",
+    "currency": "¥",
+    "stock1": "601138",
+    "basePrice": "84.3",
+    "moveDown": true,
+    "percentChange": "53",
     "stock2": "601138",
     "initialPrice": "244.30",
     "finalPrice": "315"
   },
-  "lastUpdated": 1792330643697
+  "lastUpdated": 1792330671374
 }
