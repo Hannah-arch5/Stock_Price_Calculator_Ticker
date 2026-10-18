@@ -66,7 +66,7 @@
       "symbol": "300118",
       "records": [
         {
-          "type": "Target Projection",
+          "type": "D卖点2",
           "mode": "target",
           "symbol": "300118",
           "details": "<span>Base: ¥8.01</span><span>Up 17%</span>",
@@ -867,7 +867,6 @@
     "目前D已跌",
     "目前30已涨",
     "目前D已涨",
-    "D卖点2",
     "D买点2",
     "30买点1",
     "W买点2",
@@ -877,7 +876,8 @@
     "D买点1",
     "30卖点1",
     "W买点1",
-    "30卖点2"
+    "30卖点2",
+    "D卖点2"
   ],
   "calcInputs": {
     "currency": "¥",
@@ -889,5 +889,5 @@
     "initialPrice": "244.30",
     "finalPrice": "315"
   },
-  "lastUpdated": 1792332218947
+  "lastUpdated": 1792332228636
 }
