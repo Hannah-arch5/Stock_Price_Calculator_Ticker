@@ -714,13 +714,13 @@
           "type": "30卖点1",
           "mode": "target",
           "symbol": "601138",
-          "details": "<span>Base: ¥<span class=\"edit-trigger-val\" data-field=\"base\"><span class=\"edit-container-val\">50.48</span></span></span><span><span class=\"editable-toggle\" data-field=\"isUp\">Up</span> <span class=\"edit-trigger-val\" data-field=\"perc\"><span class=\"edit-container-val\">7</span>%</span></span>",
-          "result": "¥54.0136",
-          "isUp": true,
+          "details": "<span>Base: ¥<span class=\"edit-trigger-val\" data-field=\"base\"><span class=\"edit-container-val\">50.48</span></span></span><span><span class=\"editable-toggle\" data-field=\"isUp\">Down</span> <span class=\"edit-trigger-val\" data-field=\"perc\"><span class=\"edit-container-val\">7</span>%</span></span>",
+          "result": "¥46.9464",
+          "isUp": false,
           "inputs": {
             "base": 50.48,
             "perc": 7,
-            "isUp": true
+            "isUp": false
           },
           "currency": "¥",
           "urgency": "red",
@@ -866,13 +866,13 @@
   ],
   "calcInputs": {
     "currency": "¥",
-    "stock1": "688008",
-    "basePrice": "36.59",
-    "moveDown": true,
-    "percentChange": "5.5",
+    "stock1": "601138",
+    "basePrice": "50.48",
+    "moveDown": false,
+    "percentChange": "7",
     "stock2": "601138",
     "initialPrice": "244.30",
     "finalPrice": "315"
   },
-  "lastUpdated": 1792580478791
+  "lastUpdated": 1792580481439
 }
