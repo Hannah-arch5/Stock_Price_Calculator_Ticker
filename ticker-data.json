@@ -184,7 +184,7 @@
             "final": 48
           },
           "currency": "¥",
-          "urgency": "green",
+          "urgency": "red",
           "shares": "",
           "highlighted": false
         },
@@ -201,7 +201,7 @@
             "isUp": true
           },
           "currency": "¥",
-          "urgency": "green",
+          "urgency": "red",
           "shares": "800",
           "highlighted": false
         },
@@ -218,7 +218,7 @@
             "isUp": true
           },
           "currency": "¥",
-          "urgency": "green",
+          "urgency": "red",
           "shares": "800",
           "highlighted": false
         },
@@ -235,7 +235,7 @@
             "isUp": true
           },
           "currency": "¥",
-          "urgency": "green",
+          "urgency": "red",
           "shares": "1700",
           "highlighted": false
         }
@@ -248,7 +248,7 @@
       "name": "钧达股份",
       "cost": "46.233",
       "qty": "2700",
-      "urgency": "green"
+      "urgency": "red"
     },
     {
       "symbol": "603315",
@@ -874,5 +874,5 @@
     "initialPrice": "244.30",
     "finalPrice": "315"
   },
-  "lastUpdated": 1792656863320
+  "lastUpdated": 1792657097178
 }
