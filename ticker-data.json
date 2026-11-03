@@ -16,7 +16,8 @@
             "isUp": false
           },
           "currency": "¥",
-          "urgency": "green"
+          "urgency": "green",
+          "shares": ""
         },
         {
           "type": "目前30已涨",
@@ -872,5 +873,5 @@
     "initialPrice": "244.30",
     "finalPrice": "315"
   },
-  "lastUpdated": 1793672176476
+  "lastUpdated": 1793672179063
 }
