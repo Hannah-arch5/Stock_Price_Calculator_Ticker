@@ -4,6 +4,21 @@
       "symbol": "300775",
       "records": [
         {
+          "type": "Target Projection",
+          "mode": "target",
+          "symbol": "300775",
+          "details": "<span>Base: ¥18.38</span><span>Down 5.2%</span>",
+          "result": "¥17.4242",
+          "isUp": false,
+          "inputs": {
+            "base": 18.38,
+            "perc": 5.2,
+            "isUp": false
+          },
+          "currency": "¥",
+          "urgency": "green"
+        },
+        {
           "type": "目前30已涨",
           "mode": "percentage",
           "symbol": "300775",
@@ -857,5 +872,5 @@
     "initialPrice": "244.30",
     "finalPrice": "315"
   },
-  "lastUpdated": 1793672174204
+  "lastUpdated": 1793672176476
 }
