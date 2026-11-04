@@ -617,6 +617,21 @@
       "symbol": "688008",
       "records": [
         {
+          "type": "目前D已跌",
+          "mode": "percentage",
+          "symbol": "600482",
+          "details": "<span>Base: ¥<span class=\"edit-trigger-val\" data-field=\"initial\"><span class=\"edit-container-val\">180.25</span></span></span><span>Target: ¥<span class=\"edit-trigger-val\" data-field=\"final\"><span class=\"edit-container-val\">239</span></span></span>",
+          "result": "32.59%",
+          "isUp": true,
+          "inputs": {
+            "initial": 180.25,
+            "final": 239
+          },
+          "currency": "¥",
+          "urgency": "red",
+          "shares": ""
+        },
+        {
           "type": "Target Projection",
           "mode": "target",
           "symbol": "688008",
@@ -627,20 +642,6 @@
             "base": 148.55,
             "perc": 16,
             "isUp": true
-          },
-          "currency": "¥",
-          "urgency": "red"
-        },
-        {
-          "type": "目前D已跌",
-          "mode": "percentage",
-          "symbol": "600482",
-          "details": "<span>Base: ¥<span class=\"edit-trigger-val\" data-field=\"initial\"><span class=\"edit-container-val\">180.25</span></span></span><span>Target: ¥<span class=\"edit-trigger-val\" data-field=\"final\"><span class=\"edit-container-val\">239</span></span></span>",
-          "result": "32.59%",
-          "isUp": true,
-          "inputs": {
-            "initial": 180.25,
-            "final": 239
           },
           "currency": "¥",
           "urgency": "red",
@@ -872,5 +873,5 @@
     "initialPrice": "244.30",
     "finalPrice": "315"
   },
-  "lastUpdated": 1793781300730
+  "lastUpdated": 1793781304979
 }
