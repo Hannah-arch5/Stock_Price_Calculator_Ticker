@@ -635,12 +635,12 @@
           "type": "Target Projection",
           "mode": "target",
           "symbol": "688008",
-          "details": "<span>Base: ¥148.55</span><span>Up 16%</span>",
-          "result": "¥172.318",
+          "details": "<span>Base: ¥<span class=\"edit-trigger-val\" data-field=\"base\"><span class=\"edit-container-val\">148.55</span></span></span><span><span class=\"editable-toggle\" data-field=\"isUp\">Up</span> <span class=\"edit-trigger-val\" data-field=\"perc\"><span class=\"edit-container-val\">18</span>%</span></span>",
+          "result": "¥175.289",
           "isUp": true,
           "inputs": {
             "base": 148.55,
-            "perc": 16,
+            "perc": 18,
             "isUp": true
           },
           "currency": "¥",
@@ -873,5 +873,5 @@
     "initialPrice": "244.30",
     "finalPrice": "315"
   },
-  "lastUpdated": 1793781304979
+  "lastUpdated": 1793781364959
 }
