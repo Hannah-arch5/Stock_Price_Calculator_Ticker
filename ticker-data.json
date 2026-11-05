@@ -95,7 +95,7 @@
             "isUp": true
           },
           "currency": "¥",
-          "urgency": "orange",
+          "urgency": "red",
           "shares": "6300",
           "highlighted": false
         },
@@ -112,7 +112,7 @@
             "isUp": true
           },
           "currency": "¥",
-          "urgency": "orange",
+          "urgency": "red",
           "shares": "6300",
           "highlighted": true
         }
@@ -125,7 +125,7 @@
       "name": "东方日升",
       "cost": "15.344",
       "qty": "7600",
-      "urgency": "orange"
+      "urgency": "red"
     },
     {
       "symbol": "600481",
@@ -889,5 +889,5 @@
     "initialPrice": "244.30",
     "finalPrice": "315"
   },
-  "lastUpdated": 1793847872008
+  "lastUpdated": 1793847873620
 }
