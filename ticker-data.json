@@ -86,12 +86,12 @@
           "type": "Target Projection",
           "mode": "target",
           "symbol": "300118",
-          "details": "<span>Base: ¥9.48</span><span>Down 8%</span>",
-          "result": "¥8.7216",
+          "details": "<span>Base: ¥<span class=\"edit-trigger-val\" data-field=\"base\"><span class=\"edit-container-val\">9.48</span></span></span><span><span class=\"editable-toggle\" data-field=\"isUp\">Down</span> <span class=\"edit-trigger-val\" data-field=\"perc\"><span class=\"edit-container-val\">12</span>%</span></span>",
+          "result": "¥8.3424",
           "isUp": false,
           "inputs": {
             "base": 9.48,
-            "perc": 8,
+            "perc": 12,
             "isUp": false
           },
           "currency": "¥",
@@ -900,10 +900,10 @@
     "stock1": "300118",
     "basePrice": "9.48",
     "moveDown": true,
-    "percentChange": "8",
+    "percentChange": "12",
     "stock2": "601138",
     "initialPrice": "244.30",
     "finalPrice": "315"
   },
-  "lastUpdated": 1793848267927
+  "lastUpdated": 1793848283781
 }
