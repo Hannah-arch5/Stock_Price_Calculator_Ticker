@@ -505,7 +505,7 @@
           "shares": "300"
         },
         {
-          "type": "Target Projection",
+          "type": "D买点2",
           "mode": "target",
           "symbol": "600482",
           "details": "<span>Base: ¥32.49</span><span>Down 19%</span>",
@@ -899,7 +899,6 @@
     "目前D已跌",
     "目前30已涨",
     "目前D已涨",
-    "D买点2",
     "W卖点1",
     "W卖点2",
     "30卖点1",
@@ -909,7 +908,8 @@
     "W买点1",
     "D卖点1",
     "30买点1",
-    "D买点1"
+    "D买点1",
+    "D买点2"
   ],
   "calcInputs": {
     "currency": "¥",
@@ -921,5 +921,5 @@
     "initialPrice": "244.30",
     "finalPrice": "315"
   },
-  "lastUpdated": 1793853488037
+  "lastUpdated": 1793853499742
 }
