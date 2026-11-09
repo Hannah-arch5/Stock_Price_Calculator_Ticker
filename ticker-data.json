@@ -621,7 +621,7 @@
           "highlighted": true
         },
         {
-          "type": "Target Projection",
+          "type": "D卖点1",
           "mode": "target",
           "symbol": "000070",
           "details": "<span>Base: ¥11.4</span><span>Up 22%</span>",
@@ -926,10 +926,10 @@
     "D卖点2",
     "W买点2",
     "W买点1",
-    "D卖点1",
     "30买点1",
     "D买点1",
-    "D买点2"
+    "D买点2",
+    "D卖点1"
   ],
   "calcInputs": {
     "currency": "¥",
@@ -941,5 +941,5 @@
     "initialPrice": "244.30",
     "finalPrice": "315"
   },
-  "lastUpdated": 1794220008148
+  "lastUpdated": 1794220025856
 }
