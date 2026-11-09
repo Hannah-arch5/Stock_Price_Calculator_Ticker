@@ -83,6 +83,20 @@
       "symbol": "300118",
       "records": [
         {
+          "type": "Percentage Delta",
+          "mode": "percentage",
+          "symbol": "300118",
+          "details": "<span>Base: ¥7.41</span><span>Target: ¥11.92</span>",
+          "result": "60.86%",
+          "isUp": true,
+          "inputs": {
+            "initial": 7.41,
+            "final": 11.92
+          },
+          "currency": "¥",
+          "urgency": "red"
+        },
+        {
           "type": "D买点2",
           "mode": "target",
           "symbol": "300118",
@@ -923,5 +937,5 @@
     "initialPrice": "7.41",
     "finalPrice": "11.92"
   },
-  "lastUpdated": 1794220445420
+  "lastUpdated": 1794220449160
 }
