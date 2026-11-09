@@ -83,6 +83,21 @@
       "symbol": "300118",
       "records": [
         {
+          "type": "Target Projection",
+          "mode": "target",
+          "symbol": "300118",
+          "details": "<span>Base: ¥11.92</span><span>Down 35%</span>",
+          "result": "¥7.748",
+          "isUp": false,
+          "inputs": {
+            "base": 11.92,
+            "perc": 35,
+            "isUp": false
+          },
+          "currency": "¥",
+          "urgency": "red"
+        },
+        {
           "type": "Percentage Delta",
           "mode": "percentage",
           "symbol": "300118",
@@ -937,5 +952,5 @@
     "initialPrice": "7.41",
     "finalPrice": "11.92"
   },
-  "lastUpdated": 1794220527785
+  "lastUpdated": 1794220530848
 }
