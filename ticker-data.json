@@ -168,12 +168,12 @@
           "type": "目前W已涨",
           "mode": "percentage",
           "symbol": "600481",
-          "details": "<span>Base: ¥<span class=\"edit-trigger-val\" data-field=\"initial\"><span class=\"edit-container-val\">32</span></span></span><span>Target: ¥<span class=\"edit-trigger-val\" data-field=\"final\"><span class=\"edit-container-val\">48</span></span></span>",
-          "result": "50.00%",
+          "details": "<span>Base: ¥<span class=\"edit-trigger-val\" data-field=\"initial\"><span class=\"edit-container-val\">32</span></span></span><span>Target: ¥<span class=\"edit-trigger-val\" data-field=\"final\"><span class=\"edit-container-val\">49.05</span></span></span>",
+          "result": "53.28%",
           "isUp": true,
           "inputs": {
             "initial": 32,
-            "final": 48
+            "final": 49.05
           },
           "currency": "¥",
           "urgency": "red",
@@ -941,5 +941,5 @@
     "initialPrice": "244.30",
     "finalPrice": "315"
   },
-  "lastUpdated": 1794220264843
+  "lastUpdated": 1794220277054
 }
