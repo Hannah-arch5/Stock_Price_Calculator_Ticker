@@ -905,7 +905,8 @@
             "isUp": false
           },
           "currency": "¥",
-          "urgency": "orange"
+          "urgency": "orange",
+          "shares": "100"
         }
       ],
       "nameFetched": true,
@@ -997,5 +998,5 @@
     "initialPrice": "7.41",
     "finalPrice": "11.92"
   },
-  "lastUpdated": 1794458667557
+  "lastUpdated": 1794458671414
 }
