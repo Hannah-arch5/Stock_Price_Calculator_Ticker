@@ -715,22 +715,6 @@
           "urgency": "orange"
         },
         {
-          "type": "30买点1",
-          "mode": "target",
-          "symbol": "300620",
-          "details": "<span>Base: ¥222.57</span><span>Down 6%</span>",
-          "result": "¥209.2158",
-          "isUp": false,
-          "inputs": {
-            "base": 222.57,
-            "perc": 6,
-            "isUp": false
-          },
-          "currency": "¥",
-          "urgency": "orange",
-          "shares": "100"
-        },
-        {
           "type": "D买点1",
           "mode": "target",
           "symbol": "300620",
@@ -934,5 +918,5 @@
     "initialPrice": "155.88",
     "finalPrice": "222.57"
   },
-  "lastUpdated": 1794476635307
+  "lastUpdated": 1794476660067
 }
