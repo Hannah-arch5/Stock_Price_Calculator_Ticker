@@ -604,11 +604,11 @@
           "type": "30买点1",
           "mode": "target",
           "symbol": "000070",
-          "details": "<span>Base: ¥<span class=\"edit-trigger-val\" data-field=\"base\"><span class=\"edit-container-val\">13</span></span></span><span><span class=\"editable-toggle\" data-field=\"isUp\">Down</span> <span class=\"edit-trigger-val\" data-field=\"perc\"><span class=\"edit-container-val\">5</span>%</span></span>",
-          "result": "¥12.35",
+          "details": "<span>Base: ¥<span class=\"edit-trigger-val\" data-field=\"base\"><span class=\"edit-container-val\">13.19</span></span></span><span><span class=\"editable-toggle\" data-field=\"isUp\">Down</span> <span class=\"edit-trigger-val\" data-field=\"perc\"><span class=\"edit-container-val\">5</span>%</span></span>",
+          "result": "¥12.5305",
           "isUp": false,
           "inputs": {
-            "base": 13,
+            "base": 13.19,
             "perc": 5,
             "isUp": false
           },
@@ -973,13 +973,13 @@
   ],
   "calcInputs": {
     "currency": "¥",
-    "stock1": "300620",
-    "basePrice": "222.57",
+    "stock1": "000070",
+    "basePrice": "13.19",
     "moveDown": true,
-    "percentChange": "6",
+    "percentChange": "5",
     "stock2": "300118",
     "initialPrice": "7.41",
     "finalPrice": "11.92"
   },
-  "lastUpdated": 1794459072507
+  "lastUpdated": 1794459084521
 }
