@@ -712,7 +712,7 @@
             "final": 222.57
           },
           "currency": "¥",
-          "urgency": "green"
+          "urgency": "orange"
         },
         {
           "type": "D买点1",
@@ -727,14 +727,14 @@
             "isUp": false
           },
           "currency": "¥",
-          "urgency": "green",
+          "urgency": "orange",
           "shares": "100",
           "highlighted": true
         }
       ],
       "nameFetched": true,
       "name": "光库科技",
-      "urgency": "green",
+      "urgency": "orange",
       "note": "如果涨，在235左右卖出\n如果跌，不要卖"
     },
     {
@@ -919,5 +919,5 @@
     "initialPrice": "155.88",
     "finalPrice": "222.57"
   },
-  "lastUpdated": 1794477515531
+  "lastUpdated": 1794477530525
 }
