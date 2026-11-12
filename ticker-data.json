@@ -905,12 +905,12 @@
             "isUp": false
           },
           "currency": "¥",
-          "urgency": "green"
+          "urgency": "orange"
         }
       ],
       "nameFetched": true,
       "name": "光库科技",
-      "urgency": "green"
+      "urgency": "orange"
     },
     {
       "symbol": "AMZN",
@@ -997,5 +997,5 @@
     "initialPrice": "7.41",
     "finalPrice": "11.92"
   },
-  "lastUpdated": 1794458642327
+  "lastUpdated": 1794458643433
 }
