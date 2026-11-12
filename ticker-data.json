@@ -793,6 +793,47 @@
       "urgency": "red"
     },
     {
+      "symbol": "300620",
+      "records": [
+        {
+          "type": "30买点1",
+          "mode": "target",
+          "symbol": "300620",
+          "details": "<span>Base: ¥222.57</span><span>Down 6%</span>",
+          "result": "¥209.2158",
+          "isUp": false,
+          "inputs": {
+            "base": 222.57,
+            "perc": 6,
+            "isUp": false
+          },
+          "currency": "¥",
+          "urgency": "orange",
+          "shares": "100"
+        },
+        {
+          "type": "D买点1",
+          "mode": "target",
+          "symbol": "300620",
+          "details": "<span>Base: ¥222.57</span><span>Down 18%</span>",
+          "result": "¥182.5074",
+          "isUp": false,
+          "inputs": {
+            "base": 222.57,
+            "perc": 18,
+            "isUp": false
+          },
+          "currency": "¥",
+          "urgency": "orange",
+          "shares": "100",
+          "highlighted": true
+        }
+      ],
+      "nameFetched": true,
+      "name": "光库科技",
+      "urgency": "orange"
+    },
+    {
       "symbol": "601138",
       "records": [
         {
@@ -890,47 +931,6 @@
       "urgency": "red"
     },
     {
-      "symbol": "300620",
-      "records": [
-        {
-          "type": "30买点1",
-          "mode": "target",
-          "symbol": "300620",
-          "details": "<span>Base: ¥222.57</span><span>Down 6%</span>",
-          "result": "¥209.2158",
-          "isUp": false,
-          "inputs": {
-            "base": 222.57,
-            "perc": 6,
-            "isUp": false
-          },
-          "currency": "¥",
-          "urgency": "orange",
-          "shares": "100"
-        },
-        {
-          "type": "D买点1",
-          "mode": "target",
-          "symbol": "300620",
-          "details": "<span>Base: ¥222.57</span><span>Down 18%</span>",
-          "result": "¥182.5074",
-          "isUp": false,
-          "inputs": {
-            "base": 222.57,
-            "perc": 18,
-            "isUp": false
-          },
-          "currency": "¥",
-          "urgency": "orange",
-          "shares": "100",
-          "highlighted": true
-        }
-      ],
-      "nameFetched": true,
-      "name": "光库科技",
-      "urgency": "orange"
-    },
-    {
       "symbol": "AMZN",
       "records": [
         {
@@ -1015,5 +1015,5 @@
     "initialPrice": "7.41",
     "finalPrice": "11.92"
   },
-  "lastUpdated": 1794458748652
+  "lastUpdated": 1794458800269
 }
