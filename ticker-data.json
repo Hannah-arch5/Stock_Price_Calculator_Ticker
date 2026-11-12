@@ -1,27 +1,6 @@
 {
   "historyRecords": [
     {
-      "symbol": "300620",
-      "records": [
-        {
-          "type": "Target Projection",
-          "mode": "target",
-          "symbol": "300620",
-          "details": "<span>Base: ¥222.57</span><span>Down 18%</span>",
-          "result": "¥182.5074",
-          "isUp": false,
-          "inputs": {
-            "base": 222.57,
-            "perc": 18,
-            "isUp": false
-          },
-          "currency": "¥"
-        }
-      ],
-      "nameFetched": true,
-      "name": "光库科技"
-    },
-    {
       "symbol": "300775",
       "records": [
         {
@@ -911,6 +890,27 @@
       "urgency": "red"
     },
     {
+      "symbol": "300620",
+      "records": [
+        {
+          "type": "Target Projection",
+          "mode": "target",
+          "symbol": "300620",
+          "details": "<span>Base: ¥222.57</span><span>Down 18%</span>",
+          "result": "¥182.5074",
+          "isUp": false,
+          "inputs": {
+            "base": 222.57,
+            "perc": 18,
+            "isUp": false
+          },
+          "currency": "¥"
+        }
+      ],
+      "nameFetched": true,
+      "name": "光库科技"
+    },
+    {
       "symbol": "AMZN",
       "records": [
         {
@@ -995,5 +995,5 @@
     "initialPrice": "7.41",
     "finalPrice": "11.92"
   },
-  "lastUpdated": 1794458632261
+  "lastUpdated": 1794458637294
 }
