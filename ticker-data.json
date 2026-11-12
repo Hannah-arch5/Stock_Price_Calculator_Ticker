@@ -315,69 +315,6 @@
       "name": "双良节能"
     },
     {
-      "symbol": "603315",
-      "records": [
-        {
-          "type": "目前D已涨",
-          "mode": "percentage",
-          "symbol": "603315",
-          "details": "<span>Base: ¥<span class=\"edit-trigger-val\" data-field=\"initial\"><span class=\"edit-container-val\">9.96</span></span></span><span>Target: ¥<span class=\"edit-trigger-val\" data-field=\"final\"><span class=\"edit-container-val\">12.4</span></span></span>",
-          "result": "24.50%",
-          "isUp": true,
-          "inputs": {
-            "initial": 9.96,
-            "final": 12.4
-          },
-          "currency": "¥",
-          "urgency": "green",
-          "shares": ""
-        },
-        {
-          "type": "W卖点1",
-          "mode": "target",
-          "symbol": "603315",
-          "details": "<span>Base: ¥<span class=\"edit-trigger-val\" data-field=\"base\"><span class=\"edit-container-val\">8.55</span></span></span><span><span class=\"editable-toggle\" data-field=\"isUp\">Up</span> <span class=\"edit-trigger-val\" data-field=\"perc\"><span class=\"edit-container-val\">23</span>%</span></span>",
-          "result": "¥10.5165",
-          "isUp": true,
-          "inputs": {
-            "base": 8.55,
-            "perc": 23,
-            "isUp": true
-          },
-          "currency": "¥",
-          "urgency": "green",
-          "shares": "1300",
-          "highlighted": false
-        },
-        {
-          "type": "W卖点2",
-          "mode": "target",
-          "symbol": "603315",
-          "details": "<span>Base: ¥<span class=\"edit-trigger-val\" data-field=\"base\"><span class=\"edit-container-val\">8.55</span></span></span><span><span class=\"editable-toggle\" data-field=\"isUp\">Up</span> <span class=\"edit-trigger-val\" data-field=\"perc\"><span class=\"edit-container-val\">43</span>%</span></span>",
-          "result": "¥12.2265",
-          "isUp": true,
-          "inputs": {
-            "base": 8.55,
-            "perc": 43,
-            "isUp": true
-          },
-          "currency": "¥",
-          "urgency": "green",
-          "shares": "1300",
-          "highlighted": true
-        }
-      ],
-      "nameFetched": true,
-      "name": "福鞍股份",
-      "tf_w": "在0轴低点，RSI即将触底线",
-      "tf_d": "RSI已触底线",
-      "tf_30": "等待背驰",
-      "note": "19.017 - 1400 \n13.82 - 1300卖出\n12.87 -1300买入\n12.00 - 1300卖出\n11.15 -1300买入\n10.94 - 1300卖出\n12.02 -1300买入（现已回到1400股-18.342）\n\n只能等大涨再卖！！！（主要等待D的RSI触顶）\n可能会破低到7-9之间\n整体处于历史低位",
-      "cost": "17.335",
-      "qty": "1400",
-      "urgency": "green"
-    },
-    {
       "symbol": "002518",
       "records": [
         {
@@ -982,5 +919,5 @@
     "initialPrice": "7.41",
     "finalPrice": "11.92"
   },
-  "lastUpdated": 1794459116045
+  "lastUpdated": 1794459225808
 }
