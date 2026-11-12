@@ -701,6 +701,20 @@
       "symbol": "300620",
       "records": [
         {
+          "type": "Percentage Delta",
+          "mode": "percentage",
+          "symbol": "300620",
+          "details": "<span>Base: ¥155.88</span><span>Target: ¥222.57</span>",
+          "result": "42.78%",
+          "isUp": true,
+          "inputs": {
+            "initial": 155.88,
+            "final": 222.57
+          },
+          "currency": "¥",
+          "urgency": "orange"
+        },
+        {
           "type": "30买点1",
           "mode": "target",
           "symbol": "300620",
@@ -920,5 +934,5 @@
     "initialPrice": "155.88",
     "finalPrice": "222.57"
   },
-  "lastUpdated": 1794476490313
+  "lastUpdated": 1794476492287
 }
