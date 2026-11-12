@@ -893,7 +893,7 @@
       "symbol": "300620",
       "records": [
         {
-          "type": "Target Projection",
+          "type": "D买点1",
           "mode": "target",
           "symbol": "300620",
           "details": "<span>Base: ¥222.57</span><span>Down 18%</span>",
@@ -982,10 +982,10 @@
     "D买点2",
     "D卖点1",
     "W卖点1",
-    "D买点1",
     "W买点2",
     "W买点1",
-    "W卖点2"
+    "W卖点2",
+    "D买点1"
   ],
   "calcInputs": {
     "currency": "¥",
@@ -997,5 +997,5 @@
     "initialPrice": "7.41",
     "finalPrice": "11.92"
   },
-  "lastUpdated": 1794458643433
+  "lastUpdated": 1794458667557
 }
