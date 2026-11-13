@@ -98,23 +98,6 @@
           "shares": ""
         },
         {
-          "type": "D买点2",
-          "mode": "target",
-          "symbol": "300118",
-          "details": "<span>Base: ¥<span class=\"edit-trigger-val\" data-field=\"base\"><span class=\"edit-container-val\">11.92</span></span></span><span><span class=\"editable-toggle\" data-field=\"isUp\">Down</span> <span class=\"edit-trigger-val\" data-field=\"perc\"><span class=\"edit-container-val\">25</span>%</span></span>",
-          "result": "¥8.94",
-          "isUp": false,
-          "inputs": {
-            "base": 11.92,
-            "perc": 25,
-            "isUp": false
-          },
-          "currency": "¥",
-          "urgency": "red",
-          "highlighted": true,
-          "shares": "3000"
-        },
-        {
           "type": "D卖点1",
           "mode": "target",
           "symbol": "300118",
@@ -130,6 +113,23 @@
           "urgency": "red",
           "shares": "6300",
           "highlighted": false
+        },
+        {
+          "type": "D买点2",
+          "mode": "target",
+          "symbol": "300118",
+          "details": "<span>Base: ¥<span class=\"edit-trigger-val\" data-field=\"base\"><span class=\"edit-container-val\">11.92</span></span></span><span><span class=\"editable-toggle\" data-field=\"isUp\">Down</span> <span class=\"edit-trigger-val\" data-field=\"perc\"><span class=\"edit-container-val\">25</span>%</span></span>",
+          "result": "¥8.94",
+          "isUp": false,
+          "inputs": {
+            "base": 11.92,
+            "perc": 25,
+            "isUp": false
+          },
+          "currency": "¥",
+          "urgency": "red",
+          "highlighted": true,
+          "shares": "3000"
         },
         {
           "type": "W买点1",
@@ -926,5 +926,5 @@
     "initialPrice": "155.88",
     "finalPrice": "222.57"
   },
-  "lastUpdated": 1794574465300
+  "lastUpdated": 1794574466792
 }
