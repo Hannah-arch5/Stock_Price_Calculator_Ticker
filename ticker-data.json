@@ -668,6 +668,21 @@
       "symbol": "300620",
       "records": [
         {
+          "type": "D已涨",
+          "mode": "percentage",
+          "symbol": "300620",
+          "details": "<span>Base: ¥155.88</span><span>Target: ¥222.57</span>",
+          "result": "42.78%",
+          "isUp": true,
+          "inputs": {
+            "initial": 155.88,
+            "final": 222.57
+          },
+          "currency": "¥",
+          "urgency": "orange",
+          "shares": ""
+        },
+        {
           "type": "Target Projection",
           "mode": "target",
           "symbol": "300620",
@@ -680,21 +695,8 @@
             "isUp": false
           },
           "currency": "¥",
-          "urgency": "orange"
-        },
-        {
-          "type": "D已涨",
-          "mode": "percentage",
-          "symbol": "300620",
-          "details": "<span>Base: ¥155.88</span><span>Target: ¥222.57</span>",
-          "result": "42.78%",
-          "isUp": true,
-          "inputs": {
-            "initial": 155.88,
-            "final": 222.57
-          },
-          "currency": "¥",
-          "urgency": "orange"
+          "urgency": "orange",
+          "shares": ""
         },
         {
           "type": "D买点1",
@@ -717,7 +719,10 @@
       "nameFetched": true,
       "name": "光库科技",
       "urgency": "orange",
-      "note": "如果涨，在235左右卖出\n如果跌，不要卖"
+      "note": "如果涨，在235左右卖出\n如果跌，不要卖",
+      "tf_w": "",
+      "tf_d": "",
+      "tf_30": ""
     },
     {
       "symbol": "601138",
@@ -901,5 +906,5 @@
     "initialPrice": "155.88",
     "finalPrice": "222.57"
   },
-  "lastUpdated": 1794544815940
+  "lastUpdated": 1794544818844
 }
