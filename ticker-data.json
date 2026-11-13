@@ -753,7 +753,7 @@
       "nameFetched": true,
       "name": "光库科技",
       "urgency": "red",
-      "note": "211.50 -100买入\n206 -100卖出（200以下买回才不亏）\n\n最好等120左右买回",
+      "note": "211.50 -100买入\n206 -100卖出（200以下买回才不亏）\n\nmei'qian'de'hui最好等120左右买回",
       "tf_w": "",
       "tf_d": "",
       "tf_30": "",
@@ -925,5 +925,5 @@
     "initialPrice": "155.88",
     "finalPrice": "222.57"
   },
-  "lastUpdated": 1794576270800
+  "lastUpdated": 1794576276106
 }
