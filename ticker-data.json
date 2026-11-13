@@ -180,6 +180,21 @@
       "symbol": "002865",
       "records": [
         {
+          "type": "Target Projection",
+          "mode": "target",
+          "symbol": "002865",
+          "details": "<span>Base: ¥51.85</span><span>Down 28%</span>",
+          "result": "¥37.332",
+          "isUp": false,
+          "inputs": {
+            "base": 51.85,
+            "perc": 28,
+            "isUp": false
+          },
+          "currency": "¥",
+          "urgency": "red"
+        },
+        {
           "type": "目前W已涨",
           "mode": "percentage",
           "symbol": "600481",
@@ -903,10 +918,10 @@
     "stock1": "002865",
     "basePrice": "51.85",
     "moveDown": true,
-    "percentChange": "2",
+    "percentChange": "28",
     "stock2": "300620",
     "initialPrice": "155.88",
     "finalPrice": "222.57"
   },
-  "lastUpdated": 1794545315661
+  "lastUpdated": 1794545317242
 }
