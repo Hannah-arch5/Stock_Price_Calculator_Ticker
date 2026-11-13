@@ -360,7 +360,7 @@
             "isUp": false
           },
           "currency": "¥",
-          "urgency": "orange",
+          "urgency": "green",
           "shares": "",
           "highlighted": false
         },
@@ -377,7 +377,7 @@
             "isUp": false
           },
           "currency": "¥",
-          "urgency": "orange",
+          "urgency": "green",
           "shares": "",
           "highlighted": true
         },
@@ -394,7 +394,7 @@
             "isUp": true
           },
           "currency": "¥",
-          "urgency": "orange",
+          "urgency": "green",
           "shares": "",
           "highlighted": false
         }
@@ -404,7 +404,8 @@
       "tf_d": "等待RSI触顶",
       "tf_30": "等待背驰",
       "nameFetched": true,
-      "name": "航发动力"
+      "name": "航发动力",
+      "urgency": "green"
     },
     {
       "symbol": "600482",
@@ -907,5 +908,5 @@
     "initialPrice": "155.88",
     "finalPrice": "222.57"
   },
-  "lastUpdated": 1794544975363
+  "lastUpdated": 1794545232499
 }
