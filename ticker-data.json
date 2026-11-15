@@ -746,6 +746,21 @@
       "symbol": "601138",
       "records": [
         {
+          "type": "Target Projection",
+          "mode": "target",
+          "symbol": "601138",
+          "details": "<span>Base: ¥39.81</span><span>Up 7%</span>",
+          "result": "¥42.5967",
+          "isUp": true,
+          "inputs": {
+            "base": 39.81,
+            "perc": 7,
+            "isUp": true
+          },
+          "currency": "¥",
+          "urgency": "red"
+        },
+        {
           "type": "目前D已涨",
           "mode": "percentage",
           "symbol": "601138",
@@ -902,10 +917,10 @@
     "stock1": "601138",
     "basePrice": "39.81",
     "moveDown": false,
-    "percentChange": "30",
+    "percentChange": "7",
     "stock2": "300620",
     "initialPrice": "155.88",
     "finalPrice": "222.57"
   },
-  "lastUpdated": 1794758450756
+  "lastUpdated": 1794758453690
 }
