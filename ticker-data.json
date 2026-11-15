@@ -98,7 +98,7 @@
           "shares": ""
         },
         {
-          "type": "Target Projection",
+          "type": "30卖点1",
           "mode": "target",
           "symbol": "300118",
           "details": "<span>Base: ¥9.09</span><span>Up 6%</span>",
@@ -927,9 +927,9 @@
     "D买点2",
     "W买点2",
     "W卖点2",
-    "30卖点1",
     "W买点1",
-    "30买点1"
+    "30买点1",
+    "30卖点1"
   ],
   "calcInputs": {
     "currency": "¥",
@@ -941,5 +941,5 @@
     "initialPrice": "155.88",
     "finalPrice": "222.57"
   },
-  "lastUpdated": 1794759521841
+  "lastUpdated": 1794759524964
 }
