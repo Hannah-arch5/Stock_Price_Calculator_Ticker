@@ -83,6 +83,21 @@
       "symbol": "300118",
       "records": [
         {
+          "type": "目前D已涨",
+          "mode": "percentage",
+          "symbol": "300118",
+          "details": "<span>Base: ¥7.41</span><span>Target: ¥11.92</span>",
+          "result": "60.86%",
+          "isUp": true,
+          "inputs": {
+            "initial": 7.41,
+            "final": 11.92
+          },
+          "currency": "¥",
+          "urgency": "red",
+          "shares": ""
+        },
+        {
           "type": "Target Projection",
           "mode": "target",
           "symbol": "300118",
@@ -93,20 +108,6 @@
             "base": 9.09,
             "perc": 6,
             "isUp": true
-          },
-          "currency": "¥",
-          "urgency": "red"
-        },
-        {
-          "type": "目前D已涨",
-          "mode": "percentage",
-          "symbol": "300118",
-          "details": "<span>Base: ¥7.41</span><span>Target: ¥11.92</span>",
-          "result": "60.86%",
-          "isUp": true,
-          "inputs": {
-            "initial": 7.41,
-            "final": 11.92
           },
           "currency": "¥",
           "urgency": "red",
@@ -940,5 +941,5 @@
     "initialPrice": "155.88",
     "finalPrice": "222.57"
   },
-  "lastUpdated": 1794759510008
+  "lastUpdated": 1794759516029
 }
