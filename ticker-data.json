@@ -813,7 +813,7 @@
           "highlighted": true
         },
         {
-          "type": "Target Projection",
+          "type": "W买点2",
           "mode": "target",
           "symbol": "601138",
           "details": "<span>Base: ¥84.3</span><span>Down 69%</span>",
@@ -942,11 +942,11 @@
     "W卖点1",
     "D买点1",
     "D买点2",
-    "W买点2",
     "W卖点2",
     "W买点1",
     "30买点1",
-    "30卖点1"
+    "30卖点1",
+    "W买点2"
   ],
   "calcInputs": {
     "currency": "¥",
@@ -958,5 +958,5 @@
     "initialPrice": "70.97",
     "finalPrice": "58.75"
   },
-  "lastUpdated": 1794832650336
+  "lastUpdated": 1794832654211
 }
