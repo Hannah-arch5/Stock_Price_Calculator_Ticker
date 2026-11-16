@@ -317,22 +317,6 @@
           "shares": ""
         },
         {
-          "type": "Target Projection",
-          "mode": "target",
-          "symbol": "002518",
-          "details": "<span>Base: ¥23</span><span>Up 25.5%</span>",
-          "result": "¥28.865",
-          "isUp": true,
-          "inputs": {
-            "base": 23,
-            "perc": 25.5,
-            "isUp": true
-          },
-          "currency": "¥",
-          "urgency": "red",
-          "shares": ""
-        },
-        {
           "type": "W卖点1",
           "mode": "target",
           "symbol": "002518",
@@ -348,6 +332,22 @@
           "urgency": "red",
           "shares": "",
           "highlighted": false
+        },
+        {
+          "type": "Target Projection",
+          "mode": "target",
+          "symbol": "002518",
+          "details": "<span>Base: ¥23</span><span>Up 25.5%</span>",
+          "result": "¥28.865",
+          "isUp": true,
+          "inputs": {
+            "base": 23,
+            "perc": 25.5,
+            "isUp": true
+          },
+          "currency": "¥",
+          "urgency": "red",
+          "shares": ""
         },
         {
           "type": "W买点1",
@@ -975,5 +975,5 @@
     "initialPrice": "70.97",
     "finalPrice": "58.75"
   },
-  "lastUpdated": 1794834938115
+  "lastUpdated": 1794834943090
 }
