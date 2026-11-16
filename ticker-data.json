@@ -302,6 +302,21 @@
       "symbol": "002518",
       "records": [
         {
+          "type": "Target Projection",
+          "mode": "target",
+          "symbol": "002518",
+          "details": "<span>Base: ¥23</span><span>Up 25.5%</span>",
+          "result": "¥28.865",
+          "isUp": true,
+          "inputs": {
+            "base": 23,
+            "perc": 25.5,
+            "isUp": true
+          },
+          "currency": "¥",
+          "urgency": "red"
+        },
+        {
           "type": "D已涨",
           "mode": "percentage",
           "symbol": "002518",
@@ -959,5 +974,5 @@
     "initialPrice": "70.97",
     "finalPrice": "58.75"
   },
-  "lastUpdated": 1794834905379
+  "lastUpdated": 1794834933220
 }
