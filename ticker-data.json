@@ -392,7 +392,7 @@
           "shares": ""
         },
         {
-          "type": "预估D卖点",
+          "type": "D安全线",
           "mode": "target",
           "symbol": "600482",
           "details": "<span>Base: ¥26.3169</span><span>Up 10%</span>",
@@ -892,5 +892,5 @@
     "initialPrice": "70.97",
     "finalPrice": "58.75"
   },
-  "lastUpdated": 1794908099219
+  "lastUpdated": 1794908193835
 }
