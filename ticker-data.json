@@ -490,7 +490,7 @@
           "highlighted": false
         },
         {
-          "type": "D卖点1",
+          "type": "D安全线",
           "mode": "target",
           "symbol": "000070",
           "details": "<span>Base: ¥<span class=\"edit-trigger-val\" data-field=\"base\"><span class=\"edit-container-val\">11.2</span></span></span><span><span class=\"editable-toggle\" data-field=\"isUp\">Up</span> <span class=\"edit-trigger-val\" data-field=\"perc\"><span class=\"edit-container-val\">22</span>%</span></span>",
@@ -892,5 +892,5 @@
     "initialPrice": "70.97",
     "finalPrice": "58.75"
   },
-  "lastUpdated": 1794908085327
+  "lastUpdated": 1794908099219
 }
