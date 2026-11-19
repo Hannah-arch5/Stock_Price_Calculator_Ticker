@@ -199,12 +199,12 @@
           "type": "Target Projection",
           "mode": "target",
           "symbol": "002865",
-          "details": "<span>Base: ¥<span class=\"edit-trigger-val\" data-field=\"base\"><span class=\"edit-container-val\">51.85</span></span></span><span><span class=\"editable-toggle\" data-field=\"isUp\">Down</span> <span class=\"edit-trigger-val\" data-field=\"perc\"><span class=\"edit-container-val\">68</span>%</span></span>",
-          "result": "¥16.592",
+          "details": "<span>Base: ¥<span class=\"edit-trigger-val\" data-field=\"base\"><span class=\"edit-container-val\">51.85</span></span></span><span><span class=\"editable-toggle\" data-field=\"isUp\">Down</span> <span class=\"edit-trigger-val\" data-field=\"perc\"><span class=\"edit-container-val\">70</span>%</span></span>",
+          "result": "¥15.555",
           "isUp": false,
           "inputs": {
             "base": 51.85,
-            "perc": 68,
+            "perc": 70,
             "isUp": false
           },
           "currency": "¥",
@@ -890,5 +890,5 @@
     "initialPrice": "70.97",
     "finalPrice": "58.75"
   },
-  "lastUpdated": 1795104803001
+  "lastUpdated": 1795104807247
 }
