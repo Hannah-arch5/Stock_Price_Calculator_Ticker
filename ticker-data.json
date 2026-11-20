@@ -919,10 +919,10 @@
     "stock1": "SNDK",
     "basePrice": "79.55",
     "moveDown": false,
-    "percentChange": "83",
+    "percentChange": "12",
     "stock2": "601138",
     "initialPrice": "70.97",
     "finalPrice": "58.75"
   },
-  "lastUpdated": 1795190271567
+  "lastUpdated": 1795190273263
 }
