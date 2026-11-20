@@ -917,12 +917,12 @@
   "calcInputs": {
     "currency": "¥",
     "stock1": "SNDK",
-    "basePrice": "79.555",
+    "basePrice": "79.55",
     "moveDown": true,
     "percentChange": "83",
     "stock2": "601138",
     "initialPrice": "70.97",
     "finalPrice": "58.75"
   },
-  "lastUpdated": 1795190268323
+  "lastUpdated": 1795190269898
 }
