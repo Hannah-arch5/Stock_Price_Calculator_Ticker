@@ -567,102 +567,6 @@
       "urgency": "red"
     },
     {
-      "symbol": "688008",
-      "records": [
-        {
-          "type": "目前D已跌",
-          "mode": "percentage",
-          "symbol": "600482",
-          "details": "<span>Base: ¥<span class=\"edit-trigger-val\" data-field=\"initial\"><span class=\"edit-container-val\">180.25</span></span></span><span>Target: ¥<span class=\"edit-trigger-val\" data-field=\"final\"><span class=\"edit-container-val\">239</span></span></span>",
-          "result": "32.59%",
-          "isUp": true,
-          "inputs": {
-            "initial": 180.25,
-            "final": 239
-          },
-          "currency": "¥",
-          "urgency": null,
-          "shares": ""
-        },
-        {
-          "type": "D安全线",
-          "mode": "target",
-          "symbol": "688008",
-          "details": "<span>Base: ¥<span class=\"edit-trigger-val\" data-field=\"base\"><span class=\"edit-container-val\">128.46</span></span></span><span><span class=\"editable-toggle\" data-field=\"isUp\">Up</span> <span class=\"edit-trigger-val\" data-field=\"perc\"><span class=\"edit-container-val\">15</span>%</span></span>",
-          "result": "¥147.729",
-          "isUp": true,
-          "inputs": {
-            "base": 128.46,
-            "perc": 15,
-            "isUp": true
-          },
-          "currency": "¥",
-          "urgency": null,
-          "shares": "",
-          "highlighted": false
-        },
-        {
-          "type": "W买点2",
-          "mode": "target",
-          "symbol": "688008",
-          "details": "<span>Base: ¥<span class=\"edit-trigger-val\" data-field=\"base\"><span class=\"edit-container-val\">233.19</span></span></span><span><span class=\"editable-toggle\" data-field=\"isUp\">Down</span> <span class=\"edit-trigger-val\" data-field=\"perc\"><span class=\"edit-container-val\">49</span>%</span></span>",
-          "result": "¥118.9269",
-          "isUp": false,
-          "inputs": {
-            "base": 233.19,
-            "perc": 49,
-            "isUp": false
-          },
-          "currency": "¥",
-          "urgency": null,
-          "shares": "200",
-          "highlighted": true
-        },
-        {
-          "type": "W卖点1",
-          "mode": "target",
-          "symbol": "688008",
-          "details": "<span>Base: ¥<span class=\"edit-trigger-val\" data-field=\"base\"><span class=\"edit-container-val\">128.46</span></span></span><span><span class=\"editable-toggle\" data-field=\"isUp\">Up</span> <span class=\"edit-trigger-val\" data-field=\"perc\"><span class=\"edit-container-val\">25</span>%</span></span>",
-          "result": "¥160.575",
-          "isUp": true,
-          "inputs": {
-            "base": 128.46,
-            "perc": 25,
-            "isUp": true
-          },
-          "currency": "¥",
-          "urgency": null,
-          "shares": "200",
-          "highlighted": false
-        },
-        {
-          "type": "W卖点2",
-          "mode": "target",
-          "symbol": "688008",
-          "details": "<span>Base: ¥<span class=\"edit-trigger-val\" data-field=\"base\"><span class=\"edit-container-val\">128.46</span></span></span><span><span class=\"editable-toggle\" data-field=\"isUp\">Up</span> <span class=\"edit-trigger-val\" data-field=\"perc\"><span class=\"edit-container-val\">30</span>%</span></span>",
-          "result": "¥166.998",
-          "isUp": true,
-          "inputs": {
-            "base": 128.46,
-            "perc": 30,
-            "isUp": true
-          },
-          "currency": "¥",
-          "urgency": null,
-          "shares": "200"
-        }
-      ],
-      "note": "230.36 -200卖出\n259 -315买入\n275 -100卖出\n268.18 -200卖出\n222.80 -200买入\n225 -115卖出\n215 -300买入\n220.25 -200卖出（现已回到300股-146.685）\n225 -200卖出\n183.94 -200买入（119.409）\n158.90 -200卖出 \n\n等到118-112左右再买回200！！！\nD的RSI感觉还会继续跌，12%以内的涨幅都不要慌，耐心等待跌！！！\nw感觉还会跌",
-      "tf_w": "到头了开始下跌，M和W的RSI都已触顶线",
-      "tf_d": "等跌，等待回抽0轴低点，RSI还未触线",
-      "tf_30": "等回抽0轴低点，RSI还未触线",
-      "nameFetched": true,
-      "name": "澜起科技",
-      "cost": "146.866",
-      "qty": "300",
-      "urgency": null
-    },
-    {
       "symbol": "300620",
       "records": [
         {
@@ -839,6 +743,102 @@
       "urgency": "red"
     },
     {
+      "symbol": "688008",
+      "records": [
+        {
+          "type": "目前D已跌",
+          "mode": "percentage",
+          "symbol": "600482",
+          "details": "<span>Base: ¥<span class=\"edit-trigger-val\" data-field=\"initial\"><span class=\"edit-container-val\">180.25</span></span></span><span>Target: ¥<span class=\"edit-trigger-val\" data-field=\"final\"><span class=\"edit-container-val\">239</span></span></span>",
+          "result": "32.59%",
+          "isUp": true,
+          "inputs": {
+            "initial": 180.25,
+            "final": 239
+          },
+          "currency": "¥",
+          "urgency": null,
+          "shares": ""
+        },
+        {
+          "type": "D安全线",
+          "mode": "target",
+          "symbol": "688008",
+          "details": "<span>Base: ¥<span class=\"edit-trigger-val\" data-field=\"base\"><span class=\"edit-container-val\">128.46</span></span></span><span><span class=\"editable-toggle\" data-field=\"isUp\">Up</span> <span class=\"edit-trigger-val\" data-field=\"perc\"><span class=\"edit-container-val\">15</span>%</span></span>",
+          "result": "¥147.729",
+          "isUp": true,
+          "inputs": {
+            "base": 128.46,
+            "perc": 15,
+            "isUp": true
+          },
+          "currency": "¥",
+          "urgency": null,
+          "shares": "",
+          "highlighted": false
+        },
+        {
+          "type": "W买点2",
+          "mode": "target",
+          "symbol": "688008",
+          "details": "<span>Base: ¥<span class=\"edit-trigger-val\" data-field=\"base\"><span class=\"edit-container-val\">233.19</span></span></span><span><span class=\"editable-toggle\" data-field=\"isUp\">Down</span> <span class=\"edit-trigger-val\" data-field=\"perc\"><span class=\"edit-container-val\">49</span>%</span></span>",
+          "result": "¥118.9269",
+          "isUp": false,
+          "inputs": {
+            "base": 233.19,
+            "perc": 49,
+            "isUp": false
+          },
+          "currency": "¥",
+          "urgency": null,
+          "shares": "200",
+          "highlighted": true
+        },
+        {
+          "type": "W卖点1",
+          "mode": "target",
+          "symbol": "688008",
+          "details": "<span>Base: ¥<span class=\"edit-trigger-val\" data-field=\"base\"><span class=\"edit-container-val\">128.46</span></span></span><span><span class=\"editable-toggle\" data-field=\"isUp\">Up</span> <span class=\"edit-trigger-val\" data-field=\"perc\"><span class=\"edit-container-val\">25</span>%</span></span>",
+          "result": "¥160.575",
+          "isUp": true,
+          "inputs": {
+            "base": 128.46,
+            "perc": 25,
+            "isUp": true
+          },
+          "currency": "¥",
+          "urgency": null,
+          "shares": "200",
+          "highlighted": false
+        },
+        {
+          "type": "W卖点2",
+          "mode": "target",
+          "symbol": "688008",
+          "details": "<span>Base: ¥<span class=\"edit-trigger-val\" data-field=\"base\"><span class=\"edit-container-val\">128.46</span></span></span><span><span class=\"editable-toggle\" data-field=\"isUp\">Up</span> <span class=\"edit-trigger-val\" data-field=\"perc\"><span class=\"edit-container-val\">30</span>%</span></span>",
+          "result": "¥166.998",
+          "isUp": true,
+          "inputs": {
+            "base": 128.46,
+            "perc": 30,
+            "isUp": true
+          },
+          "currency": "¥",
+          "urgency": null,
+          "shares": "200"
+        }
+      ],
+      "note": "230.36 -200卖出\n259 -315买入\n275 -100卖出\n268.18 -200卖出\n222.80 -200买入\n225 -115卖出\n215 -300买入\n220.25 -200卖出（现已回到300股-146.685）\n225 -200卖出\n183.94 -200买入（119.409）\n158.90 -200卖出 \n\n等到118-112左右再买回200！！！\nD的RSI感觉还会继续跌，12%以内的涨幅都不要慌，耐心等待跌！！！\nw感觉还会跌",
+      "tf_w": "到头了开始下跌，M和W的RSI都已触顶线",
+      "tf_d": "等跌，等待回抽0轴低点，RSI还未触线",
+      "tf_30": "等回抽0轴低点，RSI还未触线",
+      "nameFetched": true,
+      "name": "澜起科技",
+      "cost": "146.866",
+      "qty": "300",
+      "urgency": null
+    },
+    {
       "symbol": "AMZN",
       "records": [
         {
@@ -924,5 +924,5 @@
     "initialPrice": "70.97",
     "finalPrice": "58.75"
   },
-  "lastUpdated": 1795369797130
+  "lastUpdated": 1795374776606
 }
