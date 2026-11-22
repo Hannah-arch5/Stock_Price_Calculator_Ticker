@@ -209,7 +209,7 @@
           },
           "currency": "¥",
           "urgency": "red",
-          "shares": "",
+          "shares": "700",
           "highlighted": true
         },
         {
@@ -957,5 +957,5 @@
     "initialPrice": "70.97",
     "finalPrice": "58.75"
   },
-  "lastUpdated": 1795376907156
+  "lastUpdated": 1795376911015
 }
