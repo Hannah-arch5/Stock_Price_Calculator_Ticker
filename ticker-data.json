@@ -922,12 +922,12 @@
           "type": "Target Projection",
           "mode": "target",
           "symbol": "SNDK",
-          "details": "<span>Base: $78.25</span><span>Up 26%</span>",
-          "result": "$98.595",
+          "details": "<span>Base: $<span class=\"edit-trigger-val\" data-field=\"base\"><span class=\"edit-container-val\">78.25</span></span></span><span><span class=\"editable-toggle\" data-field=\"isUp\">Up</span> <span class=\"edit-trigger-val\" data-field=\"perc\"><span class=\"edit-container-val\">22</span>%</span></span>",
+          "result": "$95.465",
           "isUp": true,
           "inputs": {
             "base": 78.25,
-            "perc": 26,
+            "perc": 22,
             "isUp": true
           },
           "currency": "$",
@@ -976,5 +976,5 @@
     "initialPrice": "70.97",
     "finalPrice": "58.75"
   },
-  "lastUpdated": 1795377592509
+  "lastUpdated": 1795377645725
 }
