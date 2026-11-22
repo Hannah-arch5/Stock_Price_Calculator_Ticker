@@ -919,6 +919,21 @@
       "symbol": "SNDK",
       "records": [
         {
+          "type": "Target Projection",
+          "mode": "target",
+          "symbol": "SNDK",
+          "details": "<span>Base: $78.25</span><span>Up 26%</span>",
+          "result": "$98.595",
+          "isUp": true,
+          "inputs": {
+            "base": 78.25,
+            "perc": 26,
+            "isUp": true
+          },
+          "currency": "$",
+          "urgency": "red"
+        },
+        {
           "type": "D卖点1",
           "mode": "target",
           "symbol": "SNDK",
@@ -977,5 +992,5 @@
     "initialPrice": "70.97",
     "finalPrice": "58.75"
   },
-  "lastUpdated": 1795377579853
+  "lastUpdated": 1795377587445
 }
