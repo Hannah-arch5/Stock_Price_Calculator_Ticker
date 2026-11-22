@@ -931,7 +931,8 @@
             "isUp": true
           },
           "currency": "$",
-          "shares": ""
+          "shares": "",
+          "urgency": "red"
         }
       ],
       "nameFetched": true,
@@ -941,7 +942,8 @@
       "note": "",
       "tf_w": "",
       "tf_d": "",
-      "tf_30": ""
+      "tf_30": "",
+      "urgency": "red"
     }
   ],
   "historyVersion": "2",
@@ -975,5 +977,5 @@
     "initialPrice": "70.97",
     "finalPrice": "58.75"
   },
-  "lastUpdated": 1795377326825
+  "lastUpdated": 1795377461502
 }
