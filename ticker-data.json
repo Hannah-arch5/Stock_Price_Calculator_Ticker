@@ -383,12 +383,12 @@
           "type": "W买点1",
           "mode": "target",
           "symbol": "600893",
-          "details": "<span>Base: ¥<span class=\"edit-trigger-val\" data-field=\"base\"><span class=\"edit-container-val\">42.44</span></span></span><span><span class=\"editable-toggle\" data-field=\"isUp\">Down</span> <span class=\"edit-trigger-val\" data-field=\"perc\"><span class=\"edit-container-val\">31</span>%</span></span>",
-          "result": "¥29.2836",
+          "details": "<span>Base: ¥<span class=\"edit-trigger-val\" data-field=\"base\"><span class=\"edit-container-val\">42.44</span></span></span><span><span class=\"editable-toggle\" data-field=\"isUp\">Down</span> <span class=\"edit-trigger-val\" data-field=\"perc\"><span class=\"edit-container-val\">33</span>%</span></span>",
+          "result": "¥28.4348",
           "isUp": false,
           "inputs": {
             "base": 42.44,
-            "perc": 31,
+            "perc": 33,
             "isUp": false
           },
           "currency": "¥",
@@ -939,5 +939,5 @@
     "initialPrice": "70.97",
     "finalPrice": "58.75"
   },
-  "lastUpdated": 1795375506450
+  "lastUpdated": 1795375512534
 }
