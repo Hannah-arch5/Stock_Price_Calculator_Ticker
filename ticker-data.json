@@ -718,12 +718,12 @@
           "type": "W买点1",
           "mode": "target",
           "symbol": "601138",
-          "details": "<span>Base: ¥84.3</span><span>Down 69%</span>",
-          "result": "¥26.133",
+          "details": "<span>Base: ¥<span class=\"edit-trigger-val\" data-field=\"base\"><span class=\"edit-container-val\">84.3</span></span></span><span><span class=\"editable-toggle\" data-field=\"isUp\">Down</span> <span class=\"edit-trigger-val\" data-field=\"perc\"><span class=\"edit-container-val\">70</span>%</span></span>",
+          "result": "¥25.29",
           "isUp": false,
           "inputs": {
             "base": 84.3,
-            "perc": 69,
+            "perc": 70,
             "isUp": false
           },
           "currency": "¥",
@@ -975,5 +975,5 @@
     "initialPrice": "70.97",
     "finalPrice": "58.75"
   },
-  "lastUpdated": 1795377099909
+  "lastUpdated": 1795377220737
 }
