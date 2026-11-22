@@ -539,7 +539,7 @@
           "highlighted": false
         },
         {
-          "type": "W买点2",
+          "type": "W买点1",
           "mode": "target",
           "symbol": "000070",
           "details": "<span>Base: ¥<span class=\"edit-trigger-val\" data-field=\"base\"><span class=\"edit-container-val\">19.66</span></span></span><span><span class=\"editable-toggle\" data-field=\"isUp\">Down</span> <span class=\"edit-trigger-val\" data-field=\"perc\"><span class=\"edit-container-val\">56</span>%</span></span>",
@@ -569,7 +569,7 @@
           },
           "currency": "¥",
           "urgency": "red",
-          "shares": ""
+          "shares": "1200"
         }
       ],
       "nameFetched": true,
@@ -926,8 +926,8 @@
     "D安全线",
     "D卖点1",
     "D买点2",
-    "W买点1",
-    "W买点2"
+    "W买点2",
+    "W买点1"
   ],
   "calcInputs": {
     "currency": "¥",
@@ -939,5 +939,5 @@
     "initialPrice": "70.97",
     "finalPrice": "58.75"
   },
-  "lastUpdated": 1795375281166
+  "lastUpdated": 1795375289450
 }
