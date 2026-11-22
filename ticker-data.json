@@ -602,7 +602,7 @@
           "highlighted": true
         },
         {
-          "type": "W买点1",
+          "type": "W买点2",
           "mode": "target",
           "symbol": "300620",
           "details": "<span>Base: ¥333.54</span><span>Down 77%</span>",
@@ -910,8 +910,8 @@
     "D安全线",
     "D卖点1",
     "D买点2",
-    "W买点2",
-    "W买点1"
+    "W买点1",
+    "W买点2"
   ],
   "calcInputs": {
     "currency": "¥",
@@ -923,5 +923,5 @@
     "initialPrice": "70.97",
     "finalPrice": "58.75"
   },
-  "lastUpdated": 1795374975783
+  "lastUpdated": 1795374977404
 }
