@@ -553,7 +553,7 @@
             "final": 16.32
           },
           "currency": "¥",
-          "urgency": "red",
+          "urgency": "orange",
           "shares": "",
           "highlighted": false
         },
@@ -570,7 +570,7 @@
             "isUp": false
           },
           "currency": "¥",
-          "urgency": "red",
+          "urgency": "orange",
           "shares": "1000",
           "highlighted": true
         },
@@ -587,7 +587,7 @@
             "isUp": false
           },
           "currency": "¥",
-          "urgency": "red",
+          "urgency": "orange",
           "shares": "1200",
           "highlighted": true
         },
@@ -604,7 +604,7 @@
             "isUp": false
           },
           "currency": "¥",
-          "urgency": "red",
+          "urgency": "orange",
           "shares": ""
         }
       ],
@@ -616,7 +616,7 @@
       "note": "18.168 -1100买入\n15.05 -1000卖出\n14.04 -1000买入\n13.68 -100卖出\n12.87 -900卖出（每股亏1.2）\n14.46 -1000买入\n14.90 -1000卖出（每股亏0.8）\n16.48 -1000买入\n16.75 -1200买入（18.36）\n16.35 -1000卖出\n17.00 -1200卖出\n16.80 -1000买入（20.112）\n17.32 -1000卖出\n17.88 -1000买入（20.638）\n16.50 -1000卖出\n15.00 -1000买入（19.29）\n14.19 -1000卖出\n14.32 -1000买入（19.426）\n13.20 -1000卖出\n12.31 -1000买入（18.556）\n13.01 -1000卖出\n11.00 -1000买入（16.742）\n\n回撤到8.6左右买回1000！！！\n做好准备M有可能创新低到11以下\nw感觉还会跌",
       "cost": "18.168",
       "qty": "1100",
-      "urgency": "red"
+      "urgency": "orange"
     },
     {
       "symbol": "300620",
@@ -977,5 +977,5 @@
     "initialPrice": "17.8",
     "finalPrice": "16.32"
   },
-  "lastUpdated": 1795530185289
+  "lastUpdated": 1795530212086
 }
