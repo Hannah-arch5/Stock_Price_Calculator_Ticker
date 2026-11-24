@@ -971,11 +971,11 @@
     "currency": "¥",
     "stock1": "000070",
     "basePrice": "10.42",
-    "moveDown": true,
+    "moveDown": false,
     "percentChange": "47",
     "stock2": "000070",
     "initialPrice": "17.8",
     "finalPrice": "16.32"
   },
-  "lastUpdated": 1795533545328
+  "lastUpdated": 1795533601715
 }
