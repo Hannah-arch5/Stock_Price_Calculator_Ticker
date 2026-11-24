@@ -542,6 +542,21 @@
       "symbol": "000070",
       "records": [
         {
+          "type": "Target Projection",
+          "mode": "target",
+          "symbol": "000070",
+          "details": "<span>Base: ¥10.42</span><span>Up 31%</span>",
+          "result": "¥13.6502",
+          "isUp": true,
+          "inputs": {
+            "base": 10.42,
+            "perc": 31,
+            "isUp": true
+          },
+          "currency": "¥",
+          "urgency": "orange"
+        },
+        {
           "type": "目前D已涨",
           "mode": "percentage",
           "symbol": "601138",
@@ -977,5 +992,5 @@
     "initialPrice": "17.8",
     "finalPrice": "16.32"
   },
-  "lastUpdated": 1795533606705
+  "lastUpdated": 1795533609530
 }
