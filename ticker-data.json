@@ -480,11 +480,11 @@
           "type": "D安全线",
           "mode": "target",
           "symbol": "600482",
-          "details": "<span>Base: ¥<span class=\"edit-trigger-val\" data-field=\"base\"><span class=\"edit-container-val\">27.21</span></span></span><span><span class=\"editable-toggle\" data-field=\"isUp\">Up</span> <span class=\"edit-trigger-val\" data-field=\"perc\"><span class=\"edit-container-val\">10</span>%</span></span>",
-          "result": "¥29.931",
+          "details": "<span>Base: ¥<span class=\"edit-trigger-val\" data-field=\"base\"><span class=\"edit-container-val\">26.28</span></span></span><span><span class=\"editable-toggle\" data-field=\"isUp\">Up</span> <span class=\"edit-trigger-val\" data-field=\"perc\"><span class=\"edit-container-val\">10</span>%</span></span>",
+          "result": "¥28.908",
           "isUp": true,
           "inputs": {
-            "base": 27.21,
+            "base": 26.28,
             "perc": 10,
             "isUp": true
           },
@@ -994,5 +994,5 @@
     "initialPrice": "32",
     "finalPrice": "49.05"
   },
-  "lastUpdated": 1795611564891
+  "lastUpdated": 1795611762657
 }
