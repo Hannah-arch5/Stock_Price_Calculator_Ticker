@@ -639,6 +639,21 @@
       "symbol": "300620",
       "records": [
         {
+          "type": "Target Projection",
+          "mode": "target",
+          "symbol": "300620",
+          "details": "<span>Base: ¥144.5</span><span>Up 22%</span>",
+          "result": "¥176.29",
+          "isUp": true,
+          "inputs": {
+            "base": 144.5,
+            "perc": 22,
+            "isUp": true
+          },
+          "currency": "¥",
+          "urgency": "red"
+        },
+        {
           "type": "D已涨",
           "mode": "percentage",
           "symbol": "300620",
@@ -994,5 +1009,5 @@
     "initialPrice": "32",
     "finalPrice": "49.05"
   },
-  "lastUpdated": 1795670680552
+  "lastUpdated": 1795670683093
 }
