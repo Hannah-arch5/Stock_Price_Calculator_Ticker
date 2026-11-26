@@ -161,22 +161,6 @@
           "highlighted": false
         },
         {
-          "type": "D卖点2",
-          "mode": "target",
-          "symbol": "002865",
-          "details": "<span>Base: ¥26.81</span><span>Up 18%</span>",
-          "result": "¥31.6358",
-          "isUp": true,
-          "inputs": {
-            "base": 26.81,
-            "perc": 18,
-            "isUp": true
-          },
-          "currency": "¥",
-          "urgency": "red",
-          "shares": "700"
-        },
-        {
           "type": "D卖点1",
           "mode": "target",
           "symbol": "002865",
@@ -1025,5 +1009,5 @@
     "initialPrice": "32",
     "finalPrice": "49.05"
   },
-  "lastUpdated": 1795713723439
+  "lastUpdated": 1795713760123
 }
