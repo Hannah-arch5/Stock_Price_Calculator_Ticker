@@ -211,7 +211,7 @@
           "highlighted": true
         },
         {
-          "type": "W买点1",
+          "type": "W买点2",
           "mode": "target",
           "symbol": "002865",
           "details": "<span>Base: ¥<span class=\"edit-trigger-val\" data-field=\"base\"><span class=\"edit-container-val\">51.85</span></span></span><span><span class=\"editable-toggle\" data-field=\"isUp\">Down</span> <span class=\"edit-trigger-val\" data-field=\"perc\"><span class=\"edit-container-val\">67</span>%</span></span>",
@@ -1008,12 +1008,12 @@
     "30卖点1",
     "D安全线",
     "D买点2",
-    "W买点2",
     "D买点1",
     "D卖点2",
     "D卖点1",
     "W卖点1",
-    "W买点1"
+    "W买点1",
+    "W买点2"
   ],
   "calcInputs": {
     "currency": "¥",
@@ -1025,5 +1025,5 @@
     "initialPrice": "32",
     "finalPrice": "49.05"
   },
-  "lastUpdated": 1795713990899
+  "lastUpdated": 1795713997481
 }
