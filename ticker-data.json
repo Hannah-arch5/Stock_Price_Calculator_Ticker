@@ -33,7 +33,7 @@
           "currency": "¥",
           "urgency": "green",
           "shares": "6400",
-          "highlighted": false
+          "highlighted": true
         },
         {
           "type": "W卖点1",
@@ -1027,5 +1027,5 @@
     "initialPrice": "32",
     "finalPrice": "49.05"
   },
-  "lastUpdated": 1795714397924
+  "lastUpdated": 1795714522160
 }
